@@ -77,6 +77,13 @@ function Transcriptor:StartLog()
 		self:RegisterEvent("CHAT_MSG_MONSTER_SAY")
 		self:RegisterEvent("CHAT_MSG_MONSTER_WHISPER")
 		self:RegisterEvent("CHAT_MSG_MONSTER_YELL")
+		self:RegisterEvent("CHAT_MSG_SPELL_CREATURE_VS_CREATURE_DAMAGE")
+		self:RegisterEvent("CHAT_MSG_SPELL_CREATURE_VS_CREATURE_BUFF")
+		self:RegisterEvent("CHAT_MSG_SPELL_PERIODIC_HOSTILEPLAYER_DAMAGE")
+		self:RegisterEvent("CHAT_MSG_SPELL_PERIODIC_CREATURE_BUFFS")
+		self:RegisterEvent("CHAT_MSG_SPELL_PERIODIC_SELF_DAMAGE")
+		self:RegisterEvent("CHAT_MSG_SPELL_PERIODIC_FRIENDLYPLAYER_DAMAGE")
+		self:RegisterEvent("CHAT_MSG_SPELL_PERIODIC_PARTY_DAMAGE")
 		--Notify Log Start
 		self.cmd:msg("Begining Transcrip: "..logName)
 		logging = 1
@@ -103,7 +110,7 @@ function Transcriptor:InsNote(note)
 		self.cmd:msg("You are not logging an encounter.")
 	else
 		self:debug("Added Note: "..note)
-		currentLog.total[date("%H:%M:%S")] = ("** Note: "..note.." **")
+		table.insert(currentLog.total, "<"..date("%H:%M:%S").."> ** Note: "..note.." **")
 	end
 end
 
@@ -120,35 +127,95 @@ end
 
 function Transcriptor:CHAT_MSG_MONSTER_EMOTE()
 	if not currentLog.emote then currentLog.emote = {} end
-	self:debug("Moster Emote ["..arg2.."]: "..arg1)
-	currentLog.total[date("%H:%M:%S")] = ("Emote ["..arg2.."]: "..arg1)
-	currentLog.emote[date("%H:%M:%S")] = ("Emote ["..arg2.."]: "..arg1)
+	self:debug("Moster Emote: ["..arg2.."]: "..arg1)
+	local msg = ("Emote ["..arg2.."]: "..arg1)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.emote, "<"..date("%H:%M:%S").."> "..msg)
 end
 
 function Transcriptor:CHAT_MSG_MONSTER_SAY()
 	if not currentLog.say then currentLog.say = {} end
-	self:debug("Moster Say ["..arg2.."]: "..arg1)
+	self:debug("Moster Say: ["..arg2.."]: "..arg1)
+	local msg
 	if arg3 then
-		currentLog.total[date("%H:%M:%S")] = ("Say ["..arg2.."]: ("..arg3..") "..arg1)
-		currentLog.say[date("%H:%M:%S")] = ("Say ["..arg2.."]: ("..arg3..") "..arg1)
+		msg = ("Say ["..arg2.."]: "..arg1.." ("..arg3..")")
 	else
-		currentLog.total[date("%H:%M:%S")] = ("Say ["..arg2.."]: "..arg1)
-		currentLog.say[date("%H:%M:%S")] = ("Say ["..arg2.."]: "..arg1)
+		msg = ("Say ["..arg2.."]: "..arg1)
 	end
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.say, "<"..date("%H:%M:%S").."> "..msg)
 end
 
 function Transcriptor:CHAT_MSG_MONSTER_WHISPER()
 	if not currentLog.whisper then currentLog.whisper = {} end
-	self:debug("Moster Whisper ["..arg2.."]: "..arg1)
-	currentLog.total[date("%H:%M:%S")] = ("Whisper ["..arg2.."]: "..arg1)
-	currentLog.whisper[date("%H:%M:%S")] = ("Whisper ["..arg2.."]: "..arg1)
+	self:debug("Moster Whisper: ["..arg2.."]: "..arg1)
+	local msg = ("Whisper ["..arg2.."]: "..arg1)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.whisper, "<"..date("%H:%M:%S").."> "..msg)
 end
 
 function Transcriptor:CHAT_MSG_MONSTER_YELL()
 	if not currentLog.yell then currentLog.yell = {} end
-	self:debug("Moster Yell ["..arg2.."]: "..arg1)
-	currentLog.total[date("%H:%M:%S")] = ("Yell ["..arg2.."]: "..arg1)
-	currentLog.yell[date("%H:%M:%S")] = ("Yell ["..arg2.."]: "..arg1)
+	self:debug("Moster Yell: ["..arg2.."]: "..arg1)
+	local msg = ("Yell ["..arg2.."]: "..arg1)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.yell, "<"..date("%H:%M:%S").."> "..msg)
+end
+
+function Transcriptor:CHAT_MSG_SPELL_CREATURE_VS_CREATURE_DAMAGE()
+	if not currentLog.spell_CvCdmg then currentLog.spell_CvCdmg = {} end
+	self:debug("Creature vs Creature Dmg: "..arg1)
+	local msg = (arg1)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.spell_CvCdmg, "<"..date("%H:%M:%S").."> "..msg)
+end
+
+function Transcriptor:CHAT_MSG_SPELL_CREATURE_VS_CREATURE_BUFF()
+	if not currentLog.spell_CvCbuff then currentLog.spell_CvCbuff = {} end
+	self:debug("Creature vs Creature Buff: "..arg1)
+	local msg = (arg1)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.spell_CvCbuff, "<"..date("%H:%M:%S").."> "..msg)
+end
+
+function Transcriptor:CHAT_MSG_SPELL_PERIODIC_HOSTILEPLAYER_DAMAGE()
+	if not currentLog.spell_perHostPlyrDmg then currentLog.spell_perHostPlyrDmg = {} end
+	self:debug("Peridoic Hostile Player Damage: "..arg1)
+	local msg = (arg1)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.spell_perHostPlyrDmg, "<"..date("%H:%M:%S").."> "..msg)
+end
+
+function Transcriptor:CHAT_MSG_SPELL_PERIODIC_CREATURE_BUFFS()
+	if not currentLog.spell_perCbuffs then currentLog.spell_perCbuffs = {} end
+	self:debug("Peridoic Creature Buffs: "..arg1)
+	local msg = (arg1)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.spell_perCbuffs, "<"..date("%H:%M:%S").."> "..msg)
+end
+
+function Transcriptor:CHAT_MSG_SPELL_PERIODIC_SELF_DAMAGE()
+	if not currentLog.spell_selfDmg then currentLog.spell_selfDmg = {} end
+	self:debug("Peridoic Self Damage: "..arg1)
+	local msg = (arg1)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.spell_selfDmg, "<"..date("%H:%M:%S").."> "..msg)
+end
+
+function Transcriptor:CHAT_MSG_SPELL_PERIODIC_FRIENDLYPLAYER_DAMAGE()
+	if not currentLog.spell_friendDmg then currentLog.spell_friendDmg = {} end
+	self:debug("Peridoic Friendly Player Damage: "..arg1)
+	local msg = (arg1)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.spell_friendDmg, "<"..date("%H:%M:%S").."> "..msg)
+end
+
+function Transcriptor:CHAT_MSG_SPELL_PERIODIC_PARTY_DAMAGE()
+	if not currentLog.spell_partyDmg then currentLog.spell_partyDmg = {} end
+	self:debug("Peridoic Party Damage: "..arg1)
+	local msg = (arg1)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.spell_partyDmg, "<"..date("%H:%M:%S").."> "..msg)
 end
 
 --[[--------------------------------------------------------------------------------
@@ -156,3 +223,8 @@ end
 -----------------------------------------------------------------------------------]]
 
 Transcriptor:RegisterForLoad()
+
+--[[--------------------------------------------------------------------------------
+  Requested Events to Add:
+	None ATM
+-----------------------------------------------------------------------------------]]
