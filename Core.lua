@@ -73,6 +73,8 @@ function Transcriptor:StartLog()
 		currentLog = TranscriptDB[logName]
 		if not currentLog.total then currentLog.total = {} end
 		--Register Events to be Tracked
+		self:RegisterEvent("PLAYER_REGEN_DISABLED")
+		self:RegisterEvent("PLAYER_REGEN_ENABLED")
 		self:RegisterEvent("CHAT_MSG_MONSTER_EMOTE")
 		self:RegisterEvent("CHAT_MSG_MONSTER_SAY")
 		self:RegisterEvent("CHAT_MSG_MONSTER_WHISPER")
@@ -124,6 +126,16 @@ end
 --	Don't forget to add the event to the StartLog() function for
 --	any events you add.
 -----------------------------------------------------------------------------------]]
+
+function Transcriptor:PLAYER_REGEN_DISABLED()
+	self:debug("--|  Regen Disabled : Entered Combat |--")
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> --|  Regen Disabled : Entered Combat |--")
+end
+
+function Transcriptor:PLAYER_REGEN_ENABLED()
+	self:debug("--|  Regen Enabled : Left Combat |--")
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> --|  Regen Enabled : Left Combat |--")
+end
 
 function Transcriptor:CHAT_MSG_MONSTER_EMOTE()
 	if not currentLog.emote then currentLog.emote = {} end
