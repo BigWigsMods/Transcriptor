@@ -6,6 +6,25 @@ local logName
 local currentLog
 local logging
 
+----[[ !! Be sure to change the revision number if you add ANY new events.  This will cause the user's local database to be refresehed !! ]]----
+local currentrevision = "01a"
+local defaultevents = {
+	["PLAYER_REGEN_DISABLED"] = 1,
+	["PLAYER_REGEN_ENABLED"] = 1,
+	["CHAT_MSG_MONSTER_EMOTE"] = 1,
+	["CHAT_MSG_MONSTER_SAY"] = 1,
+	["CHAT_MSG_MONSTER_WHISPER"] = 1,
+	["CHAT_MSG_MONSTER_YELL"] = 1,
+	["CHAT_MSG_SPELL_CREATURE_VS_CREATURE_DAMAGE"] = 1,
+	["CHAT_MSG_SPELL_CREATURE_VS_CREATURE_BUFF"] = 1,
+	["CHAT_MSG_SPELL_PERIODIC_HOSTILEPLAYER_DAMAGE"] = 1,
+	["CHAT_MSG_SPELL_PERIODIC_CREATURE_BUFFS"] = 1,
+	["CHAT_MSG_SPELL_PERIODIC_SELF_DAMAGE"] = 1,
+	["CHAT_MSG_SPELL_PERIODIC_FRIENDLYPLAYER_DAMAGE"] = 1,
+	["CHAT_MSG_SPELL_PERIODIC_PARTY_DAMAGE"] = 1,
+	["CHAT_MSG_SPELL_AURA_GONE_OTHER"] = 1
+}
+
 Transcriptor = AceAddonClass:new({
     name          = "Transcriptor",
     description   = "Boss Encounter Logging Utility",
@@ -42,6 +61,12 @@ Transcriptor = AceAddonClass:new({
 
 function Transcriptor:Initialize()
 	if not TranscriptDB then TranscriptDB = {} end
+	if not TranscriptDB.events then TranscriptDB.events = defaultevents end
+	if not TranscriptDB.revision then TranscriptDB.revision = currentrevision end
+	if TranscriptDB.revision ~= currentrevision then
+		TranscriptDB.events = defaultevents
+		TranscriptDB.revision = currentrevision
+	end
 end
 
 
@@ -73,19 +98,13 @@ function Transcriptor:StartLog()
 		currentLog = TranscriptDB[logName]
 		if not currentLog.total then currentLog.total = {} end
 		--Register Events to be Tracked
-		self:RegisterEvent("PLAYER_REGEN_DISABLED")
-		self:RegisterEvent("PLAYER_REGEN_ENABLED")
-		self:RegisterEvent("CHAT_MSG_MONSTER_EMOTE")
-		self:RegisterEvent("CHAT_MSG_MONSTER_SAY")
-		self:RegisterEvent("CHAT_MSG_MONSTER_WHISPER")
-		self:RegisterEvent("CHAT_MSG_MONSTER_YELL")
-		self:RegisterEvent("CHAT_MSG_SPELL_CREATURE_VS_CREATURE_DAMAGE")
-		self:RegisterEvent("CHAT_MSG_SPELL_CREATURE_VS_CREATURE_BUFF")
-		self:RegisterEvent("CHAT_MSG_SPELL_PERIODIC_HOSTILEPLAYER_DAMAGE")
-		self:RegisterEvent("CHAT_MSG_SPELL_PERIODIC_CREATURE_BUFFS")
-		self:RegisterEvent("CHAT_MSG_SPELL_PERIODIC_SELF_DAMAGE")
-		self:RegisterEvent("CHAT_MSG_SPELL_PERIODIC_FRIENDLYPLAYER_DAMAGE")
-		self:RegisterEvent("CHAT_MSG_SPELL_PERIODIC_PARTY_DAMAGE")
+		for event,status in TranscriptDB.events do
+			if status == 1 then
+				self:RegisterEvent(event)
+			else
+				self:debug("Skipped Registration: "..event)
+			end
+		end
 		--Notify Log Start
 		self.cmd:msg("Begining Transcrip: "..logName)
 		logging = 1
@@ -117,8 +136,12 @@ function Transcriptor:InsNote(note)
 end
 
 function Transcriptor:ClearLogs()
-	TranscriptDB = {}
-	self.cmd:msg("All transcripts cleared.")
+	if not logging then
+		TranscriptDB = {}
+		self.cmd:msg("All transcripts cleared.")
+	else
+		self.cmd:msg("You can't clear your transcripts while logging an encounter.")
+	end
 end
 
 --[[--------------------------------------------------------------------------------
@@ -228,6 +251,14 @@ function Transcriptor:CHAT_MSG_SPELL_PERIODIC_PARTY_DAMAGE()
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
 	table.insert(currentLog.spell_partyDmg, "<"..date("%H:%M:%S").."> "..msg)
+end
+
+function Transcriptor:CHAT_MSG_SPELL_AURA_GONE_OTHER()
+	if not currentLog.spell_auraGone then currentLog.spell_auraGone = {} end
+	self:debug("Aura Gone: "..arg1)
+	local msg = (arg1)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.spell_auraGone, "<"..date("%H:%M:%S").."> "..msg)
 end
 
 --[[--------------------------------------------------------------------------------

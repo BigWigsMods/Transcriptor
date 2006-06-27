@@ -1,4 +1,4 @@
-## Interface: 11000
+## Interface: 11100
 ## Author: Kyahx
 ## Title: Transcriptor v0.1 |cff007FFF -Ace-|r
 ## Notes: Boss Encounter Logging Utility |cffFA8072 by Kyahx|r
@@ -6,5 +6,5 @@
 ## Dependencies: Ace
 ## OptionalDeps:
 ## SavedVariables: TranscriptDB
-
 Core.lua
+FuMenu.lua
