@@ -7,7 +7,7 @@ local currentLog
 local logging
 
 ----[[ !! Be sure to change the revision number if you add ANY new events.  This will cause the user's local database to be refresehed !! ]]----
-local currentrevision = "01a"
+local currentrevision = "01b"
 local defaultevents = {
 	["PLAYER_REGEN_DISABLED"] = 1,
 	["PLAYER_REGEN_ENABLED"] = 1,
@@ -35,7 +35,8 @@ Transcriptor = AceAddonClass:new({
     website       = "http://www.wowace.com",
     category      = "raid",
     db            = AceDbClass:new("TranscriptDB"),
-    cmd           = AceChatCmdClass:new({'/transcript','/ts'}, {{
+    cmd           = AceChatCmdClass:new({'/transcript','/ts'}, {
+						{
 						option	= "start",
 						desc	= "Start Transcribing Encounter",
 						method	= "StartLog"
@@ -138,6 +139,7 @@ end
 function Transcriptor:ClearLogs()
 	if not logging then
 		TranscriptDB = {}
+		self:Initialize()
 		self.cmd:msg("All transcripts cleared.")
 	else
 		self.cmd:msg("You can't clear your transcripts while logging an encounter.")
