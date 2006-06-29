@@ -7,7 +7,7 @@ local currentLog
 local logging
 
 ----[[ !! Be sure to change the revision number if you add ANY new events.  This will cause the user's local database to be refresehed !! ]]----
-local currentrevision = "01b"
+local currentrevision = "01c"
 local defaultevents = {
 	["PLAYER_REGEN_DISABLED"] = 1,
 	["PLAYER_REGEN_ENABLED"] = 1,
@@ -22,7 +22,8 @@ local defaultevents = {
 	["CHAT_MSG_SPELL_PERIODIC_SELF_DAMAGE"] = 1,
 	["CHAT_MSG_SPELL_PERIODIC_FRIENDLYPLAYER_DAMAGE"] = 1,
 	["CHAT_MSG_SPELL_PERIODIC_PARTY_DAMAGE"] = 1,
-	["CHAT_MSG_SPELL_AURA_GONE_OTHER"] = 1
+	["CHAT_MSG_SPELL_AURA_GONE_OTHER"] = 1,
+	["BIGWIGS_MESSAGE"] = 1
 }
 
 Transcriptor = AceAddonClass:new({
@@ -166,7 +167,7 @@ function Transcriptor:CHAT_MSG_MONSTER_EMOTE()
 	if not currentLog.emote then currentLog.emote = {} end
 	self:debug("Moster Emote: ["..arg2.."]: "..arg1)
 	local msg = ("Emote ["..arg2.."]: "..arg1)
-	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[emote]-")
 	table.insert(currentLog.emote, "<"..date("%H:%M:%S").."> "..msg)
 end
 
@@ -179,7 +180,7 @@ function Transcriptor:CHAT_MSG_MONSTER_SAY()
 	else
 		msg = ("Say ["..arg2.."]: "..arg1)
 	end
-	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[say]-")
 	table.insert(currentLog.say, "<"..date("%H:%M:%S").."> "..msg)
 end
 
@@ -187,7 +188,7 @@ function Transcriptor:CHAT_MSG_MONSTER_WHISPER()
 	if not currentLog.whisper then currentLog.whisper = {} end
 	self:debug("Moster Whisper: ["..arg2.."]: "..arg1)
 	local msg = ("Whisper ["..arg2.."]: "..arg1)
-	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[whisper]-")
 	table.insert(currentLog.whisper, "<"..date("%H:%M:%S").."> "..msg)
 end
 
@@ -195,7 +196,7 @@ function Transcriptor:CHAT_MSG_MONSTER_YELL()
 	if not currentLog.yell then currentLog.yell = {} end
 	self:debug("Moster Yell: ["..arg2.."]: "..arg1)
 	local msg = ("Yell ["..arg2.."]: "..arg1)
-	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[yell]-")
 	table.insert(currentLog.yell, "<"..date("%H:%M:%S").."> "..msg)
 end
 
@@ -203,7 +204,7 @@ function Transcriptor:CHAT_MSG_SPELL_CREATURE_VS_CREATURE_DAMAGE()
 	if not currentLog.spell_CvCdmg then currentLog.spell_CvCdmg = {} end
 	self:debug("Creature vs Creature Dmg: "..arg1)
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[spell_CvCdmg]-")
 	table.insert(currentLog.spell_CvCdmg, "<"..date("%H:%M:%S").."> "..msg)
 end
 
@@ -211,7 +212,7 @@ function Transcriptor:CHAT_MSG_SPELL_CREATURE_VS_CREATURE_BUFF()
 	if not currentLog.spell_CvCbuff then currentLog.spell_CvCbuff = {} end
 	self:debug("Creature vs Creature Buff: "..arg1)
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[spell_CvCbuff]-")
 	table.insert(currentLog.spell_CvCbuff, "<"..date("%H:%M:%S").."> "..msg)
 end
 
@@ -219,7 +220,7 @@ function Transcriptor:CHAT_MSG_SPELL_PERIODIC_HOSTILEPLAYER_DAMAGE()
 	if not currentLog.spell_perHostPlyrDmg then currentLog.spell_perHostPlyrDmg = {} end
 	self:debug("Peridoic Hostile Player Damage: "..arg1)
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[spell_perHostPlyrDmg]-")
 	table.insert(currentLog.spell_perHostPlyrDmg, "<"..date("%H:%M:%S").."> "..msg)
 end
 
@@ -227,7 +228,7 @@ function Transcriptor:CHAT_MSG_SPELL_PERIODIC_CREATURE_BUFFS()
 	if not currentLog.spell_perCbuffs then currentLog.spell_perCbuffs = {} end
 	self:debug("Peridoic Creature Buffs: "..arg1)
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[spell_perCbuffs]-")
 	table.insert(currentLog.spell_perCbuffs, "<"..date("%H:%M:%S").."> "..msg)
 end
 
@@ -235,7 +236,7 @@ function Transcriptor:CHAT_MSG_SPELL_PERIODIC_SELF_DAMAGE()
 	if not currentLog.spell_selfDmg then currentLog.spell_selfDmg = {} end
 	self:debug("Peridoic Self Damage: "..arg1)
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[spell_selfDmg]-")
 	table.insert(currentLog.spell_selfDmg, "<"..date("%H:%M:%S").."> "..msg)
 end
 
@@ -243,7 +244,7 @@ function Transcriptor:CHAT_MSG_SPELL_PERIODIC_FRIENDLYPLAYER_DAMAGE()
 	if not currentLog.spell_friendDmg then currentLog.spell_friendDmg = {} end
 	self:debug("Peridoic Friendly Player Damage: "..arg1)
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[spell_friendDmg]-")
 	table.insert(currentLog.spell_friendDmg, "<"..date("%H:%M:%S").."> "..msg)
 end
 
@@ -251,7 +252,7 @@ function Transcriptor:CHAT_MSG_SPELL_PERIODIC_PARTY_DAMAGE()
 	if not currentLog.spell_partyDmg then currentLog.spell_partyDmg = {} end
 	self:debug("Peridoic Party Damage: "..arg1)
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[spell_partyDmg]-")
 	table.insert(currentLog.spell_partyDmg, "<"..date("%H:%M:%S").."> "..msg)
 end
 
@@ -259,8 +260,16 @@ function Transcriptor:CHAT_MSG_SPELL_AURA_GONE_OTHER()
 	if not currentLog.spell_auraGone then currentLog.spell_auraGone = {} end
 	self:debug("Aura Gone: "..arg1)
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[spell_auraGone]-")
 	table.insert(currentLog.spell_auraGone, "<"..date("%H:%M:%S").."> "..msg)
+end
+
+function Transcriptor:BIGWIGS_MESSAGE(arg1)
+	if not currentLog.BW_Msg then currentLog.BW_Msg = {} end
+	self:debug("BigWigs Message: "..arg1)
+	local msg = (arg1)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> *** "..msg.." ***")
+	table.insert(currentLog.BW_Msg, "<"..date("%H:%M:%S").."> *** "..msg.." ***")
 end
 
 --[[--------------------------------------------------------------------------------
