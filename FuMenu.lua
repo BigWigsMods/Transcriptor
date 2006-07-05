@@ -4,10 +4,10 @@ local tablet = TabletLib:GetInstance("1.0")
 local icon_on = "Interface\\AddOns\\Transcriptor\\icon_on.tga"
 local icon_off = "Interface\\AddOns\\Transcriptor\\icon_off.tga"
 
-local logging
+local statustext = "Transcriptor - |cff696969Idle|r"
 
 TSMenuFu = FuBarPlugin:new({
-	name          = "Transcriptor",
+	name          = "TranscriptorFu",
 	description   = "Easy Control of Transcriptor",
 	version       = "0.1a",
 	releaseDate   = "06-26-2006",
@@ -16,14 +16,12 @@ TSMenuFu = FuBarPlugin:new({
 	author        = "Kyahx",
 	email 		  = "Kyahx.Pots@gmail.com",
 	category      = "interface",
-	cmd           = AceChatCmd:new({}, {}),
+	db            = AceDatabase:new("TSMenuFuDB"),
+    cmd           = AceChatCmdClass:new({}, {}),
 
 	hasIcon = icon_off,
-	cannotHideText = false,
-	cannotDetachTooltip = true,
 	hasNoColor = true,
 })
-
 
 function TSMenuFu:MenuSettings(level, value)
 	if level == 1 then
@@ -37,9 +35,15 @@ function TSMenuFu:MenuSettings(level, value)
 			'func', function() Transcriptor:ClearLogs() end,
 			'closeWhenClicked', true
 		)
+		dewdrop:AddLine()
+		dewdrop:AddLine(
+			'text', "Insert Bookmark",
+			'func', function() Transcriptor:InsNote("!! Bookmark !!") end,
+			'closeWhenClicked', true
+		)
 	elseif level == 2 then
 		if value == "events" then
-			if logging then
+			if Transcriptor.logging then
 				dewdrop:AddLine(
 					'text', "You can't modify events while logging an encounter."
 				)
@@ -66,17 +70,30 @@ end
 
 function TSMenuFu:UpdateTooltip()
 	tablet:SetHint("Click to start or stop transcribeing an encounter.")
+	local status = tablet:AddCategory()
+	status:AddLine(
+	    'text', statustext,
+		'func', function() self:OnClick() end,
+		'justify', "CENTER"
+	)
+end
+
+function TSMenuFu:UpdateText()
+	if Transcriptor.logging then
+		statustext = "Transcriptor - |cffFF0000Recording|r"
+		self:SetIcon(icon_on)
+	else
+		statustext = "Transcriptor - |cff696969Idle|r"
+		self:SetIcon(icon_off)
+	end
+	self:SetText(statustext)
 end
 
 function TSMenuFu:OnClick()
-	if not logging then
+	if not Transcriptor.logging then
 		Transcriptor:StartLog()
-		logging = true
-		self:SetIcon(icon_on)
 	else
 		Transcriptor:StopLog()
-		logging = nil
-		self:SetIcon(icon_off)
 	end
 end
 

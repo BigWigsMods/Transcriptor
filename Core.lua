@@ -4,10 +4,9 @@
 
 local logName
 local currentLog
-local logging
 
 ----[[ !! Be sure to change the revision number if you add ANY new events.  This will cause the user's local database to be refresehed !! ]]----
-local currentrevision = "01c"
+local currentrevision = "01d"
 local defaultevents = {
 	["PLAYER_REGEN_DISABLED"] = 1,
 	["PLAYER_REGEN_ENABLED"] = 1,
@@ -23,12 +22,13 @@ local defaultevents = {
 	["CHAT_MSG_SPELL_PERIODIC_FRIENDLYPLAYER_DAMAGE"] = 1,
 	["CHAT_MSG_SPELL_PERIODIC_PARTY_DAMAGE"] = 1,
 	["CHAT_MSG_SPELL_AURA_GONE_OTHER"] = 1,
-	["BIGWIGS_MESSAGE"] = 1
+	["BIGWIGS_MESSAGE"] = 1,
+	["PLAYER_TARGET_CHANGED"] = 1
 }
 
 Transcriptor = AceAddonClass:new({
     name          = "Transcriptor",
-    description   = "Boss Encounter Logging Utility",
+    description   = "Boss Encounter logging Utility",
     version       = "0.1",
     releaseDate   = "06-22-2006",
     aceCompatible = "103",
@@ -69,6 +69,7 @@ function Transcriptor:Initialize()
 		TranscriptDB.events = defaultevents
 		TranscriptDB.revision = currentrevision
 	end
+	self.logging = nil
 end
 
 
@@ -80,7 +81,7 @@ function Transcriptor:Enable()
 end
 
 function Transcriptor:Disable()
-	if logging then
+	if self.logging then
 		self:StopLog()
 	end
 end
@@ -91,7 +92,7 @@ end
 -----------------------------------------------------------------------------------]]
 
 function Transcriptor:StartLog()
-	if logging then
+	if self.logging then
 		self.cmd:msg("You are already logging an encounter.")
 	else
 		--Set the Log Path
@@ -109,12 +110,13 @@ function Transcriptor:StartLog()
 		end
 		--Notify Log Start
 		self.cmd:msg("Begining Transcrip: "..logName)
-		logging = 1
+		self.logging = 1
+		if TSMenuFu then TSMenuFu:UpdateText(); TSMenuFu:UpdateTooltip() end
 	end
 end
 
 function Transcriptor:StopLog()
-	if not logging then
+	if not self.logging then
 		self.cmd:msg("You are not logging an encounter.")
 	else
 		--Clear Events
@@ -124,12 +126,13 @@ function Transcriptor:StopLog()
 		--Clear Log Path
 		logName = nil
 		currentLog = nil
-		logging = nil
+		self.logging = nil
+		if TSMenuFu then TSMenuFu:UpdateText(); TSMenuFu:UpdateTooltip() end
 	end
 end
 
 function Transcriptor:InsNote(note)
-	if not logging then
+	if not self.logging then
 		self.cmd:msg("You are not logging an encounter.")
 	else
 		self:debug("Added Note: "..note)
@@ -138,7 +141,7 @@ function Transcriptor:InsNote(note)
 end
 
 function Transcriptor:ClearLogs()
-	if not logging then
+	if not self.logging then
 		TranscriptDB = {}
 		self:Initialize()
 		self.cmd:msg("All transcripts cleared.")
@@ -165,7 +168,7 @@ end
 
 function Transcriptor:CHAT_MSG_MONSTER_EMOTE()
 	if not currentLog.emote then currentLog.emote = {} end
-	self:debug("Moster Emote: ["..arg2.."]: "..arg1)
+	self:debug("Monster Emote: ["..arg2.."]: "..arg1)
 	local msg = ("Emote ["..arg2.."]: "..arg1)
 	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[emote]-")
 	table.insert(currentLog.emote, "<"..date("%H:%M:%S").."> "..msg)
@@ -173,7 +176,7 @@ end
 
 function Transcriptor:CHAT_MSG_MONSTER_SAY()
 	if not currentLog.say then currentLog.say = {} end
-	self:debug("Moster Say: ["..arg2.."]: "..arg1)
+	self:debug("Monster Say: ["..arg2.."]: "..arg1)
 	local msg
 	if arg3 then
 		msg = ("Say ["..arg2.."]: "..arg1.." ("..arg3..")")
@@ -186,7 +189,7 @@ end
 
 function Transcriptor:CHAT_MSG_MONSTER_WHISPER()
 	if not currentLog.whisper then currentLog.whisper = {} end
-	self:debug("Moster Whisper: ["..arg2.."]: "..arg1)
+	self:debug("Monster Whisper: ["..arg2.."]: "..arg1)
 	local msg = ("Whisper ["..arg2.."]: "..arg1)
 	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[whisper]-")
 	table.insert(currentLog.whisper, "<"..date("%H:%M:%S").."> "..msg)
@@ -194,7 +197,7 @@ end
 
 function Transcriptor:CHAT_MSG_MONSTER_YELL()
 	if not currentLog.yell then currentLog.yell = {} end
-	self:debug("Moster Yell: ["..arg2.."]: "..arg1)
+	self:debug("Monster Yell: ["..arg2.."]: "..arg1)
 	local msg = ("Yell ["..arg2.."]: "..arg1)
 	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[yell]-")
 	table.insert(currentLog.yell, "<"..date("%H:%M:%S").."> "..msg)
@@ -270,6 +273,26 @@ function Transcriptor:BIGWIGS_MESSAGE(arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> *** "..msg.." ***")
 	table.insert(currentLog.BW_Msg, "<"..date("%H:%M:%S").."> *** "..msg.." ***")
+end
+
+function Transcriptor:PLAYER_TARGET_CHANGED()
+	if not currentLog.PTC then currentLog.PTC = {} end
+	if (not UnitInRaid("target")) and UnitExists("target") then
+		local level = UnitLevel("target")
+		if UnitIsPlusMob("target") then level = ("+"..level) end
+		local reaction
+		if UnitIsFriend("target", "player") then reaction = "Friendly" else reaction = "Hostile" end
+		local classification = UnitClassification("target")
+		local creatureType = UnitCreatureType("target")
+		local typeclass
+		if classification == "normal" then typeclass = creatureType else typeclass = (classification.." "..creatureType) end
+		local name = UnitName("target")
+
+		local msg = (string.format("%s %s (%s) - %s", level, reaction, typeclass, name))	
+		self:debug("Target Changed: "..msg)
+		table.insert(currentLog.total, "<"..date("%H:%M:%S").."> Target Changed: "..msg.."-[PTC]-")
+		table.insert(currentLog.PTC, "<"..date("%H:%M:%S").."> Target Changed: "..msg)
+	end
 end
 
 --[[--------------------------------------------------------------------------------

@@ -5,6 +5,6 @@
 ## DefaultState:
 ## Dependencies: Ace
 ## OptionalDeps:
-## SavedVariables: TranscriptDB
+## SavedVariables: TranscriptDB, TSMenuFuDB
 Core.lua
 FuMenu.lua
