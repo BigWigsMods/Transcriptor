@@ -6,7 +6,7 @@ local logName
 local currentLog
 
 ----[[ !! Be sure to change the revision number if you add ANY new events.  This will cause the user's local database to be refresehed !! ]]----
-local currentrevision = "01d"
+local currentrevision = "01e"
 local defaultevents = {
 	["PLAYER_REGEN_DISABLED"] = 1,
 	["PLAYER_REGEN_ENABLED"] = 1,
@@ -23,7 +23,8 @@ local defaultevents = {
 	["CHAT_MSG_SPELL_PERIODIC_PARTY_DAMAGE"] = 1,
 	["CHAT_MSG_SPELL_AURA_GONE_OTHER"] = 1,
 	["BIGWIGS_MESSAGE"] = 1,
-	["PLAYER_TARGET_CHANGED"] = 1
+	["PLAYER_TARGET_CHANGED"] = 1,
+	["CHAT_MSG_SPELL_PERIODIC_CREATURE_DAMAGE"] = 1
 }
 
 Transcriptor = AceAddonClass:new({
@@ -293,6 +294,14 @@ function Transcriptor:PLAYER_TARGET_CHANGED()
 		table.insert(currentLog.total, "<"..date("%H:%M:%S").."> Target Changed: "..msg.."-[PTC]-")
 		table.insert(currentLog.PTC, "<"..date("%H:%M:%S").."> Target Changed: "..msg)
 	end
+end
+
+function Transcriptor:CHAT_MSG_SPELL_PERIODIC_CREATURE_DAMAGE()
+	if not currentLog.spell_perCdmg then currentLog.spell_perCdmg = {} end
+	self:debug("Peridoic Creature Damage: "..arg1)
+	local msg = (arg1)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[spell_perCdmg]-")
+	table.insert(currentLog.spell_perCdmg, "<"..date("%H:%M:%S").."> "..msg)
 end
 
 --[[--------------------------------------------------------------------------------
