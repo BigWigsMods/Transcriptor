@@ -11,7 +11,7 @@ local icon_off = "Interface\\AddOns\\Transcriptor\\icon_off.tga"
 local statustext = "Transcriptor - |cff696969Idle|r"
 
 ----[[ !! Be sure to change the revision number if you add ANY new events.  This will cause the user's local database to be refresehed !! ]]----
-local currentrevision = "2A"
+local currentrevision = "2B"
 local defaultevents = {
 	["PLAYER_REGEN_DISABLED"] = 1,
 	["PLAYER_REGEN_ENABLED"] = 1,
@@ -29,7 +29,8 @@ local defaultevents = {
 	["CHAT_MSG_SPELL_AURA_GONE_OTHER"] = 1,
 	["PLAYER_TARGET_CHANGED"] = 1,
 	["CHAT_MSG_SPELL_PERIODIC_CREATURE_DAMAGE"] = 1,
-	["BigWigs_Message"] = 1
+	["BigWigs_Message"] = 1,
+	["CHAT_MSG_COMBAT_FRIENDLY_DEATH"] = 1
 }
 
 local EventsTable = {}
@@ -362,4 +363,12 @@ function Transcriptor:BigWigs_Message(arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> *** "..msg.." ***")
 	table.insert(currentLog.BW_Msg, "<"..date("%H:%M:%S").."> *** "..msg.." ***")
+end
+
+function Transcriptor:CHAT_MSG_COMBAT_FRIENDLY_DEATH()
+	if not currentLog.spell_friendDies then currentLog.spell_friendDies = {} end
+	self:Debug("Friendly Death: "..arg1)
+	local msg = (arg1)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[friendDies]-")
+	table.insert(currentLog.friendDies, "<"..date("%H:%M:%S").."> "..msg)
 end
