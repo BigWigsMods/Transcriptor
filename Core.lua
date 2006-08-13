@@ -138,7 +138,7 @@ function Transcriptor:StartLog()
 			end
 		end
 		--Notify Log Start
-		self:Print("Begining Transcript: "..logName)
+		self:Print("Beginning Transcript: "..logName)
 		self.logging = 1
 	end
 	
@@ -186,7 +186,7 @@ end
 ------------------------------------------------]]--
 
 function Transcriptor:OnTooltipUpdate()
-	tablet:SetHint("Click to start or stop transcribeing an encounter. Control-Click to add a bookmark note to the current encounter.")
+	tablet:SetHint("Click to start or stop transcribing an encounter. Control-Click to add a bookmark note to the current encounter.")
 end
 
 function Transcriptor:UpdateText()
