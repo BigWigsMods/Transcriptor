@@ -6,6 +6,7 @@
 ## X-Category: Other
 ## X-eMail: kyahx.pots@gmail.com
 ## X-Website: http://kyahx.wowinterface.com
+## OptionalDeps: Ace2, DewdropLib, FuBarPlugin-2.0, TabletLib, FuBar
 ## SavedVariables: TranscriptDB
 
 libs\AceLibrary-2.0\AceLibrary.lua
