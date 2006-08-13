@@ -1,12 +1,17 @@
---[[--------------------------------------------------------------------------------
-  Class Setup
------------------------------------------------------------------------------------]]
+Transcriptor = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceConsole-2.0", "AceDebug-2.0", "FuBarPlugin-2.0")
+local dewdrop = AceLibrary("Dewdrop-2.0")
+local tablet = AceLibrary("Tablet-2.0")
 
 local logName
 local currentLog
 
+local icon_on = "Interface\\AddOns\\Transcriptor\\icon_on.tga"
+local icon_off = "Interface\\AddOns\\Transcriptor\\icon_off.tga"
+
+local statustext = "Transcriptor - |cff696969Idle|r"
+
 ----[[ !! Be sure to change the revision number if you add ANY new events.  This will cause the user's local database to be refresehed !! ]]----
-local currentrevision = "01e"
+local currentrevision = "2A"
 local defaultevents = {
 	["PLAYER_REGEN_DISABLED"] = 1,
 	["PLAYER_REGEN_ENABLED"] = 1,
@@ -22,47 +27,63 @@ local defaultevents = {
 	["CHAT_MSG_SPELL_PERIODIC_FRIENDLYPLAYER_DAMAGE"] = 1,
 	["CHAT_MSG_SPELL_PERIODIC_PARTY_DAMAGE"] = 1,
 	["CHAT_MSG_SPELL_AURA_GONE_OTHER"] = 1,
-	["BIGWIGS_MESSAGE"] = 1,
 	["PLAYER_TARGET_CHANGED"] = 1,
-	["CHAT_MSG_SPELL_PERIODIC_CREATURE_DAMAGE"] = 1
+	["CHAT_MSG_SPELL_PERIODIC_CREATURE_DAMAGE"] = 1,
+	["BigWigs_Message"] = 1
 }
 
-Transcriptor = AceAddonClass:new({
-    name          = "Transcriptor",
-    description   = "Boss Encounter logging Utility",
-    version       = "0.1",
-    releaseDate   = "06-22-2006",
-    aceCompatible = "103",
-    author        = "Kyahx",
-    website       = "http://www.wowace.com",
-    category      = "raid",
-    db            = AceDbClass:new("TranscriptDB"),
-    cmd           = AceChatCmdClass:new({'/transcript','/ts'}, {
-						{
-						option	= "start",
-						desc	= "Start Transcribing Encounter",
-						method	= "StartLog"
-						},
-						{
-						option	= "stop",
-						desc	= "Stop Transcribing Encounter",
-						method	= "StopLog"
-						},
-						{
-						option	= "note",
-						desc	= "Insert a note into the currently running transcript.",
-						method	= "InsNote",
-						input	= true,
-						},
-						{
-						option	= "clear",
-						desc	= "Completely clear the TranscriptDB",
-						method	= "ClearLogs"
-						}
-	})
-})
+local EventsTable = {}
 
-function Transcriptor:Initialize()
+--[[------------------------------------------------
+	Basic Functions
+------------------------------------------------]]--
+
+function Transcriptor:OnInitialize()
+	self:SetupDB()
+	self.consoleOptions = {
+		type = 'group',
+		args = {
+			start = {
+				name = "Start", type = 'execute',
+				desc = "Start transcribing encounter.",
+				func = function() self:StartLog() end,
+			},
+			stop = {
+				name = "Stop", type = 'execute',
+				desc = "Stop transcribing encounter.",
+				func = function() self:StopLog() end,
+			},
+			note = {
+				name = "Insert Note", type = 'text',
+				desc = "Insert a note into the currently running transcript.",
+				get = false,
+				set = function(text) self:InsNote(text) end,
+				usage = "<note>",
+			},
+			clear = {
+				name = "Clear Logs", type = 'execute',
+				desc = "Clear",
+				func = function()
+					self:ClearLogs()
+				end,
+			},
+			events = {
+				name = "Events", type = 'group',
+				desc = "Various events that can be logged.",
+				args = EventsTable,
+			},
+		},
+	}
+
+	self:RegisterChatCommand({ "/transcriptor", "/ts" }, self.consoleOptions)
+	
+	self.OnMenuRequest = self.consoleOptions
+	self.name = "Transcriptor"
+	self.hasIcon = "Interface\\Addons\\Transcriptor\\icon_off"
+	self.defaultMinimapPosition = 200
+end
+
+function Transcriptor:SetupDB()
 	if not TranscriptDB then TranscriptDB = {} end
 	if not TranscriptDB.events then TranscriptDB.events = defaultevents end
 	if not TranscriptDB.revision then TranscriptDB.revision = currentrevision end
@@ -70,31 +91,37 @@ function Transcriptor:Initialize()
 		TranscriptDB.events = defaultevents
 		TranscriptDB.revision = currentrevision
 	end
-	self.logging = nil
-end
-
-
---[[--------------------------------------------------------------------------------
-  Addon Enabling/Disabling
------------------------------------------------------------------------------------]]
-
-function Transcriptor:Enable()
-end
-
-function Transcriptor:Disable()
-	if self.logging then
-		self:StopLog()
+	
+	for e,_ in TranscriptDB.events do
+		local event = e
+		EventsTable[event] = {
+			name = event, type = 'toggle',
+			desc = "Toggle logging of this event.",
+			get = function() return TranscriptDB.events[event] end,
+			set = function() TranscriptDB.events[event] = not TranscriptDB.events[event] end
+		}
 	end
 end
 
+function Transcriptor:OnEnable()
+	self.logging = nil
+end
 
---[[--------------------------------------------------------------------------------
-  Starting and Stopping Log
------------------------------------------------------------------------------------]]
+function Transcriptor:OnDisable()
+	if self.logging then
+		self:StopLog()
+	end
+	
+	self:UnregisterAllEvents()
+end
+
+--[[------------------------------------------------
+	Core Functions
+------------------------------------------------]]--
 
 function Transcriptor:StartLog()
 	if self.logging then
-		self.cmd:msg("You are already logging an encounter.")
+		self:Print("You are already logging an encounter.")
 	else
 		--Set the Log Path
 		logName = "["..date("%H:%M:%S").."] - "..GetRealZoneText().." : "..GetSubZoneText()
@@ -106,37 +133,39 @@ function Transcriptor:StartLog()
 			if status == 1 then
 				self:RegisterEvent(event)
 			else
-				self:debug("Skipped Registration: "..event)
+				self:Debug("Skipped Registration: "..event)
 			end
 		end
 		--Notify Log Start
-		self.cmd:msg("Begining Transcrip: "..logName)
+		self:Print("Begining Transcript: "..logName)
 		self.logging = 1
-		if TSMenuFu then TSMenuFu:UpdateText(); TSMenuFu:UpdateTooltip() end
 	end
+	
+	self:UpdateText()
 end
 
 function Transcriptor:StopLog()
 	if not self.logging then
-		self.cmd:msg("You are not logging an encounter.")
+		self:Print("You are not logging an encounter.")
 	else
 		--Clear Events
 		self:UnregisterAllEvents()
 		--Notify Stop
-		self.cmd:msg("Ending Transcrip: "..logName)
+		self:Print("Ending Transcript: "..logName)
 		--Clear Log Path
 		logName = nil
 		currentLog = nil
 		self.logging = nil
-		if TSMenuFu then TSMenuFu:UpdateText(); TSMenuFu:UpdateTooltip() end
 	end
+	
+	self:UpdateText()
 end
 
 function Transcriptor:InsNote(note)
 	if not self.logging then
-		self.cmd:msg("You are not logging an encounter.")
+		self:Print("You are not logging an encounter.")
 	else
-		self:debug("Added Note: "..note)
+		self:Debug("Added Note: "..note)
 		table.insert(currentLog.total, "<"..date("%H:%M:%S").."> ** Note: "..note.." **")
 	end
 end
@@ -144,32 +173,62 @@ end
 function Transcriptor:ClearLogs()
 	if not self.logging then
 		TranscriptDB = {}
-		self:Initialize()
-		self.cmd:msg("All transcripts cleared.")
+		self:SetupDB()
+		self:Print("All transcripts cleared.")
 	else
-		self.cmd:msg("You can't clear your transcripts while logging an encounter.")
+		self:Print("You can't clear your transcripts while logging an encounter.")
 	end
 end
 
---[[--------------------------------------------------------------------------------
-  Chat Event Handlers
---	Don't forget to add the event to the StartLog() function for
---	any events you add.
------------------------------------------------------------------------------------]]
+--[[------------------------------------------------
+	FuBar Events
+------------------------------------------------]]--
+
+function Transcriptor:OnTooltipUpdate()
+	tablet:SetHint("Click to start or stop transcribeing an encounter. Control-Click to add a bookmark note to the current encounter.")
+end
+
+function Transcriptor:UpdateText()
+	if self.logging then
+		statustext = "Transcriptor - |cffFF0000Recording|r"
+		self:SetIcon(icon_on)
+	else
+		statustext = "Transcriptor - |cff696969Idle|r"
+		self:SetIcon(icon_off)
+	end
+	self:SetText(statustext)
+end
+
+function Transcriptor:OnClick()
+	if IsControlKeyDown() and self.logging then
+		self:InsNote("!! Bookmark !!")
+		self:Print("Bookmark added to the current log.")
+	else
+		if not self.logging then
+			self:StartLog()
+		else
+			self:StopLog()
+		end
+	end
+end
+
+--[[------------------------------------------------
+	Events
+------------------------------------------------]]--
 
 function Transcriptor:PLAYER_REGEN_DISABLED()
-	self:debug("--|  Regen Disabled : Entered Combat |--")
+	self:Debug("--|  Regen Disabled : Entered Combat |--")
 	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> --|  Regen Disabled : Entered Combat |--")
 end
 
 function Transcriptor:PLAYER_REGEN_ENABLED()
-	self:debug("--|  Regen Enabled : Left Combat |--")
+	self:Debug("--|  Regen Enabled : Left Combat |--")
 	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> --|  Regen Enabled : Left Combat |--")
 end
 
 function Transcriptor:CHAT_MSG_MONSTER_EMOTE()
 	if not currentLog.emote then currentLog.emote = {} end
-	self:debug("Monster Emote: ["..arg2.."]: "..arg1)
+	self:Debug("Monster Emote: ["..arg2.."]: "..arg1)
 	local msg = ("Emote ["..arg2.."]: "..arg1)
 	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[emote]-")
 	table.insert(currentLog.emote, "<"..date("%H:%M:%S").."> "..msg)
@@ -177,7 +236,7 @@ end
 
 function Transcriptor:CHAT_MSG_MONSTER_SAY()
 	if not currentLog.say then currentLog.say = {} end
-	self:debug("Monster Say: ["..arg2.."]: "..arg1)
+	self:Debug("Monster Say: ["..arg2.."]: "..arg1)
 	local msg
 	if arg3 then
 		msg = ("Say ["..arg2.."]: "..arg1.." ("..arg3..")")
@@ -190,7 +249,7 @@ end
 
 function Transcriptor:CHAT_MSG_MONSTER_WHISPER()
 	if not currentLog.whisper then currentLog.whisper = {} end
-	self:debug("Monster Whisper: ["..arg2.."]: "..arg1)
+	self:Debug("Monster Whisper: ["..arg2.."]: "..arg1)
 	local msg = ("Whisper ["..arg2.."]: "..arg1)
 	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[whisper]-")
 	table.insert(currentLog.whisper, "<"..date("%H:%M:%S").."> "..msg)
@@ -198,7 +257,7 @@ end
 
 function Transcriptor:CHAT_MSG_MONSTER_YELL()
 	if not currentLog.yell then currentLog.yell = {} end
-	self:debug("Monster Yell: ["..arg2.."]: "..arg1)
+	self:Debug("Monster Yell: ["..arg2.."]: "..arg1)
 	local msg = ("Yell ["..arg2.."]: "..arg1)
 	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[yell]-")
 	table.insert(currentLog.yell, "<"..date("%H:%M:%S").."> "..msg)
@@ -206,7 +265,7 @@ end
 
 function Transcriptor:CHAT_MSG_SPELL_CREATURE_VS_CREATURE_DAMAGE()
 	if not currentLog.spell_CvCdmg then currentLog.spell_CvCdmg = {} end
-	self:debug("Creature vs Creature Dmg: "..arg1)
+	self:Debug("Creature vs Creature Dmg: "..arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[spell_CvCdmg]-")
 	table.insert(currentLog.spell_CvCdmg, "<"..date("%H:%M:%S").."> "..msg)
@@ -214,7 +273,7 @@ end
 
 function Transcriptor:CHAT_MSG_SPELL_CREATURE_VS_CREATURE_BUFF()
 	if not currentLog.spell_CvCbuff then currentLog.spell_CvCbuff = {} end
-	self:debug("Creature vs Creature Buff: "..arg1)
+	self:Debug("Creature vs Creature Buff: "..arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[spell_CvCbuff]-")
 	table.insert(currentLog.spell_CvCbuff, "<"..date("%H:%M:%S").."> "..msg)
@@ -222,7 +281,7 @@ end
 
 function Transcriptor:CHAT_MSG_SPELL_PERIODIC_HOSTILEPLAYER_DAMAGE()
 	if not currentLog.spell_perHostPlyrDmg then currentLog.spell_perHostPlyrDmg = {} end
-	self:debug("Peridoic Hostile Player Damage: "..arg1)
+	self:Debug("Peridoic Hostile Player Damage: "..arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[spell_perHostPlyrDmg]-")
 	table.insert(currentLog.spell_perHostPlyrDmg, "<"..date("%H:%M:%S").."> "..msg)
@@ -230,7 +289,7 @@ end
 
 function Transcriptor:CHAT_MSG_SPELL_PERIODIC_CREATURE_BUFFS()
 	if not currentLog.spell_perCbuffs then currentLog.spell_perCbuffs = {} end
-	self:debug("Peridoic Creature Buffs: "..arg1)
+	self:Debug("Peridoic Creature Buffs: "..arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[spell_perCbuffs]-")
 	table.insert(currentLog.spell_perCbuffs, "<"..date("%H:%M:%S").."> "..msg)
@@ -238,7 +297,7 @@ end
 
 function Transcriptor:CHAT_MSG_SPELL_PERIODIC_SELF_DAMAGE()
 	if not currentLog.spell_selfDmg then currentLog.spell_selfDmg = {} end
-	self:debug("Peridoic Self Damage: "..arg1)
+	self:Debug("Peridoic Self Damage: "..arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[spell_selfDmg]-")
 	table.insert(currentLog.spell_selfDmg, "<"..date("%H:%M:%S").."> "..msg)
@@ -246,7 +305,7 @@ end
 
 function Transcriptor:CHAT_MSG_SPELL_PERIODIC_FRIENDLYPLAYER_DAMAGE()
 	if not currentLog.spell_friendDmg then currentLog.spell_friendDmg = {} end
-	self:debug("Peridoic Friendly Player Damage: "..arg1)
+	self:Debug("Peridoic Friendly Player Damage: "..arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[spell_friendDmg]-")
 	table.insert(currentLog.spell_friendDmg, "<"..date("%H:%M:%S").."> "..msg)
@@ -254,7 +313,7 @@ end
 
 function Transcriptor:CHAT_MSG_SPELL_PERIODIC_PARTY_DAMAGE()
 	if not currentLog.spell_partyDmg then currentLog.spell_partyDmg = {} end
-	self:debug("Peridoic Party Damage: "..arg1)
+	self:Debug("Peridoic Party Damage: "..arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[spell_partyDmg]-")
 	table.insert(currentLog.spell_partyDmg, "<"..date("%H:%M:%S").."> "..msg)
@@ -262,18 +321,11 @@ end
 
 function Transcriptor:CHAT_MSG_SPELL_AURA_GONE_OTHER()
 	if not currentLog.spell_auraGone then currentLog.spell_auraGone = {} end
-	self:debug("Aura Gone: "..arg1)
+	self:Debug("Aura Gone: "..arg1)
+
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[spell_auraGone]-")
 	table.insert(currentLog.spell_auraGone, "<"..date("%H:%M:%S").."> "..msg)
-end
-
-function Transcriptor:BIGWIGS_MESSAGE(arg1)
-	if not currentLog.BW_Msg then currentLog.BW_Msg = {} end
-	self:debug("BigWigs Message: "..arg1)
-	local msg = (arg1)
-	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> *** "..msg.." ***")
-	table.insert(currentLog.BW_Msg, "<"..date("%H:%M:%S").."> *** "..msg.." ***")
 end
 
 function Transcriptor:PLAYER_TARGET_CHANGED()
@@ -290,7 +342,7 @@ function Transcriptor:PLAYER_TARGET_CHANGED()
 		local name = UnitName("target")
 
 		local msg = (string.format("%s %s (%s) - %s", level, reaction, typeclass, name))	
-		self:debug("Target Changed: "..msg)
+		self:Debug("Target Changed: "..msg)
 		table.insert(currentLog.total, "<"..date("%H:%M:%S").."> Target Changed: "..msg.."-[PTC]-")
 		table.insert(currentLog.PTC, "<"..date("%H:%M:%S").."> Target Changed: "..msg)
 	end
@@ -298,19 +350,16 @@ end
 
 function Transcriptor:CHAT_MSG_SPELL_PERIODIC_CREATURE_DAMAGE()
 	if not currentLog.spell_perCdmg then currentLog.spell_perCdmg = {} end
-	self:debug("Peridoic Creature Damage: "..arg1)
+	self:Debug("Peridoic Creature Damage: "..arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[spell_perCdmg]-")
 	table.insert(currentLog.spell_perCdmg, "<"..date("%H:%M:%S").."> "..msg)
 end
 
---[[--------------------------------------------------------------------------------
-  Create and Register Addon Object
------------------------------------------------------------------------------------]]
-
-Transcriptor:RegisterForLoad()
-
---[[--------------------------------------------------------------------------------
-  Requested Events to Add:
-	None ATM
------------------------------------------------------------------------------------]]
+function Transcriptor:BigWigs_Message(arg1)
+	if not currentLog.BW_Msg then currentLog.BW_Msg = {} end
+	self:Debug("BigWigs Message: "..arg1)
+	local msg = (arg1)
+	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> *** "..msg.." ***")
+	table.insert(currentLog.BW_Msg, "<"..date("%H:%M:%S").."> *** "..msg.." ***")
+end
