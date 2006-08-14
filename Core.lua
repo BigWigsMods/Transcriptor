@@ -366,7 +366,7 @@ function Transcriptor:BigWigs_Message(arg1)
 end
 
 function Transcriptor:CHAT_MSG_COMBAT_FRIENDLY_DEATH()
-	if not currentLog.spell_friendDies then currentLog.spell_friendDies = {} end
+	if not currentLog.friendDies then currentLog.friendDies = {} end
 	self:Debug("Friendly Death: "..arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..date("%H:%M:%S").."> "..msg.." -[friendDies]-")
