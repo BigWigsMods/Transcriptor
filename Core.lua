@@ -143,6 +143,7 @@ function Transcriptor:StartLog()
 	end
 	
 	self:UpdateText()
+	self:UpdateTooltip()
 end
 
 function Transcriptor:StopLog()
@@ -160,6 +161,7 @@ function Transcriptor:StopLog()
 	end
 	
 	self:UpdateText()
+	self:UpdateTooltip()
 end
 
 function Transcriptor:InsNote(note)
@@ -186,6 +188,25 @@ end
 ------------------------------------------------]]--
 
 function Transcriptor:OnTooltipUpdate()
+	local cat = tablet:AddCategory(
+		"columns", 1,
+		"child_textR", 1,
+		"child_textG", 1,
+		"child_textB", 1
+	)
+
+	local text
+	if self.logging then
+		text = "|cffFF0000Recording|r: "..logName
+	else
+		text = "|cff696969Idle|r"
+	end
+	cat:AddLine(
+		"text", text,
+		"func", Transcriptor.OnClick,
+		"arg1", Transcriptor
+	)
+
 	tablet:SetHint("Click to start or stop transcribing an encounter. Control-Click to add a bookmark note to the current encounter.")
 end
 
