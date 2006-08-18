@@ -48,11 +48,13 @@ function Transcriptor:OnInitialize()
 				name = "Start", type = 'execute',
 				desc = "Start transcribing encounter.",
 				func = function() self:StartLog() end,
+				disabled = function() return self.logging end,
 			},
 			stop = {
 				name = "Stop", type = 'execute',
 				desc = "Stop transcribing encounter.",
 				func = function() self:StopLog() end,
+				disabled = function() return not self.logging end,
 			},
 			note = {
 				name = "Insert Note", type = 'text',
