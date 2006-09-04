@@ -9,7 +9,7 @@
 ## OptionalDeps: Ace2, DewdropLib, FuBarPlugin-2.0, TabletLib, FuBar
 ## SavedVariables: TranscriptDB
 
-libs\AceLibrary-2.0\AceLibrary.lua
+libs\AceLibrary\AceLibrary.lua
 libs\AceOO-2.0\AceOO-2.0.lua
 
 libs\AceEvent-2.0\AceEvent-2.0.lua
