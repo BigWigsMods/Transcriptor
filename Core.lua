@@ -104,7 +104,7 @@ function Transcriptor:SetupDB()
 		TranscriptDB.revision = currentrevision
 	end
 
-	for e,_ in TranscriptDB.events do
+	for e,_ in pairs(TranscriptDB.events) do
 		local event = e
 		EventsTable[event] = {
 			name = event, type = 'toggle',
@@ -164,7 +164,7 @@ function Transcriptor:StartLog()
 		currentLog = TranscriptDB[logName]
 		if not currentLog.total then currentLog.total = {} end
 		--Register Events to be Tracked
-		for event,status in TranscriptDB.events do
+		for event,status in pairs(TranscriptDB.events) do
 			if status == 1 then
 				self:RegisterEvent(event)
 			else
