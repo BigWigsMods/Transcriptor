@@ -1,4 +1,4 @@
-## Interface: 11200
+## Interface: 20000
 ## Title: Transcriptor |cff7fff7f -Ace2-|r
 ## Notes: Boss Encounter Logging Utility
 ## Version: 2.0.2B
