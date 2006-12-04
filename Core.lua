@@ -92,6 +92,7 @@ function Transcriptor:OnInitialize()
 	self.name = "Transcriptor"
 	self.hasIcon = "Interface\\Addons\\Transcriptor\\icon_off"
 	self.defaultMinimapPosition = 200
+	self.clickableTooltip = true
 end
 
 function Transcriptor:SetupDB()
@@ -176,8 +177,7 @@ function Transcriptor:StartLog()
 		self.logging = 1
 	end
 	
-	self:UpdateText()
-	self:UpdateTooltip()
+	self:UpdateDisplay()
 end
 
 function Transcriptor:StopLog()
@@ -194,8 +194,7 @@ function Transcriptor:StopLog()
 		self.logging = nil
 	end
 	
-	self:UpdateText()
-	self:UpdateTooltip()
+	self:UpdateDisplay()
 end
 
 function Transcriptor:InsNote(note)
@@ -238,18 +237,19 @@ function Transcriptor:OnTooltipUpdate()
 	cat:AddLine(
 		"text", text,
 		"func", Transcriptor.OnClick,
-		"arg1", Transcriptor
+		"arg1", self,
+		"wrap", true
 	)
 
-	tablet:SetHint("Click to start or stop transcribing an encounter. Control-Click to add a bookmark note to the current encounter.")
+	tablet:SetHint("|cffeda55fClick|r to start or stop transcribing an encounter. |cffeda55fCtrl-Click|r to add a bookmark note.")
 end
 
-function Transcriptor:UpdateText()
+function Transcriptor:OnTextUpdate()
 	if self.logging then
-		statustext = "Transcriptor - |cffFF0000Recording|r"
+		statustext = "|cffFF0000Recording|r"
 		self:SetIcon(icon_on)
 	else
-		statustext = "Transcriptor - |cff696969Idle|r"
+		statustext = "|cff696969Idle|r"
 		self:SetIcon(icon_off)
 	end
 	self:SetText(statustext)
@@ -427,3 +427,4 @@ function Transcriptor:CHAT_MSG_COMBAT_FRIENDLY_DEATH()
 	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[friendDies]-")
 	table.insert(currentLog.friendDies, "<"..self:GetTime().."> "..msg)
 end
+
