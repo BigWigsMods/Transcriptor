@@ -1,17 +1,14 @@
 Transcriptor = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceConsole-2.0", "AceDebug-2.0", "FuBarPlugin-2.0")
-local dewdrop = AceLibrary("Dewdrop-2.0")
 local tablet = AceLibrary("Tablet-2.0")
 
 local logName
 local currentLog
 local logStartTime
 
-local icon_on = "Interface\\AddOns\\Transcriptor\\icon_on.tga"
-local icon_off = "Interface\\AddOns\\Transcriptor\\icon_off.tga"
-
-local statustext = "Transcriptor - |cff696969Idle|r"
-
-----[[ !! Be sure to change the revision number if you add ANY new events.  This will cause the user's local database to be refresehed !! ]]----
+--[[
+-- Be sure to change the revision number if you add ANY new events.
+-- This will cause the user's local database to be refreshed.
+--]]
 local currentrevision = "2B"
 local defaultevents = {
 	["PLAYER_REGEN_DISABLED"] = 1,
@@ -124,8 +121,6 @@ function Transcriptor:OnDisable()
 	if self.logging then
 		self:StopLog()
 	end
-	
-	self:UnregisterAllEvents()
 end
 
 --[[------------------------------------------------
@@ -175,9 +170,9 @@ function Transcriptor:StartLog()
 		--Notify Log Start
 		self:Print("Beginning Transcript: "..logName)
 		self.logging = 1
+
+		self:UpdateDisplay()
 	end
-	
-	self:UpdateDisplay()
 end
 
 function Transcriptor:StopLog()
@@ -192,9 +187,9 @@ function Transcriptor:StopLog()
 		logName = nil
 		currentLog = nil
 		self.logging = nil
+
+		self:UpdateDisplay()
 	end
-	
-	self:UpdateDisplay()
 end
 
 function Transcriptor:InsNote(note)
@@ -246,13 +241,12 @@ end
 
 function Transcriptor:OnTextUpdate()
 	if self.logging then
-		statustext = "|cffFF0000Recording|r"
-		self:SetIcon(icon_on)
+		self:SetText("|cffFF0000Recording|r")
+		self:SetIcon("Interface\\AddOns\\Transcriptor\\icon_on.tga")
 	else
-		statustext = "|cff696969Idle|r"
-		self:SetIcon(icon_off)
+		self:SetText("|cff696969Idle|r")
+		self:SetIcon("Interface\\AddOns\\Transcriptor\\icon_off.tga")
 	end
-	self:SetText(statustext)
 end
 
 function Transcriptor:OnClick()
