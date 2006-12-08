@@ -1,9 +1,9 @@
 ## Interface: 20000
 ## Title: Transcriptor |cff7fff7f -Ace2-|r
-## Notes: Boss Encounter Logging Utility
-## Version: 2.0.2B
-## Author: |cffFA8072Kyahx|r
-## X-Category: Other
+## Notes: Logging utility for boss encounters.
+## Version: 2.0.3B
+## Author: Kyahx, Rabbit
+## X-Category: Development Tools
 ## X-eMail: kyahx.pots@gmail.com
 ## X-Website: http://kyahx.wowinterface.com
 ## OptionalDeps: Ace2, DewdropLib, FuBarPlugin-2.0, TabletLib, FuBar
@@ -22,3 +22,4 @@ libs\DewDrop-2.0\DewDrop-2.0.lua
 libs\FuBarPlugin-2.0\FuBarPlugin-2.0.lua
 
 Core.lua
+
