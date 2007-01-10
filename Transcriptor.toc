@@ -1,4 +1,4 @@
-## Interface: 20000
+## Interface: 20003
 ## Title: Transcriptor |cff7fff7f -Ace2-|r
 ## Notes: Logging utility for boss encounters.
 ## Version: 2.0.3B
@@ -22,4 +22,3 @@ libs\DewDrop-2.0\DewDrop-2.0.lua
 libs\FuBarPlugin-2.0\FuBarPlugin-2.0.lua
 
 Core.lua
-
