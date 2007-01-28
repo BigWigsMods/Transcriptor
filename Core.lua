@@ -9,7 +9,7 @@ local logStartTime
 -- Be sure to change the revision number if you add ANY new events.
 -- This will cause the user's local database to be refreshed.
 --]]
-local currentrevision = "2B"
+local currentrevision = "2C"
 local defaultevents = {
 	["PLAYER_REGEN_DISABLED"] = 1,
 	["PLAYER_REGEN_ENABLED"] = 1,
@@ -28,7 +28,8 @@ local defaultevents = {
 	["PLAYER_TARGET_CHANGED"] = 1,
 	["CHAT_MSG_SPELL_PERIODIC_CREATURE_DAMAGE"] = 1,
 	["BigWigs_Message"] = 1,
-	["CHAT_MSG_COMBAT_FRIENDLY_DEATH"] = 1
+	["CHAT_MSG_COMBAT_FRIENDLY_DEATH"] = 1,
+	["CHAT_MSG_COMBAT_HOSTILE_DEATH"] = 1
 }
 
 local EventsTable = {}
@@ -419,6 +420,14 @@ function Transcriptor:CHAT_MSG_COMBAT_FRIENDLY_DEATH()
 	self:Debug("Friendly Death: "..arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[friendDies]-")
+	table.insert(currentLog.friendDies, "<"..self:GetTime().."> "..msg)
+end
+
+function Transcriptor:CHAT_MSG_COMBAT_HOSTILE_DEATH()
+	if not currentLog.hostileDies then currentLog.hostileDies = {} end
+	self:Debug("Hostile Death: "..arg1)
+	local msg = (arg1)
+	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[hostileDies]-")
 	table.insert(currentLog.friendDies, "<"..self:GetTime().."> "..msg)
 end
 
