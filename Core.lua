@@ -428,6 +428,6 @@ function Transcriptor:CHAT_MSG_COMBAT_HOSTILE_DEATH()
 	self:Debug("Hostile Death: "..arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[hostileDies]-")
-	table.insert(currentLog.friendDies, "<"..self:GetTime().."> "..msg)
+	table.insert(currentLog.hostileDies, "<"..self:GetTime().."> "..msg)
 end
 
