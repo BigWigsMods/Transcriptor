@@ -44,26 +44,26 @@ local options = {
 			name = "Start", type = 'execute',
 			desc = "Start transcribing encounter.",
 			func = function() self:StartLog() end,
-			disabled = function() return self.logging end,
+			disabled = function() return Transcriptor.logging end,
 		},
 		stop = {
 			name = "Stop", type = 'execute',
 			desc = "Stop transcribing encounter.",
 			func = function() self:StopLog() end,
-			disabled = function() return not self.logging end,
+			disabled = function() return not Transcriptor.logging end,
 		},
 		note = {
 			name = "Insert Note", type = 'text',
 			desc = "Insert a note into the currently running transcript.",
 			get = false,
-			set = function(text) self:InsNote(text) end,
+			set = function(text) Transcriptor:InsNote(text) end,
 			usage = "<note>",
 		},
 		clear = {
 			name = "Clear Logs", type = 'execute',
 			desc = "Clear",
 			func = function()
-				self:ClearLogs()
+				Transcriptor:ClearLogs()
 			end,
 		},
 		events = {
@@ -74,8 +74,8 @@ local options = {
 		timeformat = {
 			name = "Time format", type = 'text',
 			desc = "Change the format of the log timestamps.",
-			get = function() return self:GetTimeFormat() end,
-			set = function(v) self:SetTimeFormat(v) end,
+			get = function() return Transcriptor:GetTimeFormat() end,
+			set = function(v) Transcriptor:SetTimeFormat(v) end,
 			validate = { "H:M:S", "Epoch + T(S)" },
 		},
 	},
@@ -290,10 +290,11 @@ function Transcriptor:CHAT_MSG_MONSTER_EMOTE()
 	table.insert(currentLog.emote, "<"..self:GetTime().."> "..msg)
 end
 
-function Transcriptor:CHAT_MSG_RAID_BOSS_EMOTE()
+function Transcriptor:CHAT_MSG_RAID_BOSS_EMOTE(...)
 	if type(currentLog.raidBossEmote) ~= "table" then currentLog.raidBossEmote = {} end
-	self:Debug("Raid boss emote: ["..arg2.."]: "..arg1)
-	local msg = ("Emote ["..arg2.."]: "..arg1)
+	local msg = strjoin(":", ...)
+	msg = "Raid boss emote ["..msg.."]"
+	self:Debug(msg)
 	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[raidBossEmote]-")
 	table.insert(currentLog.raidBossEmote, "<"..self:GetTime().."> "..msg)
 end
