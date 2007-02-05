@@ -1,6 +1,10 @@
+
 Transcriptor = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceConsole-2.0", "AceDebug-2.0", "FuBarPlugin-2.0")
+local Transcriptor = Transcriptor
+
 local tablet = AceLibrary("Tablet-2.0")
 
+local _G = getfenv(0)
 local logName
 local currentLog
 local logStartTime
@@ -9,7 +13,7 @@ local logStartTime
 -- Be sure to change the revision number if you add ANY new events.
 -- This will cause the user's local database to be refreshed.
 --]]
-local currentrevision = "2C"
+local currentrevision = "2D"
 local defaultevents = {
 	["PLAYER_REGEN_DISABLED"] = 1,
 	["PLAYER_REGEN_ENABLED"] = 1,
@@ -17,6 +21,7 @@ local defaultevents = {
 	["CHAT_MSG_MONSTER_SAY"] = 1,
 	["CHAT_MSG_MONSTER_WHISPER"] = 1,
 	["CHAT_MSG_MONSTER_YELL"] = 1,
+	["CHAT_MSG_RAID_BOSS_EMOTE"] = 1,
 	["CHAT_MSG_SPELL_CREATURE_VS_CREATURE_DAMAGE"] = 1,
 	["CHAT_MSG_SPELL_CREATURE_VS_CREATURE_BUFF"] = 1,
 	["CHAT_MSG_SPELL_PERIODIC_HOSTILEPLAYER_DAMAGE"] = 1,
@@ -32,7 +37,49 @@ local defaultevents = {
 	["CHAT_MSG_COMBAT_HOSTILE_DEATH"] = 1
 }
 
-local EventsTable = {}
+local options = {
+	type = 'group',
+	args = {
+		start = {
+			name = "Start", type = 'execute',
+			desc = "Start transcribing encounter.",
+			func = function() self:StartLog() end,
+			disabled = function() return self.logging end,
+		},
+		stop = {
+			name = "Stop", type = 'execute',
+			desc = "Stop transcribing encounter.",
+			func = function() self:StopLog() end,
+			disabled = function() return not self.logging end,
+		},
+		note = {
+			name = "Insert Note", type = 'text',
+			desc = "Insert a note into the currently running transcript.",
+			get = false,
+			set = function(text) self:InsNote(text) end,
+			usage = "<note>",
+		},
+		clear = {
+			name = "Clear Logs", type = 'execute',
+			desc = "Clear",
+			func = function()
+				self:ClearLogs()
+			end,
+		},
+		events = {
+			name = "Events", type = 'group',
+			desc = "Various events that can be logged.",
+			args = {},
+		},
+		timeformat = {
+			name = "Time format", type = 'text',
+			desc = "Change the format of the log timestamps.",
+			get = function() return self:GetTimeFormat() end,
+			set = function(v) self:SetTimeFormat(v) end,
+			validate = { "H:M:S", "Epoch + T(S)" },
+		},
+	},
+}
 
 --[[------------------------------------------------
 	Basic Functions
@@ -40,76 +87,31 @@ local EventsTable = {}
 
 function Transcriptor:OnInitialize()
 	self:SetupDB()
-	self.consoleOptions = {
-		type = 'group',
-		args = {
-			start = {
-				name = "Start", type = 'execute',
-				desc = "Start transcribing encounter.",
-				func = function() self:StartLog() end,
-				disabled = function() return self.logging end,
-			},
-			stop = {
-				name = "Stop", type = 'execute',
-				desc = "Stop transcribing encounter.",
-				func = function() self:StopLog() end,
-				disabled = function() return not self.logging end,
-			},
-			note = {
-				name = "Insert Note", type = 'text',
-				desc = "Insert a note into the currently running transcript.",
-				get = false,
-				set = function(text) self:InsNote(text) end,
-				usage = "<note>",
-			},
-			clear = {
-				name = "Clear Logs", type = 'execute',
-				desc = "Clear",
-				func = function()
-					self:ClearLogs()
-				end,
-			},
-			events = {
-				name = "Events", type = 'group',
-				desc = "Various events that can be logged.",
-				args = EventsTable,
-			},
-			timeformat = {
-				name = "Time format", type = 'text',
-				desc = "Change the format of the log timestamps.",
-				get = function() return self:GetTimeFormat() end,
-				set = function(v) self:SetTimeFormat(v) end,
-				validate = { "H:M:S", "Epoch + T(S)" },
-			},
-		},
-	}
+	self:RegisterChatCommand({ "/transcriptor", "/ts" }, options, "TRANSCRIPTOR")
 
-	self:RegisterChatCommand({ "/transcriptor", "/ts" }, self.consoleOptions)
-	
-	self.OnMenuRequest = self.consoleOptions
-	self.name = "Transcriptor"
+	self.OnMenuRequest = options
 	self.hasIcon = "Interface\\Addons\\Transcriptor\\icon_off"
 	self.defaultMinimapPosition = 200
 	self.clickableTooltip = true
 end
 
 function Transcriptor:SetupDB()
-	if not TranscriptDB then TranscriptDB = {} end
-	if not TranscriptDB.events then TranscriptDB.events = defaultevents end
-	if not TranscriptDB.revision then TranscriptDB.revision = currentrevision end
-	if not TranscriptDB.timeStampFormat then TranscriptDB.timeStampFormat = "Epoch + T(S)" end
-	if TranscriptDB.revision ~= currentrevision then
-		TranscriptDB.events = defaultevents
-		TranscriptDB.revision = currentrevision
+	if type(_G.TranscriptDB) ~= "table" then _G.TranscriptDB = {} end
+	if type(_G.TranscriptDB.events) ~= "table" then _G.TranscriptDB.events = defaultevents end
+	if type(_G.TranscriptDB.revision) ~= "string" then _G.TranscriptDB.revision = currentrevision end
+	if type(_G.TranscriptDB.timeStampFormat) ~= "string" then _G.TranscriptDB.timeStampFormat = "Epoch + T(S)" end
+	if _G.TranscriptDB.revision ~= currentrevision then
+		_G.TranscriptDB.events = defaultevents
+		_G.TranscriptDB.revision = currentrevision
 	end
 
-	for e,_ in pairs(TranscriptDB.events) do
-		local event = e
-		EventsTable[event] = {
-			name = event, type = 'toggle',
+	local opt = options.args.events.args
+	for e,_ in pairs(_G.TranscriptDB.events) do
+		opt[e] = {
+			name = e, type = 'toggle',
 			desc = "Toggle logging of this event.",
-			get = function() return TranscriptDB.events[event] end,
-			set = function() TranscriptDB.events[event] = not TranscriptDB.events[event] end
+			get = function() return _G.TranscriptDB.events[e] end,
+			set = function() _G.TranscriptDB.events[e] = not _G.TranscriptDB.events[e] end
 		}
 	end
 end
@@ -129,11 +131,11 @@ end
 ------------------------------------------------]]--
 
 function Transcriptor:GetTimeFormat()
-	return TranscriptDB and TranscriptDB.timeStampFormat or "Epoch + T(S)"
+	return _G.TranscriptDB and _G.TranscriptDB.timeStampFormat or "Epoch + T(S)"
 end
 
 function Transcriptor:SetTimeFormat(format)
-	if TranscriptDB then TranscriptDB.timeStampFormat = format end
+	if _G.TranscriptDB then _G.TranscriptDB.timeStampFormat = format end
 end
 
 TranscriptorTimeFunc = {}
@@ -145,7 +147,7 @@ TranscriptorTimeFunc["H:M:S"] = function()
 end
 
 function Transcriptor:GetTime()
-	return TranscriptorTimeFunc[TranscriptDB.timeStampFormat]()
+	return TranscriptorTimeFunc[_G.TranscriptDB.timeStampFormat]()
 end
 
 function Transcriptor:StartLog()
@@ -154,15 +156,18 @@ function Transcriptor:StartLog()
 	else
 		-- Set the Log Path
 		logStartTime = GetTime()
+
 		-- Note that we do not use the time format here, so we have some idea of
 		-- when the logging actually started.
 		logName = "["..date("%H:%M:%S").."] - "..GetRealZoneText().." : "..GetSubZoneText()
-		if not TranscriptDB[logName] then TranscriptDB[logName] = {} end
-		currentLog = TranscriptDB[logName]
-		if not currentLog.total then currentLog.total = {} end
+
+		if type(_G.TranscriptDB[logName]) ~= "table" then _G.TranscriptDB[logName] = {} end
+		currentLog = _G.TranscriptDB[logName]
+
+		if type(currentLog.total) ~= "table" then currentLog.total = {} end
 		--Register Events to be Tracked
-		for event,status in pairs(TranscriptDB.events) do
-			if status == 1 then
+		for event,status in pairs(_G.TranscriptDB.events) do
+			if status then
 				self:RegisterEvent(event)
 			else
 				self:Debug("Skipped Registration: "..event)
@@ -204,7 +209,7 @@ end
 
 function Transcriptor:ClearLogs()
 	if not self.logging then
-		TranscriptDB = {}
+		_G.TranscriptDB = {}
 		self:SetupDB()
 		self:Print("All transcripts cleared.")
 	else
@@ -268,25 +273,33 @@ end
 ------------------------------------------------]]--
 
 function Transcriptor:PLAYER_REGEN_DISABLED()
-	self:Debug("--|  Regen Disabled : Entered Combat |--")
-	table.insert(currentLog.total, "<"..self:GetTime().."> --|  Regen Disabled : Entered Combat |--")
+	self:Debug("--| Regen Disabled : Entered Combat |--")
+	table.insert(currentLog.total, "<"..self:GetTime().."> --| Regen Disabled : Entered Combat |--")
 end
 
 function Transcriptor:PLAYER_REGEN_ENABLED()
-	self:Debug("--|  Regen Enabled : Left Combat |--")
-	table.insert(currentLog.total, "<"..self:GetTime().."> --|  Regen Enabled : Left Combat |--")
+	self:Debug("--| Regen Enabled : Left Combat |--")
+	table.insert(currentLog.total, "<"..self:GetTime().."> --| Regen Enabled : Left Combat |--")
 end
 
 function Transcriptor:CHAT_MSG_MONSTER_EMOTE()
-	if not currentLog.emote then currentLog.emote = {} end
+	if type(currentLog.emote) ~= "table" then currentLog.emote = {} end
 	self:Debug("Monster Emote: ["..arg2.."]: "..arg1)
 	local msg = ("Emote ["..arg2.."]: "..arg1)
 	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[emote]-")
 	table.insert(currentLog.emote, "<"..self:GetTime().."> "..msg)
 end
 
+function Transcriptor:CHAT_MSG_RAID_BOSS_EMOTE()
+	if type(currentLog.raidBossEmote) ~= "table" then currentLog.raidBossEmote = {} end
+	self:Debug("Raid boss emote: ["..arg2.."]: "..arg1)
+	local msg = ("Emote ["..arg2.."]: "..arg1)
+	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[raidBossEmote]-")
+	table.insert(currentLog.raidBossEmote, "<"..self:GetTime().."> "..msg)
+end
+
 function Transcriptor:CHAT_MSG_MONSTER_SAY()
-	if not currentLog.say then currentLog.say = {} end
+	if type(currentLog.say) ~= "table" then currentLog.say = {} end
 	self:Debug("Monster Say: ["..arg2.."]: "..arg1)
 	local msg
 	if arg3 then
@@ -299,7 +312,7 @@ function Transcriptor:CHAT_MSG_MONSTER_SAY()
 end
 
 function Transcriptor:CHAT_MSG_MONSTER_WHISPER()
-	if not currentLog.whisper then currentLog.whisper = {} end
+	if type(currentLog.whisper) ~= "table" then currentLog.whisper = {} end
 	self:Debug("Monster Whisper: ["..arg2.."]: "..arg1)
 	local msg = ("Whisper ["..arg2.."]: "..arg1)
 	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[whisper]-")
@@ -307,7 +320,7 @@ function Transcriptor:CHAT_MSG_MONSTER_WHISPER()
 end
 
 function Transcriptor:CHAT_MSG_MONSTER_YELL()
-	if not currentLog.yell then currentLog.yell = {} end
+	if type(currentLog.yell) ~= "table" then currentLog.yell = {} end
 	self:Debug("Monster Yell: ["..arg2.."]: "..arg1)
 	local msg = ("Yell ["..arg2.."]: "..arg1)
 	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[yell]-")
@@ -315,7 +328,7 @@ function Transcriptor:CHAT_MSG_MONSTER_YELL()
 end
 
 function Transcriptor:CHAT_MSG_SPELL_CREATURE_VS_CREATURE_DAMAGE()
-	if not currentLog.spell_CvCdmg then currentLog.spell_CvCdmg = {} end
+	if type(currentLog.spell_CvCdmg) ~= "table" then currentLog.spell_CvCdmg = {} end
 	self:Debug("Creature vs Creature Dmg: "..arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_CvCdmg]-")
@@ -323,7 +336,7 @@ function Transcriptor:CHAT_MSG_SPELL_CREATURE_VS_CREATURE_DAMAGE()
 end
 
 function Transcriptor:CHAT_MSG_SPELL_CREATURE_VS_CREATURE_BUFF()
-	if not currentLog.spell_CvCbuff then currentLog.spell_CvCbuff = {} end
+	if type(currentLog.spell_CvCbuff) ~= "table" then currentLog.spell_CvCbuff = {} end
 	self:Debug("Creature vs Creature Buff: "..arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_CvCbuff]-")
@@ -331,7 +344,7 @@ function Transcriptor:CHAT_MSG_SPELL_CREATURE_VS_CREATURE_BUFF()
 end
 
 function Transcriptor:CHAT_MSG_SPELL_PERIODIC_HOSTILEPLAYER_DAMAGE()
-	if not currentLog.spell_perHostPlyrDmg then currentLog.spell_perHostPlyrDmg = {} end
+	if type(currentLog.spell_perHostPlyrDmg) ~= "table" then currentLog.spell_perHostPlyrDmg = {} end
 	self:Debug("Peridoic Hostile Player Damage: "..arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_perHostPlyrDmg]-")
@@ -339,7 +352,7 @@ function Transcriptor:CHAT_MSG_SPELL_PERIODIC_HOSTILEPLAYER_DAMAGE()
 end
 
 function Transcriptor:CHAT_MSG_SPELL_PERIODIC_CREATURE_BUFFS()
-	if not currentLog.spell_perCbuffs then currentLog.spell_perCbuffs = {} end
+	if type(currentLog.spell_perCbuffs) ~= "table" then currentLog.spell_perCbuffs = {} end
 	self:Debug("Peridoic Creature Buffs: "..arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_perCbuffs]-")
@@ -347,7 +360,7 @@ function Transcriptor:CHAT_MSG_SPELL_PERIODIC_CREATURE_BUFFS()
 end
 
 function Transcriptor:CHAT_MSG_SPELL_PERIODIC_SELF_DAMAGE()
-	if not currentLog.spell_selfDmg then currentLog.spell_selfDmg = {} end
+	if type(currentLog.spell_selfDmg) ~= "table" then currentLog.spell_selfDmg = {} end
 	self:Debug("Peridoic Self Damage: "..arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_selfDmg]-")
@@ -355,7 +368,7 @@ function Transcriptor:CHAT_MSG_SPELL_PERIODIC_SELF_DAMAGE()
 end
 
 function Transcriptor:CHAT_MSG_SPELL_PERIODIC_FRIENDLYPLAYER_DAMAGE()
-	if not currentLog.spell_friendDmg then currentLog.spell_friendDmg = {} end
+	if type(currentLog.spell_friendDmg) ~= "table" then currentLog.spell_friendDmg = {} end
 	self:Debug("Peridoic Friendly Player Damage: "..arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_friendDmg]-")
@@ -363,7 +376,7 @@ function Transcriptor:CHAT_MSG_SPELL_PERIODIC_FRIENDLYPLAYER_DAMAGE()
 end
 
 function Transcriptor:CHAT_MSG_SPELL_PERIODIC_PARTY_DAMAGE()
-	if not currentLog.spell_partyDmg then currentLog.spell_partyDmg = {} end
+	if type(currentLog.spell_partyDmg) ~= "table" then currentLog.spell_partyDmg = {} end
 	self:Debug("Peridoic Party Damage: "..arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_partyDmg]-")
@@ -371,7 +384,7 @@ function Transcriptor:CHAT_MSG_SPELL_PERIODIC_PARTY_DAMAGE()
 end
 
 function Transcriptor:CHAT_MSG_SPELL_AURA_GONE_OTHER()
-	if not currentLog.spell_auraGone then currentLog.spell_auraGone = {} end
+	if type(currentLog.spell_auraGone) ~= "table" then currentLog.spell_auraGone = {} end
 	self:Debug("Aura Gone: "..arg1)
 
 	local msg = (arg1)
@@ -380,7 +393,7 @@ function Transcriptor:CHAT_MSG_SPELL_AURA_GONE_OTHER()
 end
 
 function Transcriptor:PLAYER_TARGET_CHANGED()
-	if not currentLog.PTC then currentLog.PTC = {} end
+	if type(currentLog.PTC) ~= "table" then currentLog.PTC = {} end
 	if (not UnitInRaid("target")) and UnitExists("target") then
 		local level = UnitLevel("target")
 		if UnitIsPlusMob("target") then level = ("+"..level) end
@@ -400,7 +413,7 @@ function Transcriptor:PLAYER_TARGET_CHANGED()
 end
 
 function Transcriptor:CHAT_MSG_SPELL_PERIODIC_CREATURE_DAMAGE()
-	if not currentLog.spell_perCdmg then currentLog.spell_perCdmg = {} end
+	if type(currentLog.spell_perCdmg) ~= "table" then currentLog.spell_perCdmg = {} end
 	self:Debug("Peridoic Creature Damage: "..arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_perCdmg]-")
@@ -408,7 +421,7 @@ function Transcriptor:CHAT_MSG_SPELL_PERIODIC_CREATURE_DAMAGE()
 end
 
 function Transcriptor:BigWigs_Message(arg1)
-	if not currentLog.BW_Msg then currentLog.BW_Msg = {} end
+	if type(currentLog.BW_Msg) ~= "table" then currentLog.BW_Msg = {} end
 	self:Debug("BigWigs Message: "..arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..self:GetTime().."> *** "..msg.." ***")
@@ -416,7 +429,7 @@ function Transcriptor:BigWigs_Message(arg1)
 end
 
 function Transcriptor:CHAT_MSG_COMBAT_FRIENDLY_DEATH()
-	if not currentLog.friendDies then currentLog.friendDies = {} end
+	if type(currentLog.friendDies) ~= "table" then currentLog.friendDies = {} end
 	self:Debug("Friendly Death: "..arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[friendDies]-")
@@ -424,7 +437,7 @@ function Transcriptor:CHAT_MSG_COMBAT_FRIENDLY_DEATH()
 end
 
 function Transcriptor:CHAT_MSG_COMBAT_HOSTILE_DEATH()
-	if not currentLog.hostileDies then currentLog.hostileDies = {} end
+	if type(currentLog.hostileDies) ~= "table" then currentLog.hostileDies = {} end
 	self:Debug("Hostile Death: "..arg1)
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[hostileDies]-")
