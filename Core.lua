@@ -43,7 +43,7 @@ local options = {
 		start = {
 			name = "Start", type = 'execute',
 			desc = "Start transcribing encounter.",
-			func = function() self:StartLog() end,
+			func = function() Transcriptor:StartLog() end,
 			disabled = function() return Transcriptor.logging end,
 		},
 		stop = {
