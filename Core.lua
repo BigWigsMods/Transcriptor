@@ -49,7 +49,7 @@ local options = {
 		stop = {
 			name = "Stop", type = 'execute',
 			desc = "Stop transcribing encounter.",
-			func = function() self:StopLog() end,
+			func = function() Transcriptor:StopLog() end,
 			disabled = function() return not Transcriptor.logging end,
 		},
 		note = {
