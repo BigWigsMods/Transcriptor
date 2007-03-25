@@ -37,46 +37,64 @@ local defaultevents = {
 	["CHAT_MSG_COMBAT_HOSTILE_DEATH"] = 1
 }
 
+local function DisableIfNotLogging()
+	return not Transcriptor.logging
+end
+
+local function DisableIfLogging()
+	return Transcriptor.logging
+end
+
 local options = {
 	type = 'group',
+	handler = Transcriptor,
 	args = {
 		start = {
 			name = "Start", type = 'execute',
 			desc = "Start transcribing encounter.",
-			func = function() Transcriptor:StartLog() end,
-			disabled = function() return Transcriptor.logging end,
+			func = "StartLog",
+			disabled = DisableIfLogging,
 		},
 		stop = {
 			name = "Stop", type = 'execute',
 			desc = "Stop transcribing encounter.",
-			func = function() Transcriptor:StopLog() end,
-			disabled = function() return not Transcriptor.logging end,
+			func = "StopLog",
+			disabled = DisableIfNotLogging,
 		},
 		note = {
 			name = "Insert Note", type = 'text',
 			desc = "Insert a note into the currently running transcript.",
 			get = false,
-			set = function(text) Transcriptor:InsNote(text) end,
+			set = "InsNote",
 			usage = "<note>",
+			disabled = DisableIfNotLogging,
 		},
 		clear = {
 			name = "Clear Logs", type = 'execute',
 			desc = "Clear",
-			func = function()
-				Transcriptor:ClearLogs()
-			end,
+			func = "ClearLogs",
+			disabled = DisableIfLogging,
 		},
 		events = {
 			name = "Events", type = 'group',
 			desc = "Various events that can be logged.",
+			pass = true,
+			get = function(key)
+				return _G.TranscriptDB.events[key]
+			end,
+			set = function(key, value)
+				_G.TranscriptDB.events[key] = value
+			end,
 			args = {},
+			disabled = DisableIfLogging,
 		},
 		timeformat = {
 			name = "Time format", type = 'text',
 			desc = "Change the format of the log timestamps.",
-			get = function() return Transcriptor:GetTimeFormat() end,
-			set = function(v) Transcriptor:SetTimeFormat(v) end,
+			get = "GetTimeFormat",
+			set = "SetTimeFormat",
 			validate = { "H:M:S", "Epoch + T(S)" },
+			disabled = DisableIfLogging,
 		},
 	},
 }
@@ -109,9 +127,7 @@ function Transcriptor:SetupDB()
 	for e,_ in pairs(_G.TranscriptDB.events) do
 		opt[e] = {
 			name = e, type = 'toggle',
-			desc = "Toggle logging of this event.",
-			get = function() return _G.TranscriptDB.events[e] end,
-			set = function() _G.TranscriptDB.events[e] = not _G.TranscriptDB.events[e] end
+			desc = ("Toggle logging of %s."):format(e),
 		}
 	end
 end
@@ -195,6 +211,8 @@ function Transcriptor:StopLog()
 		self.logging = nil
 
 		self:UpdateDisplay()
+
+		self:Print("Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface.")
 	end
 end
 
