@@ -5,9 +5,10 @@ local Transcriptor = Transcriptor
 local tablet = AceLibrary("Tablet-2.0")
 
 local _G = getfenv(0)
-local logName
-local currentLog
-local logStartTime
+local logName = nil
+local currentLog = nil
+local logStartTime = nil
+local logging = nil
 
 --[[
 -- Be sure to change the revision number if you add ANY new events.
@@ -38,46 +39,48 @@ local defaultevents = {
 }
 
 local function DisableIfNotLogging()
-	return not Transcriptor.logging
+	return not logging
 end
 
 local function DisableIfLogging()
-	return Transcriptor.logging
+	return logging
 end
 
 local options = {
-	type = 'group',
+	type = "group",
 	handler = Transcriptor,
 	args = {
 		start = {
-			name = "Start", type = 'execute',
-			desc = "Start transcribing encounter.",
+			name = "Start", type = "execute",
+			desc = "Start transcribing.",
 			func = "StartLog",
 			disabled = DisableIfLogging,
+			order = 1,
 		},
 		stop = {
-			name = "Stop", type = 'execute',
-			desc = "Stop transcribing encounter.",
+			name = "Stop", type = "execute",
+			desc = "Stop transcribing.",
 			func = "StopLog",
 			disabled = DisableIfNotLogging,
+			order = 2,
+		},
+		spacer = {
+			type = "header",
+			name = " ",
+			order = 50,
 		},
 		note = {
-			name = "Insert Note", type = 'text',
+			name = "Insert Note", type = "text",
 			desc = "Insert a note into the currently running transcript.",
 			get = false,
 			set = "InsNote",
 			usage = "<note>",
 			disabled = DisableIfNotLogging,
-		},
-		clear = {
-			name = "Clear Logs", type = 'execute',
-			desc = "Clear",
-			func = "ClearLogs",
-			disabled = DisableIfLogging,
+			order = 100,
 		},
 		events = {
-			name = "Events", type = 'group',
-			desc = "Various events that can be logged.",
+			name = "Events", type = "group",
+			desc = "Toggle which events to log data from.",
 			pass = true,
 			get = function(key)
 				return _G.TranscriptDB.events[key]
@@ -87,14 +90,23 @@ local options = {
 			end,
 			args = {},
 			disabled = DisableIfLogging,
+			order = 101,
 		},
 		timeformat = {
-			name = "Time format", type = 'text',
-			desc = "Change the format of the log timestamps.",
+			name = "Time format", type = "text",
+			desc = "Change the format of the log timestamps (epoch is preferred).",
 			get = "GetTimeFormat",
 			set = "SetTimeFormat",
 			validate = { "H:M:S", "Epoch + T(S)" },
 			disabled = DisableIfLogging,
+			order = 102,
+		},
+		clear = {
+			name = "Clear Logs", type = "execute",
+			desc = "Clears all the logged data from the Saved Variables database.",
+			func = "ClearLogs",
+			disabled = DisableIfLogging,
+			order = 103,
 		},
 	},
 }
@@ -105,7 +117,7 @@ local options = {
 
 function Transcriptor:OnInitialize()
 	self:SetupDB()
-	self:RegisterChatCommand({ "/transcriptor", "/ts" }, options, "TRANSCRIPTOR")
+	self:RegisterChatCommand({ "/transcriptor" }, options, "TRANSCRIPTOR")
 
 	self.OnMenuRequest = options
 	self.hasIcon = "Interface\\Addons\\Transcriptor\\icon_off"
@@ -126,18 +138,18 @@ function Transcriptor:SetupDB()
 	local opt = options.args.events.args
 	for e,_ in pairs(_G.TranscriptDB.events) do
 		opt[e] = {
-			name = e, type = 'toggle',
+			name = e, type = "toggle",
 			desc = ("Toggle logging of %s."):format(e),
 		}
 	end
 end
 
 function Transcriptor:OnEnable()
-	self.logging = nil
+	logging = nil
 end
 
 function Transcriptor:OnDisable()
-	if self.logging then
+	if logging then
 		self:StopLog()
 	end
 end
@@ -167,7 +179,7 @@ function Transcriptor:GetTime()
 end
 
 function Transcriptor:StartLog()
-	if self.logging then
+	if logging then
 		self:Print("You are already logging an encounter.")
 	else
 		-- Set the Log Path
@@ -191,14 +203,14 @@ function Transcriptor:StartLog()
 		end
 		--Notify Log Start
 		self:Print("Beginning Transcript: "..logName)
-		self.logging = 1
+		logging = 1
 
 		self:UpdateDisplay()
 	end
 end
 
 function Transcriptor:StopLog()
-	if not self.logging then
+	if not logging then
 		self:Print("You are not logging an encounter.")
 	else
 		--Clear Events
@@ -208,7 +220,7 @@ function Transcriptor:StopLog()
 		--Clear Log Path
 		logName = nil
 		currentLog = nil
-		self.logging = nil
+		logging = nil
 
 		self:UpdateDisplay()
 
@@ -217,7 +229,7 @@ function Transcriptor:StopLog()
 end
 
 function Transcriptor:InsNote(note)
-	if not self.logging then
+	if not logging then
 		self:Print("You are not logging an encounter.")
 	else
 		self:Debug("Added Note: "..note)
@@ -226,7 +238,7 @@ function Transcriptor:InsNote(note)
 end
 
 function Transcriptor:ClearLogs()
-	if not self.logging then
+	if not logging then
 		_G.TranscriptDB = {}
 		self:SetupDB()
 		self:Print("All transcripts cleared.")
@@ -248,14 +260,14 @@ function Transcriptor:OnTooltipUpdate()
 	)
 
 	local text
-	if self.logging then
+	if logging then
 		text = "|cffFF0000Recording|r: "..logName
 	else
 		text = "|cff696969Idle|r"
 	end
 	cat:AddLine(
 		"text", text,
-		"func", Transcriptor.OnClick,
+		"func", self.OnClick,
 		"arg1", self,
 		"wrap", true
 	)
@@ -264,21 +276,21 @@ function Transcriptor:OnTooltipUpdate()
 end
 
 function Transcriptor:OnTextUpdate()
-	if self.logging then
+	if logging then
 		self:SetText("|cffFF0000Recording|r")
-		self:SetIcon("Interface\\AddOns\\Transcriptor\\icon_on.tga")
+		self:SetIcon("Interface\\AddOns\\Transcriptor\\icon_on")
 	else
 		self:SetText("|cff696969Idle|r")
-		self:SetIcon("Interface\\AddOns\\Transcriptor\\icon_off.tga")
+		self:SetIcon("Interface\\AddOns\\Transcriptor\\icon_off")
 	end
 end
 
 function Transcriptor:OnClick()
-	if IsControlKeyDown() and self.logging then
+	if IsControlKeyDown() and logging then
 		self:InsNote("!! Bookmark !!")
 		self:Print("Bookmark added to the current log.")
 	else
-		if not self.logging then
+		if not logging then
 			self:StartLog()
 		else
 			self:StopLog()
