@@ -14,7 +14,7 @@ local logging = nil
 -- Be sure to change the revision number if you add ANY new events.
 -- This will cause the user's local database to be refreshed.
 --]]
-local currentrevision = "2D"
+local currentrevision = "2E"
 local defaultevents = {
 	["PLAYER_REGEN_DISABLED"] = 1,
 	["PLAYER_REGEN_ENABLED"] = 1,
@@ -24,6 +24,8 @@ local defaultevents = {
 	["CHAT_MSG_MONSTER_YELL"] = 1,
 	["CHAT_MSG_RAID_BOSS_EMOTE"] = 1,
 	["CHAT_MSG_SPELL_CREATURE_VS_CREATURE_DAMAGE"] = 1,
+	["CHAT_MSG_SPELL_CREATURE_VS_SELF_DAMAGE"] = 1,
+	["CHAT_MSG_SPELL_CREATURE_VS_PARTY_DAMAGE"] = 1,
 	["CHAT_MSG_SPELL_CREATURE_VS_CREATURE_BUFF"] = 1,
 	["CHAT_MSG_SPELL_PERIODIC_HOSTILEPLAYER_DAMAGE"] = 1,
 	["CHAT_MSG_SPELL_PERIODIC_CREATURE_BUFFS"] = 1,
@@ -364,6 +366,22 @@ function Transcriptor:CHAT_MSG_SPELL_CREATURE_VS_CREATURE_DAMAGE()
 	local msg = (arg1)
 	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_CvCdmg]-")
 	table.insert(currentLog.spell_CvCdmg, "<"..self:GetTime().."> "..msg)
+end
+
+function Transcriptor:CHAT_MSG_SPELL_CREATURE_VS_SELF_DAMAGE()
+	if type(currentLog.spell_CvSdmg) ~= "table" then currentLog.spell_CvSdmg = {} end
+	self:Debug("Creature vs Self Dmg: "..arg1)
+	local msg = (arg1)
+	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_CvSdmg]-")
+	table.insert(currentLog.spell_CvSdmg, "<"..self:GetTime().."> "..msg)
+end
+
+function Transcriptor:CHAT_MSG_SPELL_CREATURE_VS_PARTY_DAMAGE()
+	if type(currentLog.spell_CvPdmg) ~= "table" then currentLog.spell_CvPdmg = {} end
+	self:Debug("Creature vs Party Dmg: "..arg1)
+	local msg = (arg1)
+	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_CvPdmg]-")
+	table.insert(currentLog.spell_CvPdmg, "<"..self:GetTime().."> "..msg)
 end
 
 function Transcriptor:CHAT_MSG_SPELL_CREATURE_VS_CREATURE_BUFF()
