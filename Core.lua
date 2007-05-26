@@ -1,5 +1,5 @@
 
-Transcriptor = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceConsole-2.0", "AceDebug-2.0", "FuBarPlugin-2.0")
+Transcriptor = AceLibrary("AceAddon-2.0"):new("AceDB-2.0", "AceEvent-2.0", "AceConsole-2.0", "AceDebug-2.0", "FuBarPlugin-2.0")
 local Transcriptor = Transcriptor
 
 local tablet = AceLibrary("Tablet-2.0")
@@ -118,8 +118,10 @@ local options = {
 ------------------------------------------------]]--
 
 function Transcriptor:OnInitialize()
+	self:RegisterDB("TranscriptorIconDB")
+
 	self:SetupDB()
-	self:RegisterChatCommand({ "/transcriptor" }, options, "TRANSCRIPTOR")
+	self:RegisterChatCommand("/transcriptor", options, "TRANSCRIPTOR")
 
 	self.OnMenuRequest = options
 	self.hasIcon = "Interface\\Addons\\Transcriptor\\icon_off"
