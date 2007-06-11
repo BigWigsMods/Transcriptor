@@ -33,11 +33,19 @@ local defaultevents = {
 	["CHAT_MSG_SPELL_PERIODIC_FRIENDLYPLAYER_DAMAGE"] = 1,
 	["CHAT_MSG_SPELL_PERIODIC_PARTY_DAMAGE"] = 1,
 	["CHAT_MSG_SPELL_AURA_GONE_OTHER"] = 1,
+	["CHAT_MSG_SPELL_AURA_GONE_SELF"] = 1,
+	["CHAT_MSG_SPELL_AURA_GONE_PARTY"] = 1,
 	["PLAYER_TARGET_CHANGED"] = 1,
 	["CHAT_MSG_SPELL_PERIODIC_CREATURE_DAMAGE"] = 1,
 	["BigWigs_Message"] = 1,
 	["CHAT_MSG_COMBAT_FRIENDLY_DEATH"] = 1,
-	["CHAT_MSG_COMBAT_HOSTILE_DEATH"] = 1
+	["CHAT_MSG_COMBAT_HOSTILE_DEATH"] = 1,
+	["UNIT_SPELLCAST_START"] = 1,
+	["UNIT_SPELLCAST_STOP"] = 1,
+	["UNIT_SPELLCAST_SUCCEEDED"] = 1,
+	["UNIT_SPELLCAST_INTERRUPTED"] = 1,
+	["UNIT_SPELLCAST_CHANNEL_START"] = 1,
+	["UNIT_SPELLCAST_CHANNEL_STOP"] = 1,
 }
 
 local function DisableIfNotLogging()
@@ -436,11 +444,29 @@ end
 
 function Transcriptor:CHAT_MSG_SPELL_AURA_GONE_OTHER()
 	if type(currentLog.spell_auraGone) ~= "table" then currentLog.spell_auraGone = {} end
-	self:Debug("Aura Gone: "..arg1)
+	self:Debug("Aura Gone Other: "..arg1)
 
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_auraGone]-")
+	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_auraGoneOther]-")
 	table.insert(currentLog.spell_auraGone, "<"..self:GetTime().."> "..msg)
+end
+
+function Transcriptor:CHAT_MSG_SPELL_AURA_GONE_PARTY()
+	if type(currentLog.spell_auraGoneParty) ~= "table" then currentLog.spell_auraGoneParty = {} end
+	self:Debug("Aura Gone Party: "..arg1)
+
+	local msg = (arg1)
+	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_auraGoneParty]-")
+	table.insert(currentLog.spell_auraGoneParty, "<"..self:GetTime().."> "..msg)
+end
+
+function Transcriptor:CHAT_MSG_SPELL_AURA_GONE_SELF()
+	if type(currentLog.spell_auraGoneSelf) ~= "table" then currentLog.spell_auraGoneSelf = {} end
+	self:Debug("Aura Gone Self: "..arg1)
+
+	local msg = (arg1)
+	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_auraGoneSelf]-")
+	table.insert(currentLog.spell_auraGoneSelf, "<"..self:GetTime().."> "..msg)
 end
 
 function Transcriptor:PLAYER_TARGET_CHANGED()
@@ -495,3 +521,70 @@ function Transcriptor:CHAT_MSG_COMBAT_HOSTILE_DEATH()
 	table.insert(currentLog.hostileDies, "<"..self:GetTime().."> "..msg)
 end
 
+--enemy cast bar logging
+function Transcriptor:UNIT_SPELLCAST_START( unit )
+	if type(currentLog.spellcastStart) ~= "table" then currentLog.spellcastStart = {} end
+	if not UnitExists(unit) or UnitInRaid(unit) or UnitInParty(unit) or UnitIsFriend("player", unit ) then
+		return
+	end
+	local spell, rank, displayName, icon, startTime, endTime = UnitCastingInfo(unit)
+	local time = ((tostring(endTime) - tostring(startTime)) / 1000)
+	local cast = ("[%s][%s][%s][%s][%s][%s sec]"):format( UnitName(unit), tostring(spell), tostring(rank), tostring(displayName), tostring(icon), time)
+	self:Debug( "Spellcast Start: " .. cast )
+	table.insert(currentLog.total, "<"..self:GetTime().."> "..cast.." -[spellcastStart]-")
+	table.insert(currentLog.spellcastStart, "<"..self:GetTime().."> "..cast)
+end
+
+function Transcriptor:UNIT_SPELLCAST_CHANNEL_START( unit )
+	if type(currentLog.channelStart) ~= "table" then currentLog.channelStart = {} end
+	if not UnitExists(unit) or UnitInRaid(unit) or UnitInParty(unit) or UnitIsFriend("player", unit ) then
+		return
+	end
+	local spell, rank, displayName, icon, startTime, endTime = UnitChannelInfo(unit)
+	local time = ((tostring(endTime) - tostring(startTime)) / 1000)
+	local cast = ("[%s][%s][%s][%s][%s][%s sec]"):format( UnitName(unit), tostring(spell), tostring(rank), tostring(displayName), tostring(icon), time)
+	self:Debug( "Channel Start: " .. cast )
+	table.insert(currentLog.total, "<"..self:GetTime().."> "..cast.." -[channelStart]-")
+	table.insert(currentLog.channelStart, "<"..self:GetTime().."> "..cast)
+end
+
+function Transcriptor:UNIT_SPELLCAST_STOP( unit )
+	if type(currentLog.spellcastStop) ~= "table" then currentLog.spellcastStop = {} end
+	if not UnitExists(unit) or UnitInRaid(unit) or UnitInParty(unit) or UnitIsFriend("player", unit ) then
+		return
+	end
+	self:Debug("Cast Stop: " .. UnitName(unit) )
+	table.insert(currentLog.total, "<"..self:GetTime().."> "..UnitName(unit).." -[spellcastStop]-")
+	table.insert(currentLog.spellcastStop, "<"..self:GetTime().."> "..UnitName(unit))
+end
+
+function Transcriptor:UNIT_SPELLCAST_CHANNEL_STOP( unit )
+	if type(currentLog.channelStop) ~= "table" then currentLog.channelStop = {} end
+	if not UnitExists(unit) or UnitInRaid(unit) or UnitInParty(unit) or UnitIsFriend("player", unit ) then
+		return
+	end
+	self:Debug("Channel Stop: " .. UnitName(unit) )
+	table.insert(currentLog.total, "<"..self:GetTime().."> "..UnitName(unit).." -[channelStop]-")
+	table.insert(currentLog.channelStop, "<"..self:GetTime().."> "..UnitName(unit))
+end
+
+function Transcriptor:UNIT_SPELLCAST_INTERRUPTED( unit )
+	if type(currentLog.spellcastInterrupt) ~= "table" then currentLog.spellcastInterrupt = {} end
+	if not UnitExists(unit) or UnitInRaid(unit) or UnitInParty(unit) or UnitIsFriend("player", unit ) then
+		return
+	end
+	self:Debug("Cast Interrupted: " .. UnitName(unit) )
+	table.insert(currentLog.total, "<"..self:GetTime().."> "..UnitName(unit).." -[spellcastInterrupt]-")
+	table.insert(currentLog.spellcastInterrupt, "<"..self:GetTime().."> "..UnitName(unit))
+end
+
+function Transcriptor:UNIT_SPELLCAST_SUCCEEDED( unit, spell, rank )
+	if type(currentLog.spellcastSuccess) ~= "table" then currentLog.spellcastSuccess = {} end
+	if not UnitExists(unit) or UnitInRaid(unit) or UnitInParty(unit) or UnitIsFriend("player", unit ) then
+		return
+	end
+	local cast = ("[%s][%s][%s]"):format( UnitName(unit), tostring(spell), tostring(rank))
+	self:Debug( "Cast Success: " .. cast )
+	table.insert(currentLog.total, "<"..self:GetTime().."> "..cast.." -[spellcastSuccess]-")
+	table.insert(currentLog.spellcastSuccess, "<"..self:GetTime().."> "..cast)
+end
