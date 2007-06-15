@@ -10,6 +10,106 @@ local currentLog = nil
 local logStartTime = nil
 local logging = nil
 
+local L = AceLibrary("AceLocale-2.2"):new("Transcriptor")
+
+-- localization
+L:RegisterTranslations("enUS", function() return {
+	["Start"] = true,
+	["Start transcribing."] = true,
+	["Stop"] = true,
+	["Stop transcribing."] = true,
+	["Insert Note"] = true,
+	["Insert a note into the currently running transcript."] = true,
+	["Events"] = true,
+	["Toggle which events to log data from."] = true,
+	["Time format"] = true,
+	["Change the format of the log timestamps (epoch is preferred)."] = true,
+	["Clear Logs"] = true,
+	["Clears all the logged data from the Saved Variables database."] = true,
+	["Toggle logging of %s."] = true,
+	["You are already logging an encounter."] = true,
+	["Skipped Registration: "] = true,
+	["Beginning Transcript: "] = true,
+	["You are not logging an encounter."] = true,
+	["Ending Transcript: "] = true,
+	["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = true,
+	["You are not logging an encounter."] = true,
+	["Added Note: "] = true,
+	["All transcripts cleared."] = true,
+	["You can't clear your transcripts while logging an encounter."] = true,
+	["|cffFF0000Recording|r: "] = true,
+	["|cff696969Idle|r"] = true,
+	["|cffeda55fClick|r to start or stop transcribing an encounter. |cffeda55fCtrl-Click|r to add a bookmark note."] = true,
+	["|cffFF0000Recording|r"] = true,
+	["!! Bookmark !!"] = true,
+	["Bookmark added to the current log."] = true,	
+}end)	
+	
+L:RegisterTranslations("zhCN", function() return {
+	["Start"] = "开始",
+	["Start transcribing."] = "开始记录战斗",
+	["Stop"] = "停止",
+	["Stop transcribing."] = "停止记录",
+	["Insert Note"] = "书签",
+	["Insert a note into the currently running transcript."] = "为正在记录战斗文本加上一书签",
+	["Events"] = "事件",
+	["Toggle which events to log data from."] = "选择要记录数据的事件",
+	["Time format"] = "时间格式",
+	["Change the format of the log timestamps (epoch is preferred)."] = "改变记录的时间格式",
+	["Clear Logs"] = "清除记录",
+	["Clears all the logged data from the Saved Variables database."] = "清空所有BOSS战记录",
+	["Toggle logging of %s."] = "切换%s的记录",
+	["You are already logging an encounter."] = "你已经准备记录战斗",
+	["Skipped Registration: "] = "跳过注册: ",
+	["Beginning Transcript: "] = "开始记录于: ",
+	["You are not logging an encounter."] = "你不处于记录状态",
+	["Ending Transcript: "] = "结束记录于：",
+	["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "记录保存于WoW\\WTF\\Account\\<名字>\\SavedVariables\\Transcriptor.lua中,你可以上传于Cwowaddon.com论坛,提供最新的BOSS数据.",
+	["You are not logging an encounter."] = "你没有记录此次战斗",
+	["Added Note: "] = "添加书签于: ",
+	["All transcripts cleared."] = "所有记录已清除",
+	["You can't clear your transcripts while logging an encounter."] = "正在记录中,你不能清除.",
+	["|cffFF0000Recording|r: "] = "|cffFF0000记录中|r: ",
+	["|cff696969Idle|r"] = "|cff696969空闲|r",
+	["|cffeda55fClick|r to start or stop transcribing an encounter. |cffeda55fCtrl-Click|r to add a bookmark note."] = "|cffeda55f点击|r开始/停止记录战斗. |cffeda55fCtrl-点击|r增加一书签标注.",
+	["|cffFF0000Recording|r"] = "|cffFF0000记录中|r",
+	["!! Bookmark !!"] = "!! 书签 !!",
+	["Bookmark added to the current log."] = "当前战斗记录已增加一书签",
+} end )
+
+L:RegisterTranslations("zhTW", function() return {
+	["Start"] = "開始",
+	["Start transcribing."] = "開始記錄戰斗",
+	["Stop"] = "停止",
+	["Stop transcribing."] = "停止記錄",
+	["Insert Note"] = "書簽",
+	["Insert a note into the currently running transcript."] = "為正在記錄戰斗文本加上一書簽",
+	["Events"] = "事件",
+	["Toggle which events to log data from."] = "選擇要記錄數據的事件",
+	["Time format"] = "時間格式",
+	["Change the format of the log timestamps (epoch is preferred)."] = "改變記錄的時間格式",
+	["Clear Logs"] = "清除記錄",
+	["Clears all the logged data from the Saved Variables database."] = "清空所有BOSS戰記錄",
+	["Toggle logging of %s."] = "切換%s的記錄",
+	["You are already logging an encounter."] = "你已經準備記錄戰斗",
+	["Skipped Registration: "] = "跳過注冊: ",
+	["Beginning Transcript: "] = "開始記錄于: ",
+	["You are not logging an encounter."] = "你不處于記錄狀態",
+	["Ending Transcript: "] = "結束記錄于：",
+	["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "記錄保存于WoW\\WTF\\Account\\<名字>\\SavedVariables\\Transcriptor.lua中,你可以上傳于Cwowaddon.com論壇,提供最新的BOSS數據.",
+	["You are not logging an encounter."] = "你沒有記錄此次戰斗",
+	["Added Note: "] = "添加書簽于: ",
+	["All transcripts cleared."] = "所有記錄已清除",
+	["You can't clear your transcripts while logging an encounter."] = "正在記錄中,你不能清除.",
+	["|cffFF0000Recording|r: "] = "|cffFF0000記錄中|r: ",
+	["|cff696969Idle|r"] = "|cff696969空閑|r",
+	["|cffeda55fClick|r to start or stop transcribing an encounter. |cffeda55fCtrl-Click|r to add a bookmark note."] = "|cffeda55f點擊|r開始/停止記錄戰斗. |cffeda55fCtrl-點擊|r增加一書簽標注.",
+	["|cffFF0000Recording|r"] = "|cffFF0000記錄中|r",
+	["!! Bookmark !!"] = "!! 書簽 !!",
+	["Bookmark added to the current log."] = "當前戰斗記錄已增加一書簽",
+} end )
+
+	
 --[[
 -- Be sure to change the revision number if you add ANY new events.
 -- This will cause the user's local database to be refreshed.
@@ -61,15 +161,15 @@ local options = {
 	handler = Transcriptor,
 	args = {
 		start = {
-			name = "Start", type = "execute",
-			desc = "Start transcribing.",
+			name = L["Start"], type = "execute",
+			desc = L["Start transcribing."],
 			func = "StartLog",
 			disabled = DisableIfLogging,
 			order = 1,
 		},
 		stop = {
-			name = "Stop", type = "execute",
-			desc = "Stop transcribing.",
+			name = L["Stop"], type = "execute",
+			desc = L["Stop transcribing."],
 			func = "StopLog",
 			disabled = DisableIfNotLogging,
 			order = 2,
@@ -80,8 +180,8 @@ local options = {
 			order = 50,
 		},
 		note = {
-			name = "Insert Note", type = "text",
-			desc = "Insert a note into the currently running transcript.",
+			name = L["Insert Note"], type = "text",
+			desc = L["Insert a note into the currently running transcript."],
 			get = false,
 			set = "InsNote",
 			usage = "<note>",
@@ -89,8 +189,8 @@ local options = {
 			order = 100,
 		},
 		events = {
-			name = "Events", type = "group",
-			desc = "Toggle which events to log data from.",
+			name = L["Events"], type = "group",
+			desc = L["Toggle which events to log data from."],
 			pass = true,
 			get = function(key)
 				return _G.TranscriptDB.events[key]
@@ -103,8 +203,8 @@ local options = {
 			order = 101,
 		},
 		timeformat = {
-			name = "Time format", type = "text",
-			desc = "Change the format of the log timestamps (epoch is preferred).",
+			name = L["Time format"], type = "text",
+			desc = L["Change the format of the log timestamps (epoch is preferred)."],
 			get = "GetTimeFormat",
 			set = "SetTimeFormat",
 			validate = { "H:M:S", "Epoch + T(S)" },
@@ -112,8 +212,8 @@ local options = {
 			order = 102,
 		},
 		clear = {
-			name = "Clear Logs", type = "execute",
-			desc = "Clears all the logged data from the Saved Variables database.",
+			name = L["Clear Logs"], type = "execute",
+			desc = L["Clears all the logged data from the Saved Variables database."],
 			func = "ClearLogs",
 			disabled = DisableIfLogging,
 			order = 103,
@@ -151,7 +251,7 @@ function Transcriptor:SetupDB()
 	for e,_ in pairs(_G.TranscriptDB.events) do
 		opt[e] = {
 			name = e, type = "toggle",
-			desc = ("Toggle logging of %s."):format(e),
+			desc = (L["Toggle logging of %s."]):format(e),
 		}
 	end
 end
@@ -192,7 +292,7 @@ end
 
 function Transcriptor:StartLog()
 	if logging then
-		self:Print("You are already logging an encounter.")
+		self:Print(L["You are already logging an encounter."])
 	else
 		-- Set the Log Path
 		logStartTime = GetTime()
@@ -210,11 +310,11 @@ function Transcriptor:StartLog()
 			if status then
 				self:RegisterEvent(event)
 			else
-				self:Debug("Skipped Registration: "..event)
+				self:Debug(L["Skipped Registration: "]..event)
 			end
 		end
 		--Notify Log Start
-		self:Print("Beginning Transcript: "..logName)
+		self:Print(L["Beginning Transcript: "]..logName)
 		logging = 1
 
 		self:UpdateDisplay()
@@ -223,12 +323,12 @@ end
 
 function Transcriptor:StopLog()
 	if not logging then
-		self:Print("You are not logging an encounter.")
+		self:Print(L["You are not logging an encounter."])
 	else
 		--Clear Events
 		self:UnregisterAllEvents()
 		--Notify Stop
-		self:Print("Ending Transcript: "..logName)
+		self:Print(L["Ending Transcript: "]..logName)
 		--Clear Log Path
 		logName = nil
 		currentLog = nil
@@ -236,15 +336,15 @@ function Transcriptor:StopLog()
 
 		self:UpdateDisplay()
 
-		self:Print("Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface.")
+		self:Print(L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."])
 	end
 end
 
 function Transcriptor:InsNote(note)
 	if not logging then
-		self:Print("You are not logging an encounter.")
+		self:Print(L["You are not logging an encounter."])
 	else
-		self:Debug("Added Note: "..note)
+		self:Debug(L["Added Note: "]..note)
 		table.insert(currentLog.total, "<"..self:GetTime().."> ** Note: "..note.." **")
 	end
 end
@@ -253,9 +353,9 @@ function Transcriptor:ClearLogs()
 	if not logging then
 		_G.TranscriptDB = {}
 		self:SetupDB()
-		self:Print("All transcripts cleared.")
+		self:Print(L["All transcripts cleared."])
 	else
-		self:Print("You can't clear your transcripts while logging an encounter.")
+		self:Print(L["You can't clear your transcripts while logging an encounter."])
 	end
 end
 
@@ -273,9 +373,9 @@ function Transcriptor:OnTooltipUpdate()
 
 	local text
 	if logging then
-		text = "|cffFF0000Recording|r: "..logName
+		text = L["|cffFF0000Recording|r: "]..logName
 	else
-		text = "|cff696969Idle|r"
+		text = L["|cff696969Idle|r"]
 	end
 	cat:AddLine(
 		"text", text,
@@ -284,23 +384,23 @@ function Transcriptor:OnTooltipUpdate()
 		"wrap", true
 	)
 
-	tablet:SetHint("|cffeda55fClick|r to start or stop transcribing an encounter. |cffeda55fCtrl-Click|r to add a bookmark note.")
+	tablet:SetHint(L["|cffeda55fClick|r to start or stop transcribing an encounter. |cffeda55fCtrl-Click|r to add a bookmark note."])
 end
 
 function Transcriptor:OnTextUpdate()
 	if logging then
-		self:SetText("|cffFF0000Recording|r")
+		self:SetText(L["|cffFF0000Recording|r"])
 		self:SetIcon("Interface\\AddOns\\Transcriptor\\icon_on")
 	else
-		self:SetText("|cff696969Idle|r")
+		self:SetText(L["|cff696969Idle|r"])
 		self:SetIcon("Interface\\AddOns\\Transcriptor\\icon_off")
 	end
 end
 
 function Transcriptor:OnClick()
 	if IsControlKeyDown() and logging then
-		self:InsNote("!! Bookmark !!")
-		self:Print("Bookmark added to the current log.")
+		self:InsNote(L["!! Bookmark !!"])
+		self:Print(L["Bookmark added to the current log."])
 	else
 		if not logging then
 			self:StartLog()
@@ -313,7 +413,7 @@ end
 --[[------------------------------------------------
 	Events
 ------------------------------------------------]]--
-
+-- Boss raid events. 
 function Transcriptor:PLAYER_REGEN_DISABLED()
 	self:Debug("--| Regen Disabled : Entered Combat |--")
 	table.insert(currentLog.total, "<"..self:GetTime().."> --| Regen Disabled : Entered Combat |--")
