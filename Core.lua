@@ -109,6 +109,37 @@ L:RegisterTranslations("zhTW", function() return {
 	["Bookmark added to the current log."] = "當前戰斗記錄已增加一書簽",
 } end )
 
+L:RegisterTranslations("deDE", function() return {
+	["Start"] = "Start",
+	["Start transcribing."] = "Aufzeichnung starten.",
+	["Stop"] = "Stop",
+	["Stop transcribing."] = "Aufzeichnung stoppen.",
+	["Insert Note"] = "Notiz einf\195\188gen",
+	["Insert a note into the currently running transcript."] = "Eine Notiz in die aktuell laufende Aufzeichnung einf\195\188gen.",
+	["Events"] = "Ereignisse",
+	["Toggle which events to log data from."] = "Ein- bzw. Ausschalten, welche Ereignisse aufgezeichnet werden sollen.",
+	["Time format"] = "Zeitformat",
+	["Change the format of the log timestamps (epoch is preferred)."] = "Das Zeitformat der Aufzeichnung \195\164ndern ('epoch' bevorzugt).",
+	["Clear Logs"] = "Aufzeichnungen l\195\182schen",
+	["Clears all the logged data from the Saved Variables database."] = "L\195\182scht alle aufgezeichneten Daten aus den Saved Variables.",
+	["Toggle logging of %s."] = "Aufzeichnung von %s ein/ausschalten.",
+	["You are already logging an encounter."] = "Du zeichnest bereits einen Begegnung auf.",
+	["Skipped Registration: "] = "Eintragung \195\188bersprungen: ",
+	["Beginning Transcript: "] = "Beginne Aufzeichnung: ",
+	["You are not logging an encounter."] = "Du zeichnest keine Begegnung auf.",
+	["Ending Transcript: "] = "Beende Aufzeichnung: ",
+	["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "Aufzeichnungen werden gespeichert nach WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua sobald du reloggst oder das Interface neu l\195\164dst.",
+	["You are not logging an encounter."] = "Du zeichnest keine Begegnung auf.",
+	["Added Note: "] = "Notiz hinzugef\195\188gt: ",
+	["All transcripts cleared."] = "Alle Aufzeichnungen gel\195\182scht.",
+	["You can't clear your transcripts while logging an encounter."] = "Du kannst deine Aufzeichnungen nicht l\195\182schen, w\195\164hrend du eine Begegnung aufnimmst.",
+	["|cffFF0000Recording|r: "] = "|cffFF0000Aufzeichnend|r: ",
+	["|cff696969Idle|r"] = "|cff696969Leerlauf|r",
+	["|cffeda55fClick|r to start or stop transcribing an encounter. |cffeda55fCtrl-Click|r to add a bookmark note."] = "|cffeda55fKlicke|r um eine Aufzeichnung zu starten/stoppen. |cffeda55fSTRG-Klick|r um ein Lesezeichen zur aktuellen Aufzeichnung hinzuzuf\195\188gen.",
+	["|cffFF0000Recording|r"] = "|cffFF0000Aufzeichnend|r",
+	["!! Bookmark !!"] = "!! Lesezeichen !!",
+	["Bookmark added to the current log."] = "Lesezeichen zur aktuellen Aufzeichnung hinzugef\195\188gt.",	
+}end)
 	
 --[[
 -- Be sure to change the revision number if you add ANY new events.
