@@ -43,8 +43,8 @@ L:RegisterTranslations("enUS", function() return {
 	["|cffFF0000Recording|r"] = true,
 	["!! Bookmark !!"] = true,
 	["Bookmark added to the current log."] = true,	
-}end)	
-	
+}end)
+
 L:RegisterTranslations("zhCN", function() return {
 	["Start"] = "开始",
 	["Start transcribing."] = "开始记录战斗",
@@ -140,7 +140,7 @@ L:RegisterTranslations("deDE", function() return {
 	["!! Bookmark !!"] = "!! Lesezeichen !!",
 	["Bookmark added to the current log."] = "Lesezeichen zur aktuellen Aufzeichnung hinzugef\195\188gt.",	
 }end)
-	
+
 --[[
 -- Be sure to change the revision number if you add ANY new events.
 -- This will cause the user's local database to be refreshed.

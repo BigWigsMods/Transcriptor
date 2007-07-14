@@ -6,6 +6,7 @@
 <Script file="libs\AceEvent-2.0\AceEvent-2.0.lua"/>
 <Script file="libs\AceDB-2.0\AceDB-2.0.lua"/>
 <Script file="libs\AceDebug-2.0\AceDebug-2.0.lua"/>
+<Script file="libs\AceLocale-2.2\AceLocale-2.2.lua"/>
 <Script file="libs\AceConsole-2.0\AceConsole-2.0.lua"/>
 <Script file="libs\AceAddon-2.0\AceAddon-2.0.lua"/>
 
