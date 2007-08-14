@@ -1,4 +1,4 @@
-
+﻿
 Transcriptor = AceLibrary("AceAddon-2.0"):new("AceDB-2.0", "AceEvent-2.0", "AceConsole-2.0", "AceDebug-2.0", "FuBarPlugin-2.0")
 local Transcriptor = Transcriptor
 
@@ -42,7 +42,39 @@ L:RegisterTranslations("enUS", function() return {
 	["|cffeda55fClick|r to start or stop transcribing an encounter. |cffeda55fCtrl-Click|r to add a bookmark note."] = true,
 	["|cffFF0000Recording|r"] = true,
 	["!! Bookmark !!"] = true,
-	["Bookmark added to the current log."] = true,	
+	["Bookmark added to the current log."] = true,
+}end)
+
+L:RegisterTranslations("koKR", function() return {
+	["Start"] = "시작",
+	["Start transcribing."] = "기록을 시작합니다.",
+	["Stop"] = "멈춤",
+	["Stop transcribing."] = "기록을 멈춥니다.",
+	["Insert Note"] = "메모 삽입",
+	["Insert a note into the currently running transcript."] = "현재 기록에 메모를 추가합니다.",
+	["Events"] = "이벤트",
+	["Toggle which events to log data from."] = "기록할 이벤트를 선택합니다.",
+	["Time format"] = "시간표시 형식",
+	["Change the format of the log timestamps (epoch is preferred)."] = "기록할 시간표시 형식을 선택합니다. (epoch 방식 지원)",
+	["Clear Logs"] = "기록 초기화",
+	["Clears all the logged data from the Saved Variables database."] = "기록된 모든 데이터를 초기화 합니다.",
+	--["Toggle logging of %s."] = true,
+	--["You are already logging an encounter."] = true,
+	--["Skipped Registration: "] = true,
+	["Beginning Transcript: "] = "기록 시작됨: ",
+	--["You are not logging an encounter."] = true,
+	["Ending Transcript: "] = "기록 종료: ",
+	["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "리로드 하기 전까진 WoW\\WTF\\Account\\<아이디>\\SavedVariables\\Transcriptor.lua 에 기록이 저장됩니다.",
+	--["You are not logging an encounter."] = true,
+	["Added Note: "] = "메모 삽입: ",
+	["All transcripts cleared."] = "모든 기록 초기화 완료",
+	["You can't clear your transcripts while logging an encounter."] = "전투 기록중엔 기록을 초기화 할 수 없습니다.",
+	["|cffFF0000Recording|r: "] = "|cffFF0000기록중|r: ",
+	["|cff696969Idle|r"] = "|cff696969무시|r",
+	["|cffeda55fClick|r to start or stop transcribing an encounter. |cffeda55fCtrl-Click|r to add a bookmark note."] = "|cffeda55f클릭|r: 전투 기록 시작 / 멈춤. |cffeda55fCtrl-클릭|r: 메모 삽입.",
+	["|cffFF0000Recording|r"] = "|cffFF0000기록중|r",
+	["!! Bookmark !!"] = "!! 메모 !!",
+	["Bookmark added to the current log."] = "현재 기록에 메모가 삽입되었습니다.",
 }end)
 
 L:RegisterTranslations("zhCN", function() return {
@@ -138,7 +170,7 @@ L:RegisterTranslations("deDE", function() return {
 	["|cffeda55fClick|r to start or stop transcribing an encounter. |cffeda55fCtrl-Click|r to add a bookmark note."] = "|cffeda55fKlicke|r um eine Aufzeichnung zu starten/stoppen. |cffeda55fSTRG-Klick|r um ein Lesezeichen zur aktuellen Aufzeichnung hinzuzuf\195\188gen.",
 	["|cffFF0000Recording|r"] = "|cffFF0000Aufzeichnend|r",
 	["!! Bookmark !!"] = "!! Lesezeichen !!",
-	["Bookmark added to the current log."] = "Lesezeichen zur aktuellen Aufzeichnung hinzugef\195\188gt.",	
+	["Bookmark added to the current log."] = "Lesezeichen zur aktuellen Aufzeichnung hinzugef\195\188gt.",
 }end)
 
 --[[
@@ -444,7 +476,7 @@ end
 --[[------------------------------------------------
 	Events
 ------------------------------------------------]]--
--- Boss raid events. 
+-- Boss raid events.
 function Transcriptor:PLAYER_REGEN_DISABLED()
 	self:Debug("--| Regen Disabled : Entered Combat |--")
 	table.insert(currentLog.total, "<"..self:GetTime().."> --| Regen Disabled : Entered Combat |--")
@@ -613,7 +645,7 @@ function Transcriptor:PLAYER_TARGET_CHANGED()
 		if classification == "normal" then typeclass = creatureType else typeclass = (classification.." "..creatureType) end
 		local name = UnitName("target")
 
-		local msg = (string.format("%s %s (%s) - %s", level, reaction, typeclass, name))	
+		local msg = (string.format("%s %s (%s) - %s", level, reaction, typeclass, name))
 		self:Debug("Target Changed: "..msg)
 		table.insert(currentLog.total, "<"..self:GetTime().."> Target Changed: "..msg.."-[PTC]-")
 		table.insert(currentLog.PTC, "<"..self:GetTime().."> Target Changed: "..msg)
