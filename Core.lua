@@ -209,6 +209,7 @@ local defaultevents = {
 	["UNIT_SPELLCAST_INTERRUPTED"] = 1,
 	["UNIT_SPELLCAST_CHANNEL_START"] = 1,
 	["UNIT_SPELLCAST_CHANNEL_STOP"] = 1,
+	["UPDATE_WORLD_STATES"] = 1,
 }
 
 local function DisableIfNotLogging()
@@ -750,4 +751,14 @@ function Transcriptor:UNIT_SPELLCAST_SUCCEEDED( unit, spell, rank )
 	self:Debug( "Cast Success: " .. cast )
 	table.insert(currentLog.total, "<"..self:GetTime().."> "..cast.." -[spellcastSuccess]-")
 	table.insert(currentLog.spellcastSuccess, "<"..self:GetTime().."> "..cast)
+end
+
+function Transcriptor:UPDATE_WORLD_STATES()
+--uiType, state, text, icon, isFlashing, dynamicIcon, tooltip, dynamicTooltip, extendedUI, extendedUIState1, extendedUIState2, extendedUIState3 = GetWorldStateUIInfo(index)
+	local uiType, state, text, icon, isFlashing, dynamicIcon, tooltip, dynamicTooltip, extendedUI, extendedUIState1, extendedUIState2, extendedUIState3 = GetWorldStateUIInfo(3)
+	if type(currentLog.world) ~= "table" then currentLog.world = {} end
+	local state = ("[%s][%s][%s][%s][%s][%s][%s][%s][%s][%s][%s][%s]"):format(uiType, state, text, icon, isFlashing, dynamicIcon, tooltip, dynamicTooltip, extendedUI, extendedUIState1, extendedUIState2, tostring(extendedUIState3))
+	self:Debug( "World State Change: " .. state )
+	table.insert(currentLog.total, "<"..self:GetTime().."> "..state.." -[World]-")
+	table.insert(currentLog.world, "<"..self:GetTime().."> "..state)
 end
