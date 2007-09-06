@@ -10,6 +10,8 @@ local currentLog = nil
 local logStartTime = nil
 local logging = nil
 
+local tostring = tostring
+
 local L = AceLibrary("AceLocale-2.2"):new("Transcriptor")
 
 -- localization
@@ -757,7 +759,7 @@ function Transcriptor:UPDATE_WORLD_STATES()
 --uiType, state, text, icon, isFlashing, dynamicIcon, tooltip, dynamicTooltip, extendedUI, extendedUIState1, extendedUIState2, extendedUIState3 = GetWorldStateUIInfo(index)
 	local uiType, state, text, icon, isFlashing, dynamicIcon, tooltip, dynamicTooltip, extendedUI, extendedUIState1, extendedUIState2, extendedUIState3 = GetWorldStateUIInfo(3)
 	if type(currentLog.world) ~= "table" then currentLog.world = {} end
-	local state = ("[%s][%s][%s][%s][%s][%s][%s][%s][%s][%s][%s][%s]"):format(uiType, state, text, icon, isFlashing, dynamicIcon, tooltip, dynamicTooltip, extendedUI, extendedUIState1, extendedUIState2, tostring(extendedUIState3))
+	local state = ("[%s][%s][%s][%s][%s][%s][%s][%s][%s][%s][%s][%s]"):format(tostring(uiType), tostring(state), tostring(text), tostring(icon), tostring(isFlashing), tostring(dynamicIcon), tostring(tooltip), tostring(dynamicTooltip), tostring(extendedUI), tostring(extendedUIState1), tostring(extendedUIState2), tostring(extendedUIState3))
 	self:Debug( "World State Change: " .. state )
 	table.insert(currentLog.total, "<"..self:GetTime().."> "..state.." -[World]-")
 	table.insert(currentLog.world, "<"..self:GetTime().."> "..state)
