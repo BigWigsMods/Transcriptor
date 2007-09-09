@@ -759,8 +759,20 @@ function Transcriptor:UPDATE_WORLD_STATES()
 --uiType, state, text, icon, isFlashing, dynamicIcon, tooltip, dynamicTooltip, extendedUI, extendedUIState1, extendedUIState2, extendedUIState3 = GetWorldStateUIInfo(index)
 	local uiType, state, text, icon, isFlashing, dynamicIcon, tooltip, dynamicTooltip, extendedUI, extendedUIState1, extendedUIState2, extendedUIState3 = GetWorldStateUIInfo(3)
 	if type(currentLog.world) ~= "table" then currentLog.world = {} end
-	local state = ("[%s][%s][%s][%s][%s][%s][%s][%s][%s][%s][%s][%s]"):format(tostring(uiType), tostring(state), tostring(text), tostring(icon), tostring(isFlashing), tostring(dynamicIcon), tostring(tooltip), tostring(dynamicTooltip), tostring(extendedUI), tostring(extendedUIState1), tostring(extendedUIState2), tostring(extendedUIState3))
-	self:Debug( "World State Change: " .. state )
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..state.." -[World]-")
-	table.insert(currentLog.world, "<"..self:GetTime().."> "..state)
+	if uiType and uiType ~= nil then uiType = ("uiType(%s),"):format(tostring(uiType)) else uiType = "_," end
+	if state and state ~= 0 then state = ("state(%s),"):format(tostring(state)) else state = "_," end
+	if text and text ~= nil then text = ("text(%s),"):format(tostring(text)) else text = "_," end
+	if icon and icon ~= nil then icon = ("icon(%s),"):format(tostring(icon)) else icon = "_," end
+	if isFlashing and isFlashing ~= "" then isFlashing = ("isFlashing(%s),"):format(tostring(isFlashing)) else isFlashing = "_," end
+	if dynamicIcon and dynamicIcon ~= nil then dynamicIcon = ("dynamicIcon(%s),"):format(tostring(dynamicIcon)) else dynamicIcon = "_," end
+	if tooltip and tooltip ~= "" then tooltip = ("tooltip(%s),"):format(tostring(tooltip)) else tooltip = "_," end
+	if dynamicTooltip and dynamicTooltip ~= "" then dynamicTooltip = ("dynamicTooltip(%s),"):format(tostring(dynamicTooltip)) else dynamicTooltip = "_," end
+	if extendedUI and extendedUI ~= 0 then extendedUI = ("extendedUI(%s),"):format(tostring(extendedUI)) else extendedUI = "_," end
+	if extendedUIState1 and extendedUIState1 ~= 0 then extendedUIState1 = ("extendedUIState1(%s),"):format(tostring(extendedUIState1)) else extendedUIState1 = "_," end
+	if extendedUIState2 and extendedUIState2 ~= 0 then extendedUIState2 = ("extendedUIState2(%s),"):format(tostring(extendedUIState2)) else extendedUIState2 = "_," end
+	if extendedUIState3 and extendedUIState3 ~= nil then extendedUIState3 = ("extendedUIState3(%s)"):format(tostring(extendedUIState3)) else extendedUIState3 = "_" end
+	local update = ("%s%s%s%s%s%s%s%s%s%s%s%s"):format(uiType, state, text, icon, isFlashing, dynamicIcon, tooltip, dynamicTooltip, extendedUI, extendedUIState1, extendedUIState2, extendedUIState3)
+	self:Debug("World State Change: " .. update)
+	table.insert(currentLog.total, "<"..self:GetTime().."> "..update.." -[World]-")
+	table.insert(currentLog.world, "<"..self:GetTime().."> "..update)
 end
