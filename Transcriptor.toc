@@ -1,4 +1,4 @@
-## Interface: 20100
+## Interface: 20200
 ## Title: Transcriptor |cff7fff7f -Ace2-|r
 ## Notes: Logging utility for boss encounters.
 ## Version: 2.0.3B
