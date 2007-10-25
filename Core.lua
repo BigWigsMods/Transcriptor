@@ -2,8 +2,6 @@
 Transcriptor = AceLibrary("AceAddon-2.0"):new("AceDB-2.0", "AceEvent-2.0", "AceConsole-2.0", "AceDebug-2.0", "FuBarPlugin-2.0")
 local Transcriptor = Transcriptor
 
-local tablet = AceLibrary("Tablet-2.0")
-
 local _G = getfenv(0)
 local logName = nil
 local currentLog = nil
@@ -41,7 +39,8 @@ L:RegisterTranslations("enUS", function() return {
 	["You can't clear your transcripts while logging an encounter."] = true,
 	["|cffFF0000Recording|r: "] = true,
 	["|cff696969Idle|r"] = true,
-	["|cffeda55fClick|r to start or stop transcribing an encounter. |cffeda55fCtrl-Click|r to add a bookmark note."] = true,
+	["|cffeda55fClick|r to start or stop transcribing an encounter."] = true,
+	["|cffeda55fCtrl-Click|r to add a bookmark note."] = true,
 	["|cffFF0000Recording|r"] = true,
 	["!! Bookmark !!"] = true,
 	["Bookmark added to the current log."] = true,
@@ -73,7 +72,8 @@ L:RegisterTranslations("koKR", function() return {
 	["You can't clear your transcripts while logging an encounter."] = "전투 기록중엔 기록을 초기화 할 수 없습니다.",
 	["|cffFF0000Recording|r: "] = "|cffFF0000기록중|r: ",
 	["|cff696969Idle|r"] = "|cff696969무시|r",
-	["|cffeda55fClick|r to start or stop transcribing an encounter. |cffeda55fCtrl-Click|r to add a bookmark note."] = "|cffeda55f클릭|r: 전투 기록 시작 / 멈춤. |cffeda55fCtrl-클릭|r: 메모 삽입.",
+	["|cffeda55fClick|r to start or stop transcribing an encounter."] = "|cffeda55f클릭|r: 전투 기록 시작 / 멈춤.",
+	["|cffeda55fCtrl-Click|r to add a bookmark note."] = "|cffeda55fCtrl-클릭|r: 메모 삽입.",
 	["|cffFF0000Recording|r"] = "|cffFF0000기록중|r",
 	["!! Bookmark !!"] = "!! 메모 !!",
 	["Bookmark added to the current log."] = "현재 기록에 메모가 삽입되었습니다.",
@@ -105,7 +105,8 @@ L:RegisterTranslations("zhCN", function() return {
 	["You can't clear your transcripts while logging an encounter."] = "正在记录中,你不能清除.",
 	["|cffFF0000Recording|r: "] = "|cffFF0000记录中|r: ",
 	["|cff696969Idle|r"] = "|cff696969空闲|r",
-	["|cffeda55fClick|r to start or stop transcribing an encounter. |cffeda55fCtrl-Click|r to add a bookmark note."] = "|cffeda55f点击|r开始/停止记录战斗. |cffeda55fCtrl-点击|r增加一书签标注.",
+	["|cffeda55fClick|r to start or stop transcribing an encounter."] = "|cffeda55f点击|r开始/停止记录战斗.",
+	["|cffeda55fCtrl-Click|r to add a bookmark note."] = "|cffeda55fCtrl-点击|r增加一书签标注.",
 	["|cffFF0000Recording|r"] = "|cffFF0000记录中|r",
 	["!! Bookmark !!"] = "!! 书签 !!",
 	["Bookmark added to the current log."] = "当前战斗记录已增加一书签",
@@ -137,7 +138,8 @@ L:RegisterTranslations("zhTW", function() return {
 	["You can't clear your transcripts while logging an encounter."] = "正在記錄中,你不能清除.",
 	["|cffFF0000Recording|r: "] = "|cffFF0000記錄中|r: ",
 	["|cff696969Idle|r"] = "|cff696969空閑|r",
-	["|cffeda55fClick|r to start or stop transcribing an encounter. |cffeda55fCtrl-Click|r to add a bookmark note."] = "|cffeda55f點擊|r開始/停止記錄戰斗. |cffeda55fCtrl-點擊|r增加一書簽標注.",
+	["|cffeda55fClick|r to start or stop transcribing an encounter."] = "|cffeda55f點擊|r開始/停止記錄戰斗.",
+	["|cffeda55fCtrl-Click|r to add a bookmark note."] = "|cffeda55fCtrl-點擊|r增加一書簽標注.",
 	["|cffFF0000Recording|r"] = "|cffFF0000記錄中|r",
 	["!! Bookmark !!"] = "!! 書簽 !!",
 	["Bookmark added to the current log."] = "當前戰斗記錄已增加一書簽",
@@ -169,7 +171,8 @@ L:RegisterTranslations("deDE", function() return {
 	["You can't clear your transcripts while logging an encounter."] = "Du kannst deine Aufzeichnungen nicht l\195\182schen, w\195\164hrend du eine Begegnung aufnimmst.",
 	["|cffFF0000Recording|r: "] = "|cffFF0000Aufzeichnend|r: ",
 	["|cff696969Idle|r"] = "|cff696969Leerlauf|r",
-	["|cffeda55fClick|r to start or stop transcribing an encounter. |cffeda55fCtrl-Click|r to add a bookmark note."] = "|cffeda55fKlicke|r um eine Aufzeichnung zu starten/stoppen. |cffeda55fSTRG-Klick|r um ein Lesezeichen zur aktuellen Aufzeichnung hinzuzuf\195\188gen.",
+	["|cffeda55fClick|r to start or stop transcribing an encounter."] = "|cffeda55fKlicke|r um eine Aufzeichnung zu starten/stoppen.",
+	["|cffeda55fCtrl-Click|r to add a bookmark note."] = "|cffeda55fSTRG-Klick|r um ein Lesezeichen zur aktuellen Aufzeichnung hinzuzuf\195\188gen.",
 	["|cffFF0000Recording|r"] = "|cffFF0000Aufzeichnend|r",
 	["!! Bookmark !!"] = "!! Lesezeichen !!",
 	["Bookmark added to the current log."] = "Lesezeichen zur aktuellen Aufzeichnung hinzugef\195\188gt.",
@@ -179,7 +182,7 @@ L:RegisterTranslations("deDE", function() return {
 -- Be sure to change the revision number if you add ANY new events.
 -- This will cause the user's local database to be refreshed.
 --]]
-local currentrevision = "2E"
+local currentrevision = "2F"
 local defaultevents = {
 	["PLAYER_REGEN_DISABLED"] = 1,
 	["PLAYER_REGEN_ENABLED"] = 1,
@@ -301,6 +304,10 @@ function Transcriptor:OnInitialize()
 	self.hasIcon = "Interface\\Addons\\Transcriptor\\icon_off"
 	self.defaultMinimapPosition = 200
 	self.clickableTooltip = true
+	self.cannotDetachTooltip = true
+	self.hideWithoutStandby = true
+	self.hasNoColor = true
+	self.blizzardTooltip = true
 end
 
 function Transcriptor:SetupDB()
@@ -430,27 +437,16 @@ end
 ------------------------------------------------]]--
 
 function Transcriptor:OnTooltipUpdate()
-	local cat = tablet:AddCategory(
-		"columns", 1,
-		"child_textR", 1,
-		"child_textG", 1,
-		"child_textB", 1
-	)
-
-	local text
+	GameTooltip:AddLine("Transcriptor")
+	GameTooltip:AddLine(" ")
 	if logging then
-		text = L["|cffFF0000Recording|r: "]..logName
+		GameTooltip:AddDoubleLine(L["|cffFF0000Recording|r: "]..logName)
 	else
-		text = L["|cff696969Idle|r"]
+		GameTooltip:AddDoubleLine(L["|cff696969Idle|r"])
 	end
-	cat:AddLine(
-		"text", text,
-		"func", self.OnClick,
-		"arg1", self,
-		"wrap", true
-	)
-
-	tablet:SetHint(L["|cffeda55fClick|r to start or stop transcribing an encounter. |cffeda55fCtrl-Click|r to add a bookmark note."])
+	GameTooltip:AddLine(" ")
+	GameTooltip:AddLine(L["|cffeda55fClick|r to start or stop transcribing an encounter."], 0.2, 1, 0.2)
+	GameTooltip:AddLine(L["|cffeda55fCtrl-Click|r to add a bookmark note."], 0.2, 1, 0.2)
 end
 
 function Transcriptor:OnTextUpdate()

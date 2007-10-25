@@ -1,13 +1,14 @@
 ## Interface: 20200
 ## Title: Transcriptor |cff7fff7f -Ace2-|r
 ## Notes: Logging utility for boss encounters.
-## Version: 2.0.3B
-## Author: Kyahx, Rabbit
+## Version: 2F
+## Author: Rabbit, Funkydude
+## X-Credits: Kyahx(Original Author)
 ## X-Category: Development Tools
-## X-eMail: kyahx.pots@gmail.com
-## X-Website: http://kyahx.wowinterface.com
-## OptionalDeps: Ace2, DewdropLib, FuBarPlugin-2.0, TabletLib, FuBar
 ## SavedVariables: TranscriptDB, TranscriptorIconDB
+
+## OptionalDeps: Ace2, DewdropLib, FuBarPlugin-2.0
+## X-Embeds: Ace2, DewdropLib, FuBarPlugin-2.0
 
 embeds.xml
 
