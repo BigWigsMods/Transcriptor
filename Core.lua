@@ -1,5 +1,4 @@
-﻿
-Transcriptor = AceLibrary("AceAddon-2.0"):new("AceDB-2.0", "AceEvent-2.0", "AceConsole-2.0", "AceDebug-2.0", "FuBarPlugin-2.0")
+﻿Transcriptor = AceLibrary("AceAddon-2.0"):new("AceDB-2.0", "AceEvent-2.0", "AceConsole-2.0", "AceDebug-2.0", "FuBarPlugin-2.0")
 local Transcriptor = Transcriptor
 
 local _G = getfenv(0)
@@ -7,8 +6,9 @@ local logName = nil
 local currentLog = nil
 local logStartTime = nil
 local logging = nil
-
+local tableins = table.insert
 local tostring = tostring
+local fmt = string.format
 
 local L = AceLibrary("AceLocale-2.2"):new("Transcriptor")
 
@@ -324,7 +324,7 @@ function Transcriptor:SetupDB()
 	for e,_ in pairs(_G.TranscriptDB.events) do
 		opt[e] = {
 			name = e, type = "toggle",
-			desc = (L["Toggle logging of %s."]):format(e),
+			desc = fmt(L["Toggle logging of %s."], e),
 		}
 	end
 end
@@ -353,7 +353,7 @@ end
 
 TranscriptorTimeFunc = {}
 TranscriptorTimeFunc["Epoch + T(S)"] = function()
-	return string.format("%.1f", GetTime() - logStartTime)
+	return fmt("%.1f", GetTime() - logStartTime)
 end
 TranscriptorTimeFunc["H:M:S"] = function()
 	return date("%H:%M:%S")
@@ -418,7 +418,7 @@ function Transcriptor:InsNote(note)
 		self:Print(L["You are not logging an encounter."])
 	else
 		self:Debug(L["Added Note: "]..note)
-		table.insert(currentLog.total, "<"..self:GetTime().."> ** Note: "..note.." **")
+		tableins(currentLog.total, "<"..self:GetTime().."> ** Note: "..note.." **")
 	end
 end
 
@@ -478,20 +478,20 @@ end
 -- Boss raid events.
 function Transcriptor:PLAYER_REGEN_DISABLED()
 	self:Debug("--| Regen Disabled : Entered Combat |--")
-	table.insert(currentLog.total, "<"..self:GetTime().."> --| Regen Disabled : Entered Combat |--")
+	tableins(currentLog.total, "<"..self:GetTime().."> --| Regen Disabled : Entered Combat |--")
 end
 
 function Transcriptor:PLAYER_REGEN_ENABLED()
 	self:Debug("--| Regen Enabled : Left Combat |--")
-	table.insert(currentLog.total, "<"..self:GetTime().."> --| Regen Enabled : Left Combat |--")
+	tableins(currentLog.total, "<"..self:GetTime().."> --| Regen Enabled : Left Combat |--")
 end
 
 function Transcriptor:CHAT_MSG_MONSTER_EMOTE()
 	if type(currentLog.emote) ~= "table" then currentLog.emote = {} end
 	self:Debug("Monster Emote: ["..arg2.."]: "..arg1)
 	local msg = ("Emote ["..arg2.."]: "..arg1)
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[emote]-")
-	table.insert(currentLog.emote, "<"..self:GetTime().."> "..msg)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[emote]-")
+	tableins(currentLog.emote, "<"..self:GetTime().."> "..msg)
 end
 
 function Transcriptor:CHAT_MSG_RAID_BOSS_EMOTE(...)
@@ -499,8 +499,8 @@ function Transcriptor:CHAT_MSG_RAID_BOSS_EMOTE(...)
 	local msg = strjoin(":", ...)
 	msg = "Raid boss emote ["..msg.."]"
 	self:Debug(msg)
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[raidBossEmote]-")
-	table.insert(currentLog.raidBossEmote, "<"..self:GetTime().."> "..msg)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[raidBossEmote]-")
+	tableins(currentLog.raidBossEmote, "<"..self:GetTime().."> "..msg)
 end
 
 function Transcriptor:CHAT_MSG_MONSTER_SAY()
@@ -512,96 +512,96 @@ function Transcriptor:CHAT_MSG_MONSTER_SAY()
 	else
 		msg = ("Say ["..arg2.."]: "..arg1)
 	end
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[say]-")
-	table.insert(currentLog.say, "<"..self:GetTime().."> "..msg)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[say]-")
+	tableins(currentLog.say, "<"..self:GetTime().."> "..msg)
 end
 
 function Transcriptor:CHAT_MSG_MONSTER_WHISPER()
 	if type(currentLog.whisper) ~= "table" then currentLog.whisper = {} end
 	self:Debug("Monster Whisper: ["..arg2.."]: "..arg1)
 	local msg = ("Whisper ["..arg2.."]: "..arg1)
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[whisper]-")
-	table.insert(currentLog.whisper, "<"..self:GetTime().."> "..msg)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[whisper]-")
+	tableins(currentLog.whisper, "<"..self:GetTime().."> "..msg)
 end
 
 function Transcriptor:CHAT_MSG_MONSTER_YELL()
 	if type(currentLog.yell) ~= "table" then currentLog.yell = {} end
 	self:Debug("Monster Yell: ["..arg2.."]: "..arg1)
 	local msg = ("Yell ["..arg2.."]: "..arg1)
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[yell]-")
-	table.insert(currentLog.yell, "<"..self:GetTime().."> "..msg)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[yell]-")
+	tableins(currentLog.yell, "<"..self:GetTime().."> "..msg)
 end
 
 function Transcriptor:CHAT_MSG_SPELL_CREATURE_VS_CREATURE_DAMAGE()
 	if type(currentLog.spell_CvCdmg) ~= "table" then currentLog.spell_CvCdmg = {} end
 	self:Debug("Creature vs Creature Dmg: "..arg1)
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_CvCdmg]-")
-	table.insert(currentLog.spell_CvCdmg, "<"..self:GetTime().."> "..msg)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_CvCdmg]-")
+	tableins(currentLog.spell_CvCdmg, "<"..self:GetTime().."> "..msg)
 end
 
 function Transcriptor:CHAT_MSG_SPELL_CREATURE_VS_SELF_DAMAGE()
 	if type(currentLog.spell_CvSdmg) ~= "table" then currentLog.spell_CvSdmg = {} end
 	self:Debug("Creature vs Self Dmg: "..arg1)
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_CvSdmg]-")
-	table.insert(currentLog.spell_CvSdmg, "<"..self:GetTime().."> "..msg)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_CvSdmg]-")
+	tableins(currentLog.spell_CvSdmg, "<"..self:GetTime().."> "..msg)
 end
 
 function Transcriptor:CHAT_MSG_SPELL_CREATURE_VS_PARTY_DAMAGE()
 	if type(currentLog.spell_CvPdmg) ~= "table" then currentLog.spell_CvPdmg = {} end
 	self:Debug("Creature vs Party Dmg: "..arg1)
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_CvPdmg]-")
-	table.insert(currentLog.spell_CvPdmg, "<"..self:GetTime().."> "..msg)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_CvPdmg]-")
+	tableins(currentLog.spell_CvPdmg, "<"..self:GetTime().."> "..msg)
 end
 
 function Transcriptor:CHAT_MSG_SPELL_CREATURE_VS_CREATURE_BUFF()
 	if type(currentLog.spell_CvCbuff) ~= "table" then currentLog.spell_CvCbuff = {} end
 	self:Debug("Creature vs Creature Buff: "..arg1)
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_CvCbuff]-")
-	table.insert(currentLog.spell_CvCbuff, "<"..self:GetTime().."> "..msg)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_CvCbuff]-")
+	tableins(currentLog.spell_CvCbuff, "<"..self:GetTime().."> "..msg)
 end
 
 function Transcriptor:CHAT_MSG_SPELL_PERIODIC_HOSTILEPLAYER_DAMAGE()
 	if type(currentLog.spell_perHostPlyrDmg) ~= "table" then currentLog.spell_perHostPlyrDmg = {} end
 	self:Debug("Peridoic Hostile Player Damage: "..arg1)
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_perHostPlyrDmg]-")
-	table.insert(currentLog.spell_perHostPlyrDmg, "<"..self:GetTime().."> "..msg)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_perHostPlyrDmg]-")
+	tableins(currentLog.spell_perHostPlyrDmg, "<"..self:GetTime().."> "..msg)
 end
 
 function Transcriptor:CHAT_MSG_SPELL_PERIODIC_CREATURE_BUFFS()
 	if type(currentLog.spell_perCbuffs) ~= "table" then currentLog.spell_perCbuffs = {} end
 	self:Debug("Peridoic Creature Buffs: "..arg1)
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_perCbuffs]-")
-	table.insert(currentLog.spell_perCbuffs, "<"..self:GetTime().."> "..msg)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_perCbuffs]-")
+	tableins(currentLog.spell_perCbuffs, "<"..self:GetTime().."> "..msg)
 end
 
 function Transcriptor:CHAT_MSG_SPELL_PERIODIC_SELF_DAMAGE()
 	if type(currentLog.spell_selfDmg) ~= "table" then currentLog.spell_selfDmg = {} end
 	self:Debug("Peridoic Self Damage: "..arg1)
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_selfDmg]-")
-	table.insert(currentLog.spell_selfDmg, "<"..self:GetTime().."> "..msg)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_selfDmg]-")
+	tableins(currentLog.spell_selfDmg, "<"..self:GetTime().."> "..msg)
 end
 
 function Transcriptor:CHAT_MSG_SPELL_PERIODIC_FRIENDLYPLAYER_DAMAGE()
 	if type(currentLog.spell_friendDmg) ~= "table" then currentLog.spell_friendDmg = {} end
 	self:Debug("Peridoic Friendly Player Damage: "..arg1)
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_friendDmg]-")
-	table.insert(currentLog.spell_friendDmg, "<"..self:GetTime().."> "..msg)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_friendDmg]-")
+	tableins(currentLog.spell_friendDmg, "<"..self:GetTime().."> "..msg)
 end
 
 function Transcriptor:CHAT_MSG_SPELL_PERIODIC_PARTY_DAMAGE()
 	if type(currentLog.spell_partyDmg) ~= "table" then currentLog.spell_partyDmg = {} end
 	self:Debug("Peridoic Party Damage: "..arg1)
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_partyDmg]-")
-	table.insert(currentLog.spell_partyDmg, "<"..self:GetTime().."> "..msg)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_partyDmg]-")
+	tableins(currentLog.spell_partyDmg, "<"..self:GetTime().."> "..msg)
 end
 
 function Transcriptor:CHAT_MSG_SPELL_AURA_GONE_OTHER()
@@ -609,8 +609,8 @@ function Transcriptor:CHAT_MSG_SPELL_AURA_GONE_OTHER()
 	self:Debug("Aura Gone Other: "..arg1)
 
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_auraGoneOther]-")
-	table.insert(currentLog.spell_auraGone, "<"..self:GetTime().."> "..msg)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_auraGoneOther]-")
+	tableins(currentLog.spell_auraGone, "<"..self:GetTime().."> "..msg)
 end
 
 function Transcriptor:CHAT_MSG_SPELL_AURA_GONE_PARTY()
@@ -618,8 +618,8 @@ function Transcriptor:CHAT_MSG_SPELL_AURA_GONE_PARTY()
 	self:Debug("Aura Gone Party: "..arg1)
 
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_auraGoneParty]-")
-	table.insert(currentLog.spell_auraGoneParty, "<"..self:GetTime().."> "..msg)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_auraGoneParty]-")
+	tableins(currentLog.spell_auraGoneParty, "<"..self:GetTime().."> "..msg)
 end
 
 function Transcriptor:CHAT_MSG_SPELL_AURA_GONE_SELF()
@@ -627,8 +627,8 @@ function Transcriptor:CHAT_MSG_SPELL_AURA_GONE_SELF()
 	self:Debug("Aura Gone Self: "..arg1)
 
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_auraGoneSelf]-")
-	table.insert(currentLog.spell_auraGoneSelf, "<"..self:GetTime().."> "..msg)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_auraGoneSelf]-")
+	tableins(currentLog.spell_auraGoneSelf, "<"..self:GetTime().."> "..msg)
 end
 
 function Transcriptor:PLAYER_TARGET_CHANGED()
@@ -641,13 +641,13 @@ function Transcriptor:PLAYER_TARGET_CHANGED()
 		local classification = UnitClassification("target")
 		local creatureType = UnitCreatureType("target")
 		local typeclass
-		if classification == "normal" then typeclass = creatureType else typeclass = (classification.." "..creatureType) end
+		if classification == "normal" then typeclass = creatureType else typeclass = (tostring(classification).." "..creatureType) end
 		local name = UnitName("target")
 
-		local msg = (string.format("%s %s (%s) - %s", level, reaction, typeclass, name))
+		local msg = (fmt("%s %s (%s) - %s", level, reaction, typeclass, name))
 		self:Debug("Target Changed: "..msg)
-		table.insert(currentLog.total, "<"..self:GetTime().."> Target Changed: "..msg.."-[PTC]-")
-		table.insert(currentLog.PTC, "<"..self:GetTime().."> Target Changed: "..msg)
+		tableins(currentLog.total, "<"..self:GetTime().."> Target Changed: "..msg.."-[PTC]-")
+		tableins(currentLog.PTC, "<"..self:GetTime().."> Target Changed: "..msg)
 	end
 end
 
@@ -655,32 +655,32 @@ function Transcriptor:CHAT_MSG_SPELL_PERIODIC_CREATURE_DAMAGE()
 	if type(currentLog.spell_perCdmg) ~= "table" then currentLog.spell_perCdmg = {} end
 	self:Debug("Peridoic Creature Damage: "..arg1)
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_perCdmg]-")
-	table.insert(currentLog.spell_perCdmg, "<"..self:GetTime().."> "..msg)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_perCdmg]-")
+	tableins(currentLog.spell_perCdmg, "<"..self:GetTime().."> "..msg)
 end
 
 function Transcriptor:BigWigs_Message(arg1)
 	if type(currentLog.BW_Msg) ~= "table" then currentLog.BW_Msg = {} end
 	self:Debug("BigWigs Message: "..arg1)
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..self:GetTime().."> *** "..msg.." ***")
-	table.insert(currentLog.BW_Msg, "<"..self:GetTime().."> *** "..msg.." ***")
+	tableins(currentLog.total, "<"..self:GetTime().."> *** "..msg.." ***")
+	tableins(currentLog.BW_Msg, "<"..self:GetTime().."> *** "..msg.." ***")
 end
 
 function Transcriptor:CHAT_MSG_COMBAT_FRIENDLY_DEATH()
 	if type(currentLog.friendDies) ~= "table" then currentLog.friendDies = {} end
 	self:Debug("Friendly Death: "..arg1)
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[friendDies]-")
-	table.insert(currentLog.friendDies, "<"..self:GetTime().."> "..msg)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[friendDies]-")
+	tableins(currentLog.friendDies, "<"..self:GetTime().."> "..msg)
 end
 
 function Transcriptor:CHAT_MSG_COMBAT_HOSTILE_DEATH()
 	if type(currentLog.hostileDies) ~= "table" then currentLog.hostileDies = {} end
 	self:Debug("Hostile Death: "..arg1)
 	local msg = (arg1)
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..msg.." -[hostileDies]-")
-	table.insert(currentLog.hostileDies, "<"..self:GetTime().."> "..msg)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[hostileDies]-")
+	tableins(currentLog.hostileDies, "<"..self:GetTime().."> "..msg)
 end
 
 --enemy cast bar logging
@@ -691,10 +691,10 @@ function Transcriptor:UNIT_SPELLCAST_START( unit )
 	end
 	local spell, rank, displayName, icon, startTime, endTime = UnitCastingInfo(unit)
 	local time = ((tostring(endTime) - tostring(startTime)) / 1000)
-	local cast = ("[%s][%s][%s][%s][%s][%s sec]"):format( UnitName(unit), tostring(spell), tostring(rank), tostring(displayName), tostring(icon), time)
+	local cast = fmt("[%s][%s][%s][%s][%s][%s sec]", UnitName(unit), tostring(spell), tostring(rank), tostring(displayName), tostring(icon), time)
 	self:Debug( "Spellcast Start: " .. cast )
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..cast.." -[spellcastStart]-")
-	table.insert(currentLog.spellcastStart, "<"..self:GetTime().."> "..cast)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..cast.." -[spellcastStart]-")
+	tableins(currentLog.spellcastStart, "<"..self:GetTime().."> "..cast)
 end
 
 function Transcriptor:UNIT_SPELLCAST_CHANNEL_START( unit )
@@ -704,10 +704,10 @@ function Transcriptor:UNIT_SPELLCAST_CHANNEL_START( unit )
 	end
 	local spell, rank, displayName, icon, startTime, endTime = UnitChannelInfo(unit)
 	local time = ((tostring(endTime) - tostring(startTime)) / 1000)
-	local cast = ("[%s][%s][%s][%s][%s][%s sec]"):format( UnitName(unit), tostring(spell), tostring(rank), tostring(displayName), tostring(icon), time)
+	local cast = fmt("[%s][%s][%s][%s][%s][%s sec]", UnitName(unit), tostring(spell), tostring(rank), tostring(displayName), tostring(icon), time)
 	self:Debug( "Channel Start: " .. cast )
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..cast.." -[channelStart]-")
-	table.insert(currentLog.channelStart, "<"..self:GetTime().."> "..cast)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..cast.." -[channelStart]-")
+	tableins(currentLog.channelStart, "<"..self:GetTime().."> "..cast)
 end
 
 function Transcriptor:UNIT_SPELLCAST_STOP( unit )
@@ -716,8 +716,8 @@ function Transcriptor:UNIT_SPELLCAST_STOP( unit )
 		return
 	end
 	self:Debug("Cast Stop: " .. UnitName(unit) )
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..UnitName(unit).." -[spellcastStop]-")
-	table.insert(currentLog.spellcastStop, "<"..self:GetTime().."> "..UnitName(unit))
+	tableins(currentLog.total, "<"..self:GetTime().."> "..UnitName(unit).." -[spellcastStop]-")
+	tableins(currentLog.spellcastStop, "<"..self:GetTime().."> "..UnitName(unit))
 end
 
 function Transcriptor:UNIT_SPELLCAST_CHANNEL_STOP( unit )
@@ -726,8 +726,8 @@ function Transcriptor:UNIT_SPELLCAST_CHANNEL_STOP( unit )
 		return
 	end
 	self:Debug("Channel Stop: " .. UnitName(unit) )
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..UnitName(unit).." -[channelStop]-")
-	table.insert(currentLog.channelStop, "<"..self:GetTime().."> "..UnitName(unit))
+	tableins(currentLog.total, "<"..self:GetTime().."> "..UnitName(unit).." -[channelStop]-")
+	tableins(currentLog.channelStop, "<"..self:GetTime().."> "..UnitName(unit))
 end
 
 function Transcriptor:UNIT_SPELLCAST_INTERRUPTED( unit )
@@ -736,8 +736,8 @@ function Transcriptor:UNIT_SPELLCAST_INTERRUPTED( unit )
 		return
 	end
 	self:Debug("Cast Interrupted: " .. UnitName(unit) )
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..UnitName(unit).." -[spellcastInterrupt]-")
-	table.insert(currentLog.spellcastInterrupt, "<"..self:GetTime().."> "..UnitName(unit))
+	tableins(currentLog.total, "<"..self:GetTime().."> "..UnitName(unit).." -[spellcastInterrupt]-")
+	tableins(currentLog.spellcastInterrupt, "<"..self:GetTime().."> "..UnitName(unit))
 end
 
 function Transcriptor:UNIT_SPELLCAST_SUCCEEDED( unit, spell, rank )
@@ -745,30 +745,30 @@ function Transcriptor:UNIT_SPELLCAST_SUCCEEDED( unit, spell, rank )
 	if not UnitExists(unit) or UnitInRaid(unit) or UnitInParty(unit) or UnitIsFriend("player", unit ) then
 		return
 	end
-	local cast = ("[%s][%s][%s]"):format( UnitName(unit), tostring(spell), tostring(rank))
+	local cast = fmt("[%s][%s][%s]", UnitName(unit), tostring(spell), tostring(rank))
 	self:Debug( "Cast Success: " .. cast )
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..cast.." -[spellcastSuccess]-")
-	table.insert(currentLog.spellcastSuccess, "<"..self:GetTime().."> "..cast)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..cast.." -[spellcastSuccess]-")
+	tableins(currentLog.spellcastSuccess, "<"..self:GetTime().."> "..cast)
 end
 
 function Transcriptor:UPDATE_WORLD_STATES()
 --uiType, state, text, icon, isFlashing, dynamicIcon, tooltip, dynamicTooltip, extendedUI, extendedUIState1, extendedUIState2, extendedUIState3 = GetWorldStateUIInfo(index)
 	local uiType, state, text, icon, isFlashing, dynamicIcon, tooltip, dynamicTooltip, extendedUI, extendedUIState1, extendedUIState2, extendedUIState3 = GetWorldStateUIInfo(3)
 	if type(currentLog.world) ~= "table" then currentLog.world = {} end
-	if uiType and uiType ~= nil then uiType = ("uiType(%s),"):format(tostring(uiType)) else uiType = "_," end
-	if state and state ~= 0 then state = ("state(%s),"):format(tostring(state)) else state = "_," end
-	if text and text ~= nil then text = ("text(%s),"):format(tostring(text)) else text = "_," end
-	if icon and icon ~= nil then icon = ("icon(%s),"):format(tostring(icon)) else icon = "_," end
-	if isFlashing and isFlashing ~= "" then isFlashing = ("isFlashing(%s),"):format(tostring(isFlashing)) else isFlashing = "_," end
-	if dynamicIcon and dynamicIcon ~= nil then dynamicIcon = ("dynamicIcon(%s),"):format(tostring(dynamicIcon)) else dynamicIcon = "_," end
-	if tooltip and tooltip ~= "" then tooltip = ("tooltip(%s),"):format(tostring(tooltip)) else tooltip = "_," end
-	if dynamicTooltip and dynamicTooltip ~= "" then dynamicTooltip = ("dynamicTooltip(%s),"):format(tostring(dynamicTooltip)) else dynamicTooltip = "_," end
-	if extendedUI and extendedUI ~= 0 then extendedUI = ("extendedUI(%s),"):format(tostring(extendedUI)) else extendedUI = "_," end
-	if extendedUIState1 and extendedUIState1 ~= 0 then extendedUIState1 = ("extendedUIState1(%s),"):format(tostring(extendedUIState1)) else extendedUIState1 = "_," end
-	if extendedUIState2 and extendedUIState2 ~= 0 then extendedUIState2 = ("extendedUIState2(%s),"):format(tostring(extendedUIState2)) else extendedUIState2 = "_," end
-	if extendedUIState3 and extendedUIState3 ~= nil then extendedUIState3 = ("extendedUIState3(%s)"):format(tostring(extendedUIState3)) else extendedUIState3 = "_" end
-	local update = ("%s%s%s%s%s%s%s%s%s%s%s%s"):format(uiType, state, text, icon, isFlashing, dynamicIcon, tooltip, dynamicTooltip, extendedUI, extendedUIState1, extendedUIState2, extendedUIState3)
+	if uiType and uiType ~= nil then uiType = fmt("uiType(%s),", tostring(uiType)) else uiType = "_," end
+	if state and state ~= 0 then state = fmt("state(%s),", tostring(state)) else state = "_," end
+	if text and text ~= nil then text = fmt("text(%s),", tostring(text)) else text = "_," end
+	if icon and icon ~= nil then icon = fmt("icon(%s),", tostring(icon)) else icon = "_," end
+	if isFlashing and isFlashing ~= "" then isFlashing = fmt("isFlashing(%s),", tostring(isFlashing)) else isFlashing = "_," end
+	if dynamicIcon and dynamicIcon ~= nil then dynamicIcon = fmt("dynamicIcon(%s),", tostring(dynamicIcon)) else dynamicIcon = "_," end
+	if tooltip and tooltip ~= "" then tooltip = fmt("tooltip(%s),", tostring(tooltip)) else tooltip = "_," end
+	if dynamicTooltip and dynamicTooltip ~= "" then dynamicTooltip = fmt("dynamicTooltip(%s),", tostring(dynamicTooltip)) else dynamicTooltip = "_," end
+	if extendedUI and extendedUI ~= 0 then extendedUI = fmt("extendedUI(%s),", tostring(extendedUI)) else extendedUI = "_," end
+	if extendedUIState1 and extendedUIState1 ~= 0 then extendedUIState1 = fmt("extendedUIState1(%s),", tostring(extendedUIState1)) else extendedUIState1 = "_," end
+	if extendedUIState2 and extendedUIState2 ~= 0 then extendedUIState2 = fmt("extendedUIState2(%s),", tostring(extendedUIState2)) else extendedUIState2 = "_," end
+	if extendedUIState3 and extendedUIState3 ~= nil then extendedUIState3 = fmt("extendedUIState3(%s)", tostring(extendedUIState3)) else extendedUIState3 = "_" end
+	local update = fmt("%s%s%s%s%s%s%s%s%s%s%s%s", uiType, state, text, icon, isFlashing, dynamicIcon, tooltip, dynamicTooltip, extendedUI, extendedUIState1, extendedUIState2, extendedUIState3)
 	self:Debug("World State Change: " .. update)
-	table.insert(currentLog.total, "<"..self:GetTime().."> "..update.." -[World]-")
-	table.insert(currentLog.world, "<"..self:GetTime().."> "..update)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..update.." -[World]-")
+	tableins(currentLog.world, "<"..self:GetTime().."> "..update)
 end
