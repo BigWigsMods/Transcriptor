@@ -755,8 +755,8 @@ function Transcriptor:UPDATE_WORLD_STATES()
 --uiType, state, text, icon, isFlashing, dynamicIcon, tooltip, dynamicTooltip, extendedUI, extendedUIState1, extendedUIState2, extendedUIState3 = GetWorldStateUIInfo(index)
 	local uiType, state, text, icon, isFlashing, dynamicIcon, tooltip, dynamicTooltip, extendedUI, extendedUIState1, extendedUIState2, extendedUIState3 = GetWorldStateUIInfo(3)
 	if type(currentLog.world) ~= "table" then currentLog.world = {} end
-	if uiType and uiType ~= nil then uiType = fmt("uiType(%s),", tostring(uiType)) else uiType = "_," end
-	if state and state ~= 0 then state = fmt("state(%s),", tostring(state)) else state = "_," end
+	if uiType then uiType = fmt("uiType(%d),", uiType) else uiType = "_," end
+	if state then state = fmt("state(%d),", state) else state = "_," end
 	if text and text ~= nil then text = fmt("text(%s),", tostring(text)) else text = "_," end
 	if icon and icon ~= nil then icon = fmt("icon(%s),", tostring(icon)) else icon = "_," end
 	if isFlashing and isFlashing ~= "" then isFlashing = fmt("isFlashing(%s),", tostring(isFlashing)) else isFlashing = "_," end
