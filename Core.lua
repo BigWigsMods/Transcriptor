@@ -182,7 +182,7 @@ L:RegisterTranslations("deDE", function() return {
 -- Be sure to change the revision number if you add ANY new events.
 -- This will cause the user's local database to be refreshed.
 --]]
-local currentrevision = "2F"
+local currentrevision = "2G"
 local defaultevents = {
 	["PLAYER_REGEN_DISABLED"] = 1,
 	["PLAYER_REGEN_ENABLED"] = 1,
@@ -215,6 +215,7 @@ local defaultevents = {
 	["UNIT_SPELLCAST_CHANNEL_START"] = 1,
 	["UNIT_SPELLCAST_CHANNEL_STOP"] = 1,
 	["UPDATE_WORLD_STATES"] = 1,
+	["COMBAT_LOG_EVENT_UNFILTERED"] = 1,
 }
 
 local function DisableIfNotLogging()
@@ -771,4 +772,14 @@ function Transcriptor:UPDATE_WORLD_STATES()
 	self:Debug("World State Change: " .. update)
 	tableins(currentLog.total, "<"..self:GetTime().."> "..update.." -[World]-")
 	tableins(currentLog.world, "<"..self:GetTime().."> "..update)
+end
+
+function Transcriptor:COMBAT_LOG_EVENT_UNFILTERED(_, _, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, a, b, c, d, e)
+	local curtime = self:GetTime()
+
+	if type(currentLog.combatLog) ~= "table" then currentLog.combatLog = {} end
+	local msg = eventtype..":"..srcGUID..":"..tostring(srcName)..":"..tostring(srcFlags)..":"..tostring(dstGUID)..":"..tostring(dstName)..":"..dstFlags..":"..tostring(a)..":"..tostring(b)..":"..tostring(c)..":"..tostring(d)..":"..tostring(e)
+
+	tableins(currentLog.total, "<"..curtime.."> "..msg.." -[World]-")
+	tableins(currentLog.combatLog, "<"..curtime.."> "..msg)
 end
