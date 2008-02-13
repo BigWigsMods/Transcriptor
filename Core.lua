@@ -774,11 +774,11 @@ function Transcriptor:UPDATE_WORLD_STATES()
 	tableins(currentLog.world, "<"..self:GetTime().."> "..update)
 end
 
-function Transcriptor:COMBAT_LOG_EVENT_UNFILTERED(_, _, eventtype, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, a, b, c, d, e)
+function Transcriptor:COMBAT_LOG_EVENT_UNFILTERED(_, event, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, a, b, c, d, e)
 	local curtime = self:GetTime()
 
 	if type(currentLog.combatLog) ~= "table" then currentLog.combatLog = {} end
-	local msg = eventtype..":"..tostring(srcGUID)..":"..tostring(srcName)..":"..tostring(srcFlags)..":"..tostring(dstGUID)..":"..tostring(dstName)..":"..tostring(dstFlags)..":"..tostring(a)..":"..tostring(b)..":"..tostring(c)..":"..tostring(d)..":"..tostring(e)
+	local msg = event..":"..tostring(srcGUID)..":"..tostring(srcName)..":"..tostring(srcFlags)..":"..tostring(dstGUID)..":"..tostring(dstName)..":"..tostring(dstFlags)..":"..tostring(a)..":"..tostring(b)..":"..tostring(c)..":"..tostring(d)..":"..tostring(e)
 
 	tableins(currentLog.total, "<"..curtime.."> "..msg.." -[World]-")
 	tableins(currentLog.combatLog, "<"..curtime.."> "..msg)
