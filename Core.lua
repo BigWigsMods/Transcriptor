@@ -777,9 +777,7 @@ end
 function Transcriptor:COMBAT_LOG_EVENT_UNFILTERED(_, event, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, a, b, c, d, e)
 	local curtime = self:GetTime()
 
-	if type(currentLog.combatLog) ~= "table" then currentLog.combatLog = {} end
 	local msg = event..":"..tostring(srcGUID)..":"..tostring(srcName)..":"..tostring(srcFlags)..":"..tostring(dstGUID)..":"..tostring(dstName)..":"..tostring(dstFlags)..":"..tostring(a)..":"..tostring(b)..":"..tostring(c)..":"..tostring(d)..":"..tostring(e)
 
-	tableins(currentLog.total, "<"..curtime.."> "..msg.." -[World]-")
-	tableins(currentLog.combatLog, "<"..curtime.."> "..msg)
+	tableins(currentLog.total, "<"..curtime.."> "..msg.." -[LOG_EVENT]-")
 end
