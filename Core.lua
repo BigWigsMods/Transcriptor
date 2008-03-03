@@ -487,10 +487,11 @@ function Transcriptor:PLAYER_REGEN_ENABLED()
 	tableins(currentLog.total, "<"..self:GetTime().."> --| Regen Enabled : Left Combat |--")
 end
 
-function Transcriptor:CHAT_MSG_MONSTER_EMOTE()
+function Transcriptor:CHAT_MSG_MONSTER_EMOTE(...)
 	if type(currentLog.emote) ~= "table" then currentLog.emote = {} end
-	self:Debug("Monster Emote: ["..arg2.."]: "..arg1)
-	local msg = ("Emote ["..arg2.."]: "..arg1)
+	local msg = strjoin(":", ...)
+	msg = "Emote ["..msg.."]"
+	self:Debug(msg)
 	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[emote]-")
 	tableins(currentLog.emote, "<"..self:GetTime().."> "..msg)
 end
@@ -504,31 +505,29 @@ function Transcriptor:CHAT_MSG_RAID_BOSS_EMOTE(...)
 	tableins(currentLog.raidBossEmote, "<"..self:GetTime().."> "..msg)
 end
 
-function Transcriptor:CHAT_MSG_MONSTER_SAY()
+function Transcriptor:CHAT_MSG_MONSTER_SAY(...)
 	if type(currentLog.say) ~= "table" then currentLog.say = {} end
-	self:Debug("Monster Say: ["..arg2.."]: "..arg1)
-	local msg
-	if arg3 then
-		msg = ("Say ["..arg2.."]: "..arg1.." ("..arg3..")")
-	else
-		msg = ("Say ["..arg2.."]: "..arg1)
-	end
+	local msg = strjoin(":", ...)
+	msg = "Say ["..msg.."]"
+	self:Debug(msg)
 	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[say]-")
 	tableins(currentLog.say, "<"..self:GetTime().."> "..msg)
 end
 
-function Transcriptor:CHAT_MSG_MONSTER_WHISPER()
+function Transcriptor:CHAT_MSG_MONSTER_WHISPER(...)
 	if type(currentLog.whisper) ~= "table" then currentLog.whisper = {} end
-	self:Debug("Monster Whisper: ["..arg2.."]: "..arg1)
-	local msg = ("Whisper ["..arg2.."]: "..arg1)
+	local msg = strjoin(":", ...)
+	msg = "Whisper ["..msg.."]"
+	self:Debug(msg)
 	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[whisper]-")
 	tableins(currentLog.whisper, "<"..self:GetTime().."> "..msg)
 end
 
-function Transcriptor:CHAT_MSG_MONSTER_YELL()
+function Transcriptor:CHAT_MSG_MONSTER_YELL(...)
 	if type(currentLog.yell) ~= "table" then currentLog.yell = {} end
-	self:Debug("Monster Yell: ["..arg2.."]: "..arg1)
-	local msg = ("Yell ["..arg2.."]: "..arg1)
+	local msg = strjoin(":", ...)
+	msg = "Monster Yell ["..msg.."]"
+	self:Debug(msg)
 	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[yell]-")
 	tableins(currentLog.yell, "<"..self:GetTime().."> "..msg)
 end
