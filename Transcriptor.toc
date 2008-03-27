@@ -1,7 +1,7 @@
-## Interface: 20300
+## Interface: 20400
 ## Title: Transcriptor |cff7fff7f -Ace2-|r
 ## Notes: Logging utility for boss encounters.
-## Version: 2G
+## Version: 2H
 ## Author: Rabbit, Funkydude
 ## X-Credits: Kyahx(Original Author)
 ## X-Category: Development Tools

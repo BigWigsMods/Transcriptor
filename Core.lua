@@ -182,7 +182,7 @@ L:RegisterTranslations("deDE", function() return {
 -- Be sure to change the revision number if you add ANY new events.
 -- This will cause the user's local database to be refreshed.
 --]]
-local currentrevision = "2G"
+local currentrevision = "2H"
 local defaultevents = {
 	["PLAYER_REGEN_DISABLED"] = 1,
 	["PLAYER_REGEN_ENABLED"] = 1,
@@ -191,23 +191,8 @@ local defaultevents = {
 	["CHAT_MSG_MONSTER_WHISPER"] = 1,
 	["CHAT_MSG_MONSTER_YELL"] = 1,
 	["CHAT_MSG_RAID_BOSS_EMOTE"] = 1,
-	["CHAT_MSG_SPELL_CREATURE_VS_CREATURE_DAMAGE"] = 1,
-	["CHAT_MSG_SPELL_CREATURE_VS_SELF_DAMAGE"] = 1,
-	["CHAT_MSG_SPELL_CREATURE_VS_PARTY_DAMAGE"] = 1,
-	["CHAT_MSG_SPELL_CREATURE_VS_CREATURE_BUFF"] = 1,
-	["CHAT_MSG_SPELL_PERIODIC_HOSTILEPLAYER_DAMAGE"] = 1,
-	["CHAT_MSG_SPELL_PERIODIC_CREATURE_BUFFS"] = 1,
-	["CHAT_MSG_SPELL_PERIODIC_SELF_DAMAGE"] = 1,
-	["CHAT_MSG_SPELL_PERIODIC_FRIENDLYPLAYER_DAMAGE"] = 1,
-	["CHAT_MSG_SPELL_PERIODIC_PARTY_DAMAGE"] = 1,
-	["CHAT_MSG_SPELL_AURA_GONE_OTHER"] = 1,
-	["CHAT_MSG_SPELL_AURA_GONE_SELF"] = 1,
-	["CHAT_MSG_SPELL_AURA_GONE_PARTY"] = 1,
 	["PLAYER_TARGET_CHANGED"] = 1,
-	["CHAT_MSG_SPELL_PERIODIC_CREATURE_DAMAGE"] = 1,
 	["BigWigs_Message"] = 1,
-	["CHAT_MSG_COMBAT_FRIENDLY_DEATH"] = 1,
-	["CHAT_MSG_COMBAT_HOSTILE_DEATH"] = 1,
 	["UNIT_SPELLCAST_START"] = 1,
 	["UNIT_SPELLCAST_STOP"] = 1,
 	["UNIT_SPELLCAST_SUCCEEDED"] = 1,
@@ -532,105 +517,6 @@ function Transcriptor:CHAT_MSG_MONSTER_YELL(...)
 	tableins(currentLog.yell, "<"..self:GetTime().."> "..msg)
 end
 
-function Transcriptor:CHAT_MSG_SPELL_CREATURE_VS_CREATURE_DAMAGE()
-	if type(currentLog.spell_CvCdmg) ~= "table" then currentLog.spell_CvCdmg = {} end
-	self:Debug("Creature vs Creature Dmg: "..arg1)
-	local msg = (arg1)
-	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_CvCdmg]-")
-	tableins(currentLog.spell_CvCdmg, "<"..self:GetTime().."> "..msg)
-end
-
-function Transcriptor:CHAT_MSG_SPELL_CREATURE_VS_SELF_DAMAGE()
-	if type(currentLog.spell_CvSdmg) ~= "table" then currentLog.spell_CvSdmg = {} end
-	self:Debug("Creature vs Self Dmg: "..arg1)
-	local msg = (arg1)
-	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_CvSdmg]-")
-	tableins(currentLog.spell_CvSdmg, "<"..self:GetTime().."> "..msg)
-end
-
-function Transcriptor:CHAT_MSG_SPELL_CREATURE_VS_PARTY_DAMAGE()
-	if type(currentLog.spell_CvPdmg) ~= "table" then currentLog.spell_CvPdmg = {} end
-	self:Debug("Creature vs Party Dmg: "..arg1)
-	local msg = (arg1)
-	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_CvPdmg]-")
-	tableins(currentLog.spell_CvPdmg, "<"..self:GetTime().."> "..msg)
-end
-
-function Transcriptor:CHAT_MSG_SPELL_CREATURE_VS_CREATURE_BUFF()
-	if type(currentLog.spell_CvCbuff) ~= "table" then currentLog.spell_CvCbuff = {} end
-	self:Debug("Creature vs Creature Buff: "..arg1)
-	local msg = (arg1)
-	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_CvCbuff]-")
-	tableins(currentLog.spell_CvCbuff, "<"..self:GetTime().."> "..msg)
-end
-
-function Transcriptor:CHAT_MSG_SPELL_PERIODIC_HOSTILEPLAYER_DAMAGE()
-	if type(currentLog.spell_perHostPlyrDmg) ~= "table" then currentLog.spell_perHostPlyrDmg = {} end
-	self:Debug("Peridoic Hostile Player Damage: "..arg1)
-	local msg = (arg1)
-	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_perHostPlyrDmg]-")
-	tableins(currentLog.spell_perHostPlyrDmg, "<"..self:GetTime().."> "..msg)
-end
-
-function Transcriptor:CHAT_MSG_SPELL_PERIODIC_CREATURE_BUFFS()
-	if type(currentLog.spell_perCbuffs) ~= "table" then currentLog.spell_perCbuffs = {} end
-	self:Debug("Peridoic Creature Buffs: "..arg1)
-	local msg = (arg1)
-	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_perCbuffs]-")
-	tableins(currentLog.spell_perCbuffs, "<"..self:GetTime().."> "..msg)
-end
-
-function Transcriptor:CHAT_MSG_SPELL_PERIODIC_SELF_DAMAGE()
-	if type(currentLog.spell_selfDmg) ~= "table" then currentLog.spell_selfDmg = {} end
-	self:Debug("Peridoic Self Damage: "..arg1)
-	local msg = (arg1)
-	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_selfDmg]-")
-	tableins(currentLog.spell_selfDmg, "<"..self:GetTime().."> "..msg)
-end
-
-function Transcriptor:CHAT_MSG_SPELL_PERIODIC_FRIENDLYPLAYER_DAMAGE()
-	if type(currentLog.spell_friendDmg) ~= "table" then currentLog.spell_friendDmg = {} end
-	self:Debug("Peridoic Friendly Player Damage: "..arg1)
-	local msg = (arg1)
-	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_friendDmg]-")
-	tableins(currentLog.spell_friendDmg, "<"..self:GetTime().."> "..msg)
-end
-
-function Transcriptor:CHAT_MSG_SPELL_PERIODIC_PARTY_DAMAGE()
-	if type(currentLog.spell_partyDmg) ~= "table" then currentLog.spell_partyDmg = {} end
-	self:Debug("Peridoic Party Damage: "..arg1)
-	local msg = (arg1)
-	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_partyDmg]-")
-	tableins(currentLog.spell_partyDmg, "<"..self:GetTime().."> "..msg)
-end
-
-function Transcriptor:CHAT_MSG_SPELL_AURA_GONE_OTHER()
-	if type(currentLog.spell_auraGone) ~= "table" then currentLog.spell_auraGone = {} end
-	self:Debug("Aura Gone Other: "..arg1)
-
-	local msg = (arg1)
-	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_auraGoneOther]-")
-	tableins(currentLog.spell_auraGone, "<"..self:GetTime().."> "..msg)
-end
-
-function Transcriptor:CHAT_MSG_SPELL_AURA_GONE_PARTY()
-	if type(currentLog.spell_auraGoneParty) ~= "table" then currentLog.spell_auraGoneParty = {} end
-	self:Debug("Aura Gone Party: "..arg1)
-
-	local msg = (arg1)
-	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_auraGoneParty]-")
-	tableins(currentLog.spell_auraGoneParty, "<"..self:GetTime().."> "..msg)
-end
-
-function Transcriptor:CHAT_MSG_SPELL_AURA_GONE_SELF()
-	if type(currentLog.spell_auraGoneSelf) ~= "table" then currentLog.spell_auraGoneSelf = {} end
-	self:Debug("Aura Gone Self: "..arg1)
-
-	local msg = (arg1)
-	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_auraGoneSelf]-")
-	tableins(currentLog.spell_auraGoneSelf, "<"..self:GetTime().."> "..msg)
-end
-
 function Transcriptor:PLAYER_TARGET_CHANGED()
 	if type(currentLog.PTC) ~= "table" then currentLog.PTC = {} end
 	if (not UnitInRaid("target")) and UnitExists("target") then
@@ -651,36 +537,12 @@ function Transcriptor:PLAYER_TARGET_CHANGED()
 	end
 end
 
-function Transcriptor:CHAT_MSG_SPELL_PERIODIC_CREATURE_DAMAGE()
-	if type(currentLog.spell_perCdmg) ~= "table" then currentLog.spell_perCdmg = {} end
-	self:Debug("Peridoic Creature Damage: "..arg1)
-	local msg = (arg1)
-	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[spell_perCdmg]-")
-	tableins(currentLog.spell_perCdmg, "<"..self:GetTime().."> "..msg)
-end
-
 function Transcriptor:BigWigs_Message(arg1)
 	if type(currentLog.BW_Msg) ~= "table" then currentLog.BW_Msg = {} end
 	self:Debug("BigWigs Message: "..arg1)
 	local msg = (arg1)
 	tableins(currentLog.total, "<"..self:GetTime().."> *** "..msg.." ***")
 	tableins(currentLog.BW_Msg, "<"..self:GetTime().."> *** "..msg.." ***")
-end
-
-function Transcriptor:CHAT_MSG_COMBAT_FRIENDLY_DEATH()
-	if type(currentLog.friendDies) ~= "table" then currentLog.friendDies = {} end
-	self:Debug("Friendly Death: "..arg1)
-	local msg = (arg1)
-	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[friendDies]-")
-	tableins(currentLog.friendDies, "<"..self:GetTime().."> "..msg)
-end
-
-function Transcriptor:CHAT_MSG_COMBAT_HOSTILE_DEATH()
-	if type(currentLog.hostileDies) ~= "table" then currentLog.hostileDies = {} end
-	self:Debug("Hostile Death: "..arg1)
-	local msg = (arg1)
-	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[hostileDies]-")
-	tableins(currentLog.hostileDies, "<"..self:GetTime().."> "..msg)
 end
 
 --enemy cast bar logging
