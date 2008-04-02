@@ -520,7 +520,7 @@ end
 function Transcriptor:PLAYER_TARGET_CHANGED()
 	if type(currentLog.PTC) ~= "table" then currentLog.PTC = {} end
 	if (not UnitInRaid("target")) and UnitExists("target") then
-		local level = UnitLevel("target")
+		local level = UnitLevel("target") or "nil"
 		if UnitIsPlusMob("target") then level = ("+"..level) end
 		local reaction
 		if UnitIsFriend("target", "player") then reaction = "Friendly" else reaction = "Hostile" end
@@ -528,7 +528,7 @@ function Transcriptor:PLAYER_TARGET_CHANGED()
 		local creatureType = UnitCreatureType("target")
 		local typeclass
 		if classification == "normal" then typeclass = creatureType else typeclass = (tostring(classification).." "..creatureType) end
-		local name = UnitName("target")
+		local name = UnitName("target") or "nil"
 
 		local msg = (fmt("%s %s (%s) - %s", level, reaction, typeclass, name))
 		self:Debug("Target Changed: "..msg)
