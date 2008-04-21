@@ -524,13 +524,15 @@ function Transcriptor:PLAYER_TARGET_CHANGED()
 		if UnitIsPlusMob("target") then level = ("+"..level) end
 		local reaction
 		if UnitIsFriend("target", "player") then reaction = "Friendly" else reaction = "Hostile" end
-		local classification = UnitClassification("target")
-		local creatureType = UnitCreatureType("target")
+		local classification = UnitClassification("target") or "nil"
+		local creatureType = UnitCreatureType("target") or "nil"
 		local typeclass
 		if classification == "normal" then typeclass = creatureType else typeclass = (tostring(classification).." "..creatureType) end
 		local name = UnitName("target") or "nil"
+		local guid = UnitGUID("target") or "nil"
+		local mobid = guid and tonumber(guid:sub(-12, -7), 16) or "nil"
 
-		local msg = (fmt("%s %s (%s) - %s", level, reaction, typeclass, name))
+		local msg = (fmt("%s %s (%s) - %s : %s : %s", level, reaction, typeclass, name, guid, mobid))
 		self:Debug("Target Changed: "..msg)
 		tableins(currentLog.total, "<"..self:GetTime().."> Target Changed: "..msg.."-[PTC]-")
 		tableins(currentLog.PTC, "<"..self:GetTime().."> Target Changed: "..msg)
