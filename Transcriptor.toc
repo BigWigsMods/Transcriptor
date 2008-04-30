@@ -1,6 +1,8 @@
 ## Interface: 20400
 ## Title: Transcriptor |cff7fff7f -Ace2-|r
 ## Notes: Logging utility for boss encounters.
+## Notes-zhCN: 战斗纪录器
+## Notes-zhTW: 戰鬥紀錄器
 ## Version: 2H
 ## Author: Rabbit, Funkydude
 ## X-Credits: Kyahx(Original Author)
