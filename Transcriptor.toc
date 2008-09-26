@@ -8,6 +8,7 @@
 ## X-Credits: Kyahx(Original Author)
 ## X-Category: Development Tools
 ## SavedVariables: TranscriptDB, TranscriptorIconDB
+## X-Email: rabbit.magtheridon@gmail.com
 
 ## OptionalDeps: Ace2, DewdropLib, FuBarPlugin-2.0
 ## X-Embeds: Ace2, DewdropLib, FuBarPlugin-2.0
