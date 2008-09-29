@@ -1,0 +1,18 @@
+## Interface: 20400
+## Title: Transcriptor |cff7fff7f -Ace2-|r
+## Notes: Logging utility for boss encounters.
+## Notes-zhCN: 战斗纪录器
+## Notes-zhTW: 戰鬥紀錄器
+## Version: 2H
+## Author: Rabbit, Funkydude
+## X-Credits: Kyahx(Original Author)
+## X-Category: Development Tools
+## SavedVariables: TranscriptDB, TranscriptorIconDB
+## X-Email: rabbit.magtheridon@gmail.com
+
+## OptionalDeps: Ace2, DewdropLib, FuBarPlugin-2.0
+## X-Embeds: Ace2, DewdropLib, FuBarPlugin-2.0
+
+embeds.xml
+
+Core.lua
