@@ -1,4 +1,4 @@
-## Interface: 20400
+## Interface: 30000
 ## Title: Transcriptor |cff7fff7f -Ace2-|r
 ## Notes: Logging utility for boss encounters.
 ## Notes-zhCN: 战斗纪录器
