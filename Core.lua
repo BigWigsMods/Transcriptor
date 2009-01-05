@@ -182,7 +182,7 @@ L:RegisterTranslations("deDE", function() return {
 -- Be sure to change the revision number if you add ANY new events.
 -- This will cause the user's local database to be refreshed.
 --]]
-local currentrevision = "2H"
+local currentrevision = "3"
 local defaultevents = {
 	["PLAYER_REGEN_DISABLED"] = 1,
 	["PLAYER_REGEN_ENABLED"] = 1,
@@ -191,6 +191,7 @@ local defaultevents = {
 	["CHAT_MSG_MONSTER_WHISPER"] = 1,
 	["CHAT_MSG_MONSTER_YELL"] = 1,
 	["CHAT_MSG_RAID_BOSS_EMOTE"] = 1,
+	["CHAT_MSG_RAID_BOSS_WHISPER"] = 1,
 	["PLAYER_TARGET_CHANGED"] = 1,
 	["BigWigs_Message"] = 1,
 	["UNIT_SPELLCAST_START"] = 1,
@@ -488,6 +489,15 @@ function Transcriptor:CHAT_MSG_RAID_BOSS_EMOTE(...)
 	self:Debug(msg)
 	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[raidBossEmote]-")
 	tableins(currentLog.raidBossEmote, "<"..self:GetTime().."> "..msg)
+end
+
+function Transcriptor:CHAT_MSG_RAID_BOSS_WHISPER(...)
+	if type(currentLog.raidBossWhisper) ~= "table" then currentLog.raidBossWhisper = {} end
+	local msg = strjoin(":", ...)
+	msg = "Raid boss whisper ["..msg.."]"
+	self:Debug(msg)
+	tableins(currentLog.total, "<"..self:GetTime().."> "..msg.." -[raidBossWhisper]-")
+	tableins(currentLog.raidBossWhisper, "<"..self:GetTime().."> "..msg)
 end
 
 function Transcriptor:CHAT_MSG_MONSTER_SAY(...)
