@@ -99,19 +99,19 @@ local function strjoin(delimiter, ...)
 end
 
 local sh = {}
-function sh:UPDATE_WORLD_STATES()
+function sh.UPDATE_WORLD_STATES()
 	local m = strjoin(":", GetWorldStateUIInfo(3))
 	if m:trim() == "0:" then return end
 	return m
 end
-function sh:COMBAT_LOG_EVENT_UNFILTERED(_, ...) return strjoin(":", ...) end
-function sh:PLAYER_REGEN_DISABLED() return " ++ > Regen Disabled : Entering combat! ++ > " end
-function sh:PLAYER_REGEN_ENABLED() return " -- < Regen Enabled : Leaving combat! -- < " end
-function sh:UNIT_SPELLCAST_STOP(unit) return UnitName(unit) end
+function sh.COMBAT_LOG_EVENT_UNFILTERED(_, ...) return strjoin(":", ...) end
+function sh.PLAYER_REGEN_DISABLED() return " ++ > Regen Disabled : Entering combat! ++ > " end
+function sh.PLAYER_REGEN_ENABLED() return " -- < Regen Enabled : Leaving combat! -- < " end
+function sh.UNIT_SPELLCAST_STOP(unit) return UnitName(unit) end
 sh.UNIT_SPELLCAST_CHANNEL_STOP = sh.UNIT_SPELLCAST_STOP
 sh.UNIT_SPELLCAST_INTERRUPTED = sh.UNIT_SPELLCAST_STOP
 
-function sh:PLAYER_TARGET_CHANGED()
+function sh.PLAYER_TARGET_CHANGED()
 	if UnitExists("target") and not UnitInRaid("target") then
 		local level = UnitLevel("target") or "nil"
 		if UnitIsPlusMob("target") then level = ("+"..level) end
@@ -127,19 +127,19 @@ function sh:PLAYER_TARGET_CHANGED()
 		return (fmt("%s %s (%s) - %s : %s : %s", tostring(level), tostring(reaction), tostring(typeclass), tostring(name), tostring(guid), tostring(mobid)))
 	end
 end
-function sh:UNIT_SPELLCAST_START(unit)
+function sh.UNIT_SPELLCAST_START(unit)
 	local spell, rank, displayName, icon, startTime, endTime = UnitCastingInfo(unit)
 	if not spell then return end
 	local time = ((endTime - startTime) / 1000)
 	return fmt("[%s][%s][%s][%s][%s][%s sec]", UnitName(unit), tostring(spell), tostring(rank), tostring(displayName), tostring(icon), tostring(time))
 end
-function sh:UNIT_SPELLCAST_CHANNEL_START(unit)
+function sh.UNIT_SPELLCAST_CHANNEL_START(unit)
 	local spell, rank, displayName, icon, startTime, endTime = UnitChannelInfo(unit)
 	if not spell then return end
 	local time = ((endTime - startTime) / 1000)
 	return fmt("[%s][%s][%s][%s][%s][%s sec]", UnitName(unit), tostring(spell), tostring(rank), tostring(displayName), tostring(icon), tostring(time))
 end
-function sh:UNIT_SPELLCAST_SUCCEEDED(unit, ...) return strjoin(":", UnitName(unit), ...) end
+function sh.UNIT_SPELLCAST_SUCCEEDED(unit, ...) return strjoin(":", UnitName(unit), ...) end
 
 local aliases = {
 	["COMBAT_LOG_EVENT_UNFILTERED"] = "CLEU",
