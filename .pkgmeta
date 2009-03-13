@@ -1,13 +1,7 @@
 package-as: Transcriptor
 
 externals:
-    libs/AceAddon-2.0: svn://svn.wowace.com/wow/ace2/mainline/trunk/AceAddon-2.0
-    libs/AceConsole-2.0: svn://svn.wowace.com/wow/ace2/mainline/trunk/AceConsole-2.0
-    libs/AceDB-2.0: svn://svn.wowace.com/wow/ace2/mainline/trunk/AceDB-2.0
-    libs/AceDebug-2.0: svn://svn.wowace.com/wow/ace2/mainline/trunk/AceDebug-2.0
-    libs/AceEvent-2.0: svn://svn.wowace.com/wow/ace2/mainline/trunk/AceEvent-2.0
-    libs/AceLibrary: svn://svn.wowace.com/wow/ace2/mainline/trunk/AceLibrary
-    libs/AceLocale-2.2: svn://svn.wowace.com/wow/ace2/mainline/trunk/AceLocale-2.2
-    libs/AceOO-2.0: svn://svn.wowace.com/wow/ace2/mainline/trunk/AceOO-2.0
-    libs/Dewdrop-2.0: svn://svn.wowace.com/wow/dewdroplib/mainline/trunk/Dewdrop-2.0
-    libs/FuBarPlugin-2.0: svn://svn.wowace.com/wow/fubarplugin-2-0/mainline/trunk/FuBarPlugin-2.0
+    libs/LibStub: svn://svn.wowace.com/wow/libstub/mainline/tags/1.0
+    libs/CallbackHandler-1.0: svn://svn.wowace.com/wow/callbackhandler/mainline/tags/1.0.3/CallbackHandler-1.0
+    libs/AceLocale-3.0: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceLocale-3.0
+
