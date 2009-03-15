@@ -161,7 +161,7 @@ local aliases = {
 
 local lineFormat = "<%s> %s"
 local totalFormat = "[%s] %s"
-local Transcriptor = CreateFrame("Frame")
+local eventFrame = CreateFrame("Frame")
 local function eventHandler(self, event, ...)
 	local line = nil
 	if sh[event] and event:find("^UNIT_SPELLCAST") then
@@ -180,7 +180,7 @@ local function eventHandler(self, event, ...)
 	insert(currentLog[e], lineFormat:format(fmt("%.1f", t), line))
 	insert(currentLog.total, lineFormat:format(fmt("%.1f", t), totalFormat:format(e, line)))
 end
-Transcriptor:SetScript("OnEvent", eventHandler)
+eventFrame:SetScript("OnEvent", eventHandler)
 
 local wowEvents = {
 	"PLAYER_REGEN_DISABLED",
@@ -209,6 +209,8 @@ local ace2Events = {
 -- Addon
 --
 
+local Transcriptor = {}
+
 local ldb = LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("Transcriptor", {
 	type = "data source",
 	text = L["|cff696969Idle|r"],
@@ -230,7 +232,7 @@ local ldb = LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("Transcriptor"
 				Transcriptor:StopLog()
 			end
 		elseif button == "MiddleButton" and IsAltKeyDown() then
-			Transcriptor:ClearLogs()
+			Transcriptor:ClearAll()
 		end
 	end,
 })
@@ -242,7 +244,7 @@ init:SetScript("OnEvent", function(self, event, addon)
 	
 	SlashCmdList["TRANSCRIPTOR"] = function(input)
 		if type(input) == "string" and input == "clear" then
-			Transcriptor:ClearLogs()
+			Transcriptor:ClearAll()
 		else
 			if not logging then
 				Transcriptor:StartLog()
@@ -262,12 +264,12 @@ init:RegisterEvent("ADDON_LOADED")
 
 local ace2Events = AceLibrary and AceLibrary:HasInstance("AceEvent-2.0") and AceLibrary("AceEvent-2.0") or nil
 local function ace2EventHandler(self, ...)
-	eventHandler(Transcriptor, ace2Events.currentEvent, ...)
+	eventHandler(eventFrame, ace2Events.currentEvent, ...)
 end
 local dummyAddon = {}
 if ace2Events then ace2Events:embed(dummyAddon) end
 
-function Transcriptor:StartLog()
+function Transcriptor:StartLog(silent)
 	if logging then
 		print(L["You are already logging an encounter."])
 	else
@@ -287,43 +289,56 @@ function Transcriptor:StartLog()
 		if type(currentLog.total) ~= "table" then currentLog.total = {} end
 		--Register Events to be Tracked
 		for i, event in ipairs(wowEvents) do
-			self:RegisterEvent(event)
+			eventFrame:RegisterEvent(event)
 		end
 		if dummyAddon.RegisterEvent then
 			for i, event in ipairs(ace2Events) do
 				dummyAddon:RegisterEvent(event, ace2EventHandler)
 			end
 		end
+		logging = 1
 
 		--Notify Log Start
-		print(L["Beginning Transcript: "]..logName)
-		logging = 1
+		if not silent then
+			print(L["Beginning Transcript: "]..logName)
+		end
 	end
 end
 
-function Transcriptor:StopLog()
+function Transcriptor:Clear(log)
+	if logging then
+		print(L["You can't clear your transcripts while logging an encounter."])
+	elseif TranscriptDB[log] then
+		TranscriptDB[log] = nil
+	end
+end
+function Transcriptor:Get(log) return TranscriptDB[log] end
+function Transcriptor:GetAll() return TranscriptDB end
+function Transcriptor:IsLogging() return logging end
+function Transcriptor:StopLog(silent)
 	if not logging then
 		print(L["You are not logging an encounter."])
 	else
 		ldb.text = L["|cff696969Idle|r"]
 		ldb.icon = "Interface\\AddOns\\Transcriptor\\icon_off"
 		--Clear Events
-		self:UnregisterAllEvents()
+		eventFrame:UnregisterAllEvents()
 		if dummyAddon.UnregisterAllEvents then
 			dummyAddon:UnregisterAllEvents()
 		end
 		--Notify Stop
-		print(L["Ending Transcript: "]..logName)
+		if not silent then
+			print(L["Ending Transcript: "]..logName)
+			print(L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."])
+		end
 		--Clear Log Path
 		logName = nil
 		currentLog = nil
 		logging = nil
-
-		print(L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."])
 	end
 end
 
-function Transcriptor:ClearLogs()
+function Transcriptor:ClearAll()
 	if not logging then
 		TranscriptDB = {}
 		print(L["All transcripts cleared."])
@@ -331,4 +346,6 @@ function Transcriptor:ClearLogs()
 		print(L["You can't clear your transcripts while logging an encounter."])
 	end
 end
+
+_G.Transcriptor = Transcriptor
 
