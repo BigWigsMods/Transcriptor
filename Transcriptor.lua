@@ -1,3 +1,5 @@
+local revision = tonumber(("$Revision$"):sub(12, -3))
+
 local logName = nil
 local currentLog = nil
 local logStartTime = nil
@@ -269,19 +271,16 @@ end
 local dummyAddon = {}
 if ace2Events then ace2Events:embed(dummyAddon) end
 
+local logNameFormat = "[%s] - %s/%s/%s (r%d)"
 function Transcriptor:StartLog(silent)
 	if logging then
 		print(L["You are already logging an encounter."])
 	else
 		ldb.text = L["|cffFF0000Recording|r"]
 		ldb.icon = "Interface\\AddOns\\Transcriptor\\icon_on"
-	
-		-- Set the Log Path
-		logStartTime = GetTime()
 
-		-- Note that we do not use the time format here, so we have some idea of
-		-- when the logging actually started.
-		logName = "["..date("%H:%M:%S").."] - "..GetRealZoneText().."/"..GetSubZoneText()
+		logStartTime = GetTime()
+		logName = logNameFormat:format(date("%H:%M:%S"), GetZoneText(), GetRealZoneText(), GetSubZoneText(), revision or 1)
 
 		if type(TranscriptDB[logName]) ~= "table" then TranscriptDB[logName] = {} end
 		currentLog = TranscriptDB[logName]
