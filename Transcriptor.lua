@@ -264,12 +264,12 @@ init:RegisterEvent("ADDON_LOADED")
 -- Logging
 --
 
-local ace2Events = AceLibrary and AceLibrary:HasInstance("AceEvent-2.0") and AceLibrary("AceEvent-2.0") or nil
-local function ace2EventHandler(self, ...)
-	eventHandler(eventFrame, ace2Events.currentEvent, ...)
+local ae2 = AceLibrary and AceLibrary:HasInstance("AceEvent-2.0") and AceLibrary("AceEvent-2.0") or nil
+local function ace2EventHandler(...)
+	eventHandler(eventFrame, ae2.currentEvent, ...)
 end
 local dummyAddon = {}
-if ace2Events then ace2Events:embed(dummyAddon) end
+if ae2 then ae2:embed(dummyAddon) end
 
 local logNameFormat = "[%s] - %s/%s/%s (r%d)"
 function Transcriptor:StartLog(silent)
