@@ -150,6 +150,7 @@ local aliases = {
 	["CHAT_MSG_MONSTER_SAY"] = "MONSTER_SAY",
 	["CHAT_MSG_MONSTER_WHISPER"] = "MONSTER_WHISPER",
 	["CHAT_MSG_MONSTER_YELL"] = "MONSTER_YELL",
+	["CHAT_MSG_RAID_WARNING"] = "RAID_WARNING",
 	["CHAT_MSG_RAID_BOSS_EMOTE"] = "RAID_BOSS_EMOTE",
 	["CHAT_MSG_RAID_BOSS_WHISPER"] = "RAID_BOSS_WHISPER",
 	["UNIT_SPELLCAST_START"] = "CAST_START",
@@ -176,10 +177,12 @@ local function eventHandler(self, event, ...)
 	end
 	if type(line) ~= "string" or line:len() < 5 then return end
 	local e = aliases[event] or event
-	if type(currentLog[e]) ~= "table" then currentLog[e] = {} end
 	local t = GetTime() - logStartTime
-	insert(currentLog[e], lineFormat:format(fmt("%.1f", t), line))
 	insert(currentLog.total, lineFormat:format(fmt("%.1f", t), totalFormat:format(e, line)))
+	-- We only have CLEU in the total log, it's way too much information to log twice.
+	if event == "COMBAT_LOG_EVENT_UNFILTERED" then return end
+	if type(currentLog[e]) ~= "table" then currentLog[e] = {} end
+	insert(currentLog[e], lineFormat:format(fmt("%.1f", t), line))
 end
 eventFrame:SetScript("OnEvent", eventHandler)
 
@@ -190,6 +193,7 @@ local wowEvents = {
 	"CHAT_MSG_MONSTER_SAY",
 	"CHAT_MSG_MONSTER_WHISPER",
 	"CHAT_MSG_MONSTER_YELL",
+	"CHAT_MSG_RAID_WARNING",
 	"CHAT_MSG_RAID_BOSS_EMOTE",
 	"CHAT_MSG_RAID_BOSS_WHISPER",
 	"PLAYER_TARGET_CHANGED",
