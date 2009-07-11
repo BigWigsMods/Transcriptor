@@ -17,3 +17,4 @@ libs\AceLocale-3.0\AceLocale-3.0.xml
 LibDataBroker-1.1.lua
 
 Transcriptor.lua
+
