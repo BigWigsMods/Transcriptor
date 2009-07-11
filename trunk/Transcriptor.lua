@@ -116,7 +116,6 @@ sh.UNIT_SPELLCAST_INTERRUPTED = sh.UNIT_SPELLCAST_STOP
 function sh.PLAYER_TARGET_CHANGED()
 	if UnitExists("target") and not UnitInRaid("target") then
 		local level = UnitLevel("target") or "nil"
-		if UnitIsPlusMob("target") then level = ("+"..level) end
 		local reaction = "Hostile"
 		if UnitIsFriend("target", "player") then reaction = "Friendly" end
 		local classification = UnitClassification("target") or "nil"
