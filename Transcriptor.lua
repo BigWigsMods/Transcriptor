@@ -274,7 +274,7 @@ end
 local dummyAddon = {}
 if ae2 then ae2:embed(dummyAddon) end
 
-local logNameFormat = "[%s] - %s/%s/%s (r%d)"
+local logNameFormat = "[%s] - %s/%s/%s@%d/%d (r%d)"
 function Transcriptor:StartLog(silent)
 	if logging then
 		print(L["You are already logging an encounter."])
@@ -283,7 +283,9 @@ function Transcriptor:StartLog(silent)
 		ldb.icon = "Interface\\AddOns\\Transcriptor\\icon_on"
 
 		logStartTime = GetTime()
-		logName = logNameFormat:format(date("%H:%M:%S"), GetZoneText(), GetRealZoneText(), GetSubZoneText(), revision or 1)
+		local dD = GetDungeonDifficulty()
+		local rD = GetRaidDifficulty()
+		logName = logNameFormat:format(date("%H:%M:%S"), GetZoneText(), GetRealZoneText(), GetSubZoneText(), dD, rD, revision or 1)
 
 		if type(TranscriptDB[logName]) ~= "table" then TranscriptDB[logName] = {} end
 		currentLog = TranscriptDB[logName]
