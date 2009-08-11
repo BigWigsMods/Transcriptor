@@ -22,7 +22,7 @@ if L then
 	L["All transcripts cleared."] = true
 	L["You can't clear your transcripts while logging an encounter."] = true
 	L["|cff696969Idle|r"] = true
-	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = true
+	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = true
 	L["|cffFF0000Recording|r"] = true
 end
 L = AL:NewLocale("Transcriptor", "deDE")
@@ -37,7 +37,7 @@ if L then
 	L["You can't clear your transcripts while logging an encounter."] = "Du kannst deine Aufzeichnungen nicht l\195\182schen, w\195\164hrend du eine Begegnung aufnimmst."
 	L["|cffFF0000Recording|r: "] = "|cffFF0000Aufzeichnend|r: "
 	L["|cff696969Idle|r"] = "|cff696969Leerlauf|r"
-	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55fKlicke|r um eine Aufzeichnung zu starten/stoppen."
+	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55fKlicke|r um eine Aufzeichnung zu starten/stoppen."
 	L["|cffFF0000Recording|r"] = "|cffFF0000Aufzeichnend|r"
 end
 L = AL:NewLocale("Transcriptor", "zhTW")
@@ -52,7 +52,7 @@ if L then
 	L["You can't clear your transcripts while logging an encounter."] = "正在記錄中，你不能清除。"
 	L["|cffFF0000Recording|r: "] = "|cffFF0000記錄中|r: "
 	L["|cff696969Idle|r"] = "|cff696969閒置|r"
-	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55f點擊|r開始/停止記錄戰鬥"
+	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55f點擊|r開始/停止記錄戰鬥"
 	L["|cffFF0000Recording|r"] = "|cffFF0000記錄中|r"
 end
 L = AL:NewLocale("Transcriptor", "zhCN")
@@ -68,7 +68,7 @@ if L then
 	L["You can't clear your transcripts while logging an encounter."] = "正在记录中,你不能清除."
 	L["|cffFF0000Recording|r: "] = "|cffFF0000记录中|r: "
 	L["|cff696969Idle|r"] = "|cff696969空闲|r"
-	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55f点击|r开始/停止记录战斗."
+	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55f点击|r开始/停止记录战斗."
 	L["|cffFF0000Recording|r"] = "|cffFF0000记录中|r"
 end
 L = AL:NewLocale("Transcriptor", "koKR")
@@ -80,7 +80,7 @@ if L then
 	L["You can't clear your transcripts while logging an encounter."] = "전투 기록중엔 기록을 초기화 할 수 없습니다."
 	L["|cffFF0000Recording|r: "] = "|cffFF0000기록중|r: "
 	L["|cff696969Idle|r"] = "|cff696969무시|r"
-	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55f클릭|r: 전투 기록 시작 / 멈춤."
+	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55f클릭|r: 전투 기록 시작 / 멈춤."
 	L["|cffFF0000Recording|r"] = "|cffFF0000기록중|r"
 end
 
@@ -165,6 +165,7 @@ local lineFormat = "<%s> %s"
 local totalFormat = "[%s] %s"
 local eventFrame = CreateFrame("Frame")
 local function eventHandler(self, event, ...)
+	if TranscriptDB.ignoredEvents[event] then return end
 	local line = nil
 	if sh[event] and event:find("^UNIT_SPELLCAST") then
 		local unit = ...
@@ -216,6 +217,12 @@ local ace2Events = {
 
 local Transcriptor = {}
 
+local menu = {}
+local popupFrame = CreateFrame("Frame", "TranscriptorMenu", eventFrame, "UIDropDownMenuTemplate")
+local function openMenu(frame)
+	EasyMenu(menu, popupFrame, frame, 20, 4, "MENU")
+end
+
 local ldb = LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("Transcriptor", {
 	type = "data source",
 	text = L["|cff696969Idle|r"],
@@ -227,7 +234,7 @@ local ldb = LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("Transcriptor"
 			tt:AddLine(L["|cff696969Idle|r"], 1, 1, 1, 1)
 		end
 		tt:AddLine(" ")
-		tt:AddLine(L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."], 0.2, 1, 0.2, 1)
+		tt:AddLine(L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."], 0.2, 1, 0.2, 1)
 	end,
 	OnClick = function(self, button)
 		if button == "LeftButton" then
@@ -236,6 +243,8 @@ local ldb = LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("Transcriptor"
 			else
 				Transcriptor:StopLog()
 			end
+		elseif button == "RightButton" then
+			openMenu(self)
 		elseif button == "MiddleButton" and IsAltKeyDown() then
 			Transcriptor:ClearAll()
 		end
@@ -246,6 +255,26 @@ local init = CreateFrame("Frame")
 init:SetScript("OnEvent", function(self, event, addon)
 	if addon:lower() ~= "transcriptor" then return end
 	TranscriptDB = TranscriptDB or {}
+	if not TranscriptDB.ignoredEvents then TranscriptDB.ignoredEvents = {} end
+	
+	for i, v in next, wowEvents do
+		table.insert(menu, {
+			text = v,
+			tooltipTitle = v,
+			tooltipText = ("Disable logging of %s events."):format(v),
+			func = function() TranscriptDB.ignoredEvents[v] = not TranscriptDB.ignoredEvents[v] end,
+			checked = function() return TranscriptDB.ignoredEvents[v] end,
+		})
+	end
+	for i, v in next, ace2Events do
+		table.insert(menu, {
+			text = v,
+			tooltipTitle = v,
+			tooltipText = ("Disable logging of %s events."):format(v),
+			func = function() TranscriptDB.ignoredEvents[v] = not TranscriptDB.ignoredEvents[v] end,
+			checked = function() return TranscriptDB.ignoredEvents[v] end,
+		})
+	end
 	
 	SlashCmdList["TRANSCRIPTOR"] = function(input)
 		if type(input) == "string" and input == "clear" then
