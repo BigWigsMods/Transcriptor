@@ -317,6 +317,7 @@ function Transcriptor:StartLog(silent)
 		logName = logNameFormat:format(date("%H:%M:%S"), GetZoneText(), GetRealZoneText(), GetSubZoneText(), dD, rD, revision or 1)
 
 		if type(TranscriptDB[logName]) ~= "table" then TranscriptDB[logName] = {} end
+		if type(TranscriptDB.ignoredEvents) ~= "table" then TranscriptDB.ignoredEvents = {} end
 		currentLog = TranscriptDB[logName]
 
 		if type(currentLog.total) ~= "table" then currentLog.total = {} end
