@@ -212,6 +212,9 @@ local wowEvents = {
 local ace2Events = {
 	"BigWigs_Message",
 }
+local ace3Events = {
+	"BigWigs_Message",
+}
 
 --------------------------------------------------------------------------------
 -- Addon
@@ -253,31 +256,28 @@ local ldb = LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("Transcriptor"
 	end,
 })
 
+local function insertMenuItems(tbl)
+	for i, v in next, tbl do
+		table.insert(menu, {
+			text = v,
+			tooltipTitle = v,
+			tooltipText = ("Disable logging of %s events."):format(v),
+			func = function() TranscriptDB.ignoredEvents[v] = not TranscriptDB.ignoredEvents[v] end,
+			checked = function() return TranscriptDB.ignoredEvents[v] end,
+		})
+	end
+end
+
 local init = CreateFrame("Frame")
 init:SetScript("OnEvent", function(self, event, addon)
 	if addon:lower() ~= "transcriptor" then return end
 	TranscriptDB = TranscriptDB or {}
 	if not TranscriptDB.ignoredEvents then TranscriptDB.ignoredEvents = {} end
-	
-	for i, v in next, wowEvents do
-		table.insert(menu, {
-			text = v,
-			tooltipTitle = v,
-			tooltipText = ("Disable logging of %s events."):format(v),
-			func = function() TranscriptDB.ignoredEvents[v] = not TranscriptDB.ignoredEvents[v] end,
-			checked = function() return TranscriptDB.ignoredEvents[v] end,
-		})
-	end
-	for i, v in next, ace2Events do
-		table.insert(menu, {
-			text = v,
-			tooltipTitle = v,
-			tooltipText = ("Disable logging of %s events."):format(v),
-			func = function() TranscriptDB.ignoredEvents[v] = not TranscriptDB.ignoredEvents[v] end,
-			checked = function() return TranscriptDB.ignoredEvents[v] end,
-		})
-	end
-	
+
+	insertMenuItems(wowEvents)
+	insertMenuItems(ace2Events)
+	insertMenuItems(ace3Events)
+
 	SlashCmdList["TRANSCRIPTOR"] = function(input)
 		if type(input) == "string" and input == "clear" then
 			Transcriptor:ClearAll()
@@ -305,6 +305,14 @@ end
 local dummyAddon = {}
 if ae2 then ae2:embed(dummyAddon) end
 
+local ae3 = LibStub and LibStub("AceEvent-3.0", true) or nil
+local dummyAce3Addon = {}
+if ae3 then ae3:Embed(dummyAce3Addon) end
+local function ace3EventHandler(...)
+	eventHandler(eventFrame, ...)
+end
+
+
 local logNameFormat = "[%s] - %s/%s/%s@%d/%d (r%d)"
 function Transcriptor:StartLog(silent)
 	if logging then
@@ -324,12 +332,17 @@ function Transcriptor:StartLog(silent)
 
 		if type(currentLog.total) ~= "table" then currentLog.total = {} end
 		--Register Events to be Tracked
-		for i, event in ipairs(wowEvents) do
+		for i, event in next, wowEvents do
 			eventFrame:RegisterEvent(event)
 		end
 		if dummyAddon.RegisterEvent then
-			for i, event in ipairs(ace2Events) do
+			for i, event in next, ace2Events do
 				dummyAddon:RegisterEvent(event, ace2EventHandler)
+			end
+		end
+		if dummyAce3Addon.RegisterMessage then
+			for i, event in next, ace3Events do
+				dummyAce3Addon:RegisterMessage(event, ace3EventHandler)
 			end
 		end
 		logging = 1
@@ -361,6 +374,9 @@ function Transcriptor:StopLog(silent)
 		eventFrame:UnregisterAllEvents()
 		if dummyAddon.UnregisterAllEvents then
 			dummyAddon:UnregisterAllEvents()
+		end
+		if dummyAce3Addon.UnregisterAllMessages then
+			dummyAce3Addon:UnregisterAllMessages()
 		end
 		--Notify Stop
 		if not silent then
