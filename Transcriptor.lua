@@ -393,6 +393,7 @@ end
 function Transcriptor:ClearAll()
 	if not logging then
 		TranscriptDB = {}
+		TranscriptDB.ignoredEvents = {}
 		print(L["All transcripts cleared."])
 	else
 		print(L["You can't clear your transcripts while logging an encounter."])
