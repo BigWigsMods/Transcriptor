@@ -161,6 +161,7 @@ local aliases = {
 	["UNIT_SPELLCAST_CHANNEL_STOP"] = "CAST_CHANNEL_STOP",
 	["UNIT_SPELLCAST_INTERRUPTIBLE"] = "CAST_INTERRUPTIBLE",
 	["UNIT_SPELLCAST_NOT_INTERRUPTIBLE"] = "CAST_NOT_INTERRUPTIBLE",
+	["INSTANCE_ENCOUNTER_ENGAGE_UNIT"] = "ENGAGE",
 }
 
 local lineFormat = "<%s> %s"
@@ -208,6 +209,7 @@ local wowEvents = {
 	"UNIT_SPELLCAST_CHANNEL_STOP",
 	"UPDATE_WORLD_STATES",
 	"COMBAT_LOG_EVENT_UNFILTERED",
+	"INSTANCE_ENCOUNTER_ENGAGE_UNIT",
 }
 local ace2Events = {
 	"BigWigs_Message",
@@ -291,6 +293,7 @@ init:SetScript("OnEvent", function(self, event, addon)
 	end
 	SLASH_TRANSCRIPTOR1 = "/transcriptor"
 	SLASH_TRANSCRIPTOR2 = "/transcript"
+	SLASH_TRANSCRIPTOR3 = "/ts"
 end)
 init:RegisterEvent("ADDON_LOADED")
 
