@@ -14,6 +14,7 @@ local AL = LibStub("AceLocale-3.0")
 
 local L = AL:NewLocale("Transcriptor", "enUS", true)
 if L then
+	L["Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."] = true
 	L["You are already logging an encounter."] = true
 	L["Beginning Transcript: "] = true
 	L["You are not logging an encounter."] = true
@@ -356,6 +357,7 @@ function Transcriptor:StartLog(silent)
 		--Notify Log Start
 		if not silent then
 			print(L["Beginning Transcript: "]..logName)
+			print(L["Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."])
 		end
 	end
 end
