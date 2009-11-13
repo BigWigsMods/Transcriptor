@@ -93,20 +93,25 @@ L = AL:GetLocale("Transcriptor")
 
 -- The builtin strjoin doesn't handle nils ..
 local function strjoin(delimiter, ...)
-	local ret = ""
+	local ret = nil
 	for i = 1, select("#", ...) do
-		local v = select(i, ...)
-		ret = ret .. tostring(v) .. ":"
+		ret = (ret or "") .. tostring((select(i, ...))) .. ":"
 	end
 	return ret
 end
 
 local sh = {}
 function sh.UPDATE_WORLD_STATES()
-	local m = strjoin(":", GetWorldStateUIInfo(3))
-	if m:trim() == "0:" then return end
-	return m
+	local ret = nil
+	for i = 1, GetNumWorldStateUI() do
+		local m = strjoin(":", GetWorldStateUIInfo(i))
+		if m and m:trim() ~= "0:" then
+			ret = (ret or "") .. "|" .. m
+		end
+	end
+	return ret
 end
+sh.WORLD_STATE_UI_TIMER_UPDATE = sh.UPDATE_WORLD_STATES
 function sh.COMBAT_LOG_EVENT_UNFILTERED(_, ...) return strjoin(":", ...) end
 function sh.PLAYER_REGEN_DISABLED() return " ++ > Regen Disabled : Entering combat! ++ > " end
 function sh.PLAYER_REGEN_ENABLED() return " -- < Regen Enabled : Leaving combat! -- < " end
@@ -166,6 +171,8 @@ local aliases = {
 	["UNIT_SPELLCAST_INTERRUPTIBLE"] = "CAST_INTERRUPTIBLE",
 	["UNIT_SPELLCAST_NOT_INTERRUPTIBLE"] = "CAST_NOT_INTERRUPTIBLE",
 	["INSTANCE_ENCOUNTER_ENGAGE_UNIT"] = "ENGAGE",
+	["WORLD_STATE_UI_TIMER_UPDATE"] = "WORLD_TIMER",
+	["UPDATE_WORLD_STATES"] = "WORLD_STATE",
 }
 
 local lineFormat = "<%s> %s"
@@ -212,6 +219,7 @@ local wowEvents = {
 	"UNIT_SPELLCAST_CHANNEL_START",
 	"UNIT_SPELLCAST_CHANNEL_STOP",
 	"UPDATE_WORLD_STATES",
+	"WORLD_STATE_UI_TIMER_UPDATE",
 	"COMBAT_LOG_EVENT_UNFILTERED",
 	"INSTANCE_ENCOUNTER_ENGAGE_UNIT",
 }
