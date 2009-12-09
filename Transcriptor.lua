@@ -132,7 +132,7 @@ function sh.PLAYER_TARGET_CHANGED()
 		local mobid = "nil"
 		local guid = UnitGUID("target")
 		if guid then
-			mobid = QueryQuestsCompleted and tonumber(guid:sub(-12, -9), 16) or tonumber(guid:sub(-12, -7), 16)
+			mobid = tonumber(guid:sub(-12, -7), 16)
 		end
 		return (fmt("%s %s (%s) - %s : %s : %s", tostring(level), tostring(reaction), tostring(typeclass), tostring(name), tostring(guid), tostring(mobid)))
 	end
