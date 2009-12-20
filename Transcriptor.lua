@@ -188,7 +188,7 @@ local function eventHandler(self, event, ...)
 	elseif sh[event] then
 		line = sh[event](...)
 	else
-		line = strjoin(":", ...)
+		line = strjoin(":", event, ...)
 	end
 	if type(line) ~= "string" or line:len() < 5 then return end
 	local e = aliases[event] or event
