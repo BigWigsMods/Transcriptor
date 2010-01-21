@@ -184,7 +184,7 @@ local function eventHandler(self, event, ...)
 	if sh[event] and event:find("^UNIT_SPELLCAST") then
 		local unit = ...
 		if not UnitExists(unit) or UnitInRaid(unit) or UnitInParty(unit) or UnitIsFriend("player", unit) then return end
-		line = sh[event](...)
+		line = sh[event](..., "Possible Target<"..(UnitName(unit.."target") or "nil")..">")
 	elseif sh[event] then
 		line = sh[event](...)
 	else
