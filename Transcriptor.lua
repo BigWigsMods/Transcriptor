@@ -6,6 +6,7 @@ local logStartTime = nil
 local logging = nil
 local insert = table.insert
 local fmt = string.format
+local combatLogActive = nil
 
 --------------------------------------------------------------------------------
 -- Localization
@@ -25,6 +26,8 @@ if L then
 	L["|cff696969Idle|r"] = true
 	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = true
 	L["|cffFF0000Recording|r"] = true
+	L["Transcriptor will not log CLEU."] = true
+	L["Transcriptor will log CLEU."] = true
 end
 L = AL:NewLocale("Transcriptor", "deDE")
 if L then
@@ -91,6 +94,8 @@ L = AL:GetLocale("Transcriptor")
 -- Events
 --
 
+local eventFrame = CreateFrame("Frame")
+
 -- The builtin strjoin doesn't handle nils ..
 local function strjoin(delimiter, ...)
 	local ret = nil
@@ -112,7 +117,13 @@ function sh.UPDATE_WORLD_STATES()
 	return ret
 end
 sh.WORLD_STATE_UI_TIMER_UPDATE = sh.UPDATE_WORLD_STATES
-function sh.COMBAT_LOG_EVENT_UNFILTERED(_, ...) return strjoin(":", ...) end
+function sh.COMBAT_LOG_EVENT_UNFILTERED(_, ...)
+	if combatLogActive then
+		eventFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+		return
+	end
+	return strjoin(":", ...)
+end
 function sh.PLAYER_REGEN_DISABLED() return " ++ > Regen Disabled : Entering combat! ++ > " end
 function sh.PLAYER_REGEN_ENABLED() return " -- < Regen Enabled : Leaving combat! -- < " end
 function sh.UNIT_SPELLCAST_STOP(unit) return UnitName(unit) end
@@ -177,7 +188,6 @@ local aliases = {
 
 local lineFormat = "<%s> %s"
 local totalFormat = "[%s] %s"
-local eventFrame = CreateFrame("Frame")
 local function eventHandler(self, event, ...)
 	if TranscriptDB.ignoredEvents[event] then return end
 	local line = nil
@@ -292,6 +302,22 @@ init:SetScript("OnEvent", function(self, event, addon)
 	insertMenuItems(ace2Events)
 	insertMenuItems(ace3Events)
 
+	hooksecurefunc("LoggingCombat", function(input)
+		-- Hopefully no idiots are passing in nil as meaning false
+		if type(input) ~= "boolean" then return end
+		if input then
+			eventFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+			combatLogActive = true
+			print(L["Transcriptor will not log CLEU."])
+		else
+			combatLogActive = nil
+			if logging and not TranscriptDB.ignoredEvents.COMBAT_LOG_EVENT_UNFILTERED then
+				eventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+				print(L["Transcriptor will log CLEU."])
+			end
+		end
+	end)
+
 	SlashCmdList["TRANSCRIPTOR"] = function(input)
 		if type(input) == "string" and input == "clear" then
 			Transcriptor:ClearAll()
@@ -348,16 +374,22 @@ function Transcriptor:StartLog(silent)
 		if type(currentLog.total) ~= "table" then currentLog.total = {} end
 		--Register Events to be Tracked
 		for i, event in next, wowEvents do
-			eventFrame:RegisterEvent(event)
+			if not TranscriptDB.ignoredEvents[event] then
+				eventFrame:RegisterEvent(event)
+			end
 		end
 		if dummyAddon.RegisterEvent then
 			for i, event in next, ace2Events do
-				dummyAddon:RegisterEvent(event, ace2EventHandler)
+				if not TranscriptDB.ignoredEvents[event] then
+					dummyAddon:RegisterEvent(event, ace2EventHandler)
+				end
 			end
 		end
 		if dummyAce3Addon.RegisterMessage then
 			for i, event in next, ace3Events do
-				dummyAce3Addon:RegisterMessage(event, ace3EventHandler)
+				if not TranscriptDB.ignoredEvents[event] then
+					dummyAce3Addon:RegisterMessage(event, ace3EventHandler)
+				end
 			end
 		end
 		logging = 1
