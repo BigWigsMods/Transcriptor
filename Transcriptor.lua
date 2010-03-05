@@ -193,7 +193,7 @@ local function eventHandler(self, event, ...)
 	local line = nil
 	if sh[event] and event:find("^UNIT_SPELLCAST") then
 		local unit = ...
-		if not UnitExists(unit) or UnitInRaid(unit) or UnitInParty(unit) or UnitIsFriend("player", unit) then return end
+		if not UnitExists(unit) or UnitInRaid(unit) then return end
 		line = sh[event](..., "Possible Target<"..(UnitName(unit.."target") or "nil")..">")
 	elseif sh[event] then
 		line = sh[event](...)
@@ -232,9 +232,6 @@ local wowEvents = {
 	"WORLD_STATE_UI_TIMER_UPDATE",
 	"COMBAT_LOG_EVENT_UNFILTERED",
 	"INSTANCE_ENCOUNTER_ENGAGE_UNIT",
-}
-local ace2Events = {
-	"BigWigs_Message",
 }
 local ace3Events = {
 	"BigWigs_Message",
@@ -299,7 +296,6 @@ init:SetScript("OnEvent", function(self, event, addon)
 	if not TranscriptDB.ignoredEvents then TranscriptDB.ignoredEvents = {} end
 
 	insertMenuItems(wowEvents)
-	insertMenuItems(ace2Events)
 	insertMenuItems(ace3Events)
 
 	hooksecurefunc("LoggingCombat", function(input)
@@ -339,13 +335,6 @@ init:RegisterEvent("ADDON_LOADED")
 -- Logging
 --
 
-local ae2 = AceLibrary and AceLibrary:HasInstance("AceEvent-2.0") and AceLibrary("AceEvent-2.0") or nil
-local function ace2EventHandler(...)
-	eventHandler(eventFrame, ae2.currentEvent, ...)
-end
-local dummyAddon = {}
-if ae2 then ae2:embed(dummyAddon) end
-
 local ae3 = LibStub and LibStub("AceEvent-3.0", true) or nil
 local dummyAce3Addon = {}
 if ae3 then ae3:Embed(dummyAce3Addon) end
@@ -376,13 +365,6 @@ function Transcriptor:StartLog(silent)
 		for i, event in next, wowEvents do
 			if not TranscriptDB.ignoredEvents[event] then
 				eventFrame:RegisterEvent(event)
-			end
-		end
-		if dummyAddon.RegisterEvent then
-			for i, event in next, ace2Events do
-				if not TranscriptDB.ignoredEvents[event] then
-					dummyAddon:RegisterEvent(event, ace2EventHandler)
-				end
 			end
 		end
 		if dummyAce3Addon.RegisterMessage then
@@ -420,9 +402,6 @@ function Transcriptor:StopLog(silent)
 		ldb.icon = "Interface\\AddOns\\Transcriptor\\icon_off"
 		--Clear Events
 		eventFrame:UnregisterAllEvents()
-		if dummyAddon.UnregisterAllEvents then
-			dummyAddon:UnregisterAllEvents()
-		end
 		if dummyAce3Addon.UnregisterAllMessages then
 			dummyAce3Addon:UnregisterAllMessages()
 		end
