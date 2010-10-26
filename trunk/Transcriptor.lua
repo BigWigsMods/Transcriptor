@@ -31,18 +31,19 @@ if L then
 end
 L = AL:NewLocale("Transcriptor", "deDE")
 if L then
+	L["Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."] = "Um die besten Logs zu bekommen, solltest du Transcriptor zwischen Wipes oder Bosskills stoppen bzw. starten."
 	L["You are already logging an encounter."] = "Du zeichnest bereits einen Begegnung auf."
 	L["Beginning Transcript: "] = "Beginne Aufzeichnung: "
 	L["You are not logging an encounter."] = "Du zeichnest keine Begegnung auf."
 	L["Ending Transcript: "] = "Beende Aufzeichnung: "
-	L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "Aufzeichnungen werden gespeichert nach WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua sobald du reloggst oder das Interface neu l\195\164dst."
-	L["Added Note: "] = "Notiz hinzugef\195\188gt: "
-	L["All transcripts cleared."] = "Alle Aufzeichnungen gel\195\182scht."
-	L["You can't clear your transcripts while logging an encounter."] = "Du kannst deine Aufzeichnungen nicht l\195\182schen, w\195\164hrend du eine Begegnung aufnimmst."
-	L["|cffFF0000Recording|r: "] = "|cffFF0000Aufzeichnend|r: "
+	L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "Aufzeichnungen werden gespeichert nach WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua sobald du reloggst oder das Interface neu lädst."
+	L["All transcripts cleared."] = "Alle Aufzeichnungen gelöscht."
+	L["You can't clear your transcripts while logging an encounter."] = "Du kannst deine Aufzeichnungen nicht löschen, während du eine Begegnung aufnimmst."
 	L["|cff696969Idle|r"] = "|cff696969Leerlauf|r"
-	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55fKlicke|r um eine Aufzeichnung zu starten/stoppen."
-	L["|cffFF0000Recording|r"] = "|cffFF0000Aufzeichnend|r"
+	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55fKlicken|r, um eine Aufzeichnung zu starten oder zu stoppen. |cffeda55fRechts-Klicken|r, um Events zu konfigurieren. |cffeda55fAlt-Mittel-Klicken|r, um alle Aufzeichnungen zu löschen."
+	L["|cffFF0000Recording|r"] = "|cffFF0000Aufzeichnung|r"
+	L["Transcriptor will not log CLEU."] = "Transcriptor wird CLEU nicht aufzeichnen."
+	L["Transcriptor will log CLEU."] = "Transcriptor wird CLEU aufzeichnen."
 end
 L = AL:NewLocale("Transcriptor", "zhTW")
 if L then
