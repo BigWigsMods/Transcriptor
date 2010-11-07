@@ -101,7 +101,7 @@ local eventFrame = CreateFrame("Frame")
 local function strjoin(delimiter, ...)
 	local ret = nil
 	for i = 1, select("#", ...) do
-		ret = (ret or "") .. tostring((select(i, ...))) .. ":"
+		ret = (ret or "") .. tostring((select(i, ...))) .. delimiter
 	end
 	return ret
 end
@@ -161,7 +161,7 @@ function sh.UNIT_SPELLCAST_CHANNEL_START(unit)
 	local time = ((endTime - startTime) / 1000)
 	return fmt("[%s][%s][%s][%s][%s][%s sec]", UnitName(unit), tostring(spell), tostring(rank), tostring(displayName), tostring(icon), tostring(time))
 end
-function sh.UNIT_SPELLCAST_SUCCEEDED(unit, ...) return strjoin(":", UnitName(unit), ...) end
+function sh.UNIT_SPELLCAST_SUCCEEDED(unit, ...) return strjoin("#", UnitName(unit), ...) end
 
 local aliases = {
 	["COMBAT_LOG_EVENT_UNFILTERED"] = "CLEU",
