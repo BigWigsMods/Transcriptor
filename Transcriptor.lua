@@ -110,8 +110,8 @@ local sh = {}
 function sh.UPDATE_WORLD_STATES()
 	local ret = nil
 	for i = 1, GetNumWorldStateUI() do
-		local m = strjoin(":", GetWorldStateUIInfo(i))
-		if m and m:trim() ~= "0:" then
+		local m = strjoin("#", GetWorldStateUIInfo(i))
+		if m and m:trim() ~= "0#" then
 			ret = (ret or "") .. "|" .. m
 		end
 	end
@@ -123,7 +123,7 @@ function sh.COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 		eventFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		return
 	end
-	return strjoin(":", ...)
+	return strjoin("#", ...)
 end
 function sh.PLAYER_REGEN_DISABLED() return " ++ > Regen Disabled : Entering combat! ++ > " end
 function sh.PLAYER_REGEN_ENABLED() return " -- < Regen Enabled : Leaving combat! -- < " end
@@ -146,7 +146,7 @@ function sh.PLAYER_TARGET_CHANGED()
 		if guid then
 			mobid = tonumber(guid:sub(7, 10), 16)
 		end
-		return (fmt("%s %s (%s) - %s : %s : %s", tostring(level), tostring(reaction), tostring(typeclass), tostring(name), tostring(guid), tostring(mobid)))
+		return (fmt("%s %s (%s) - %s # %s # %s", tostring(level), tostring(reaction), tostring(typeclass), tostring(name), tostring(guid), tostring(mobid)))
 	end
 end
 function sh.UNIT_SPELLCAST_START(unit)
@@ -199,7 +199,7 @@ local function eventHandler(self, event, ...)
 	elseif sh[event] then
 		line = sh[event](...)
 	else
-		line = strjoin(":", event, ...)
+		line = strjoin("#", event, ...)
 	end
 	if type(line) ~= "string" or line:len() < 5 then return end
 	local e = aliases[event] or event
