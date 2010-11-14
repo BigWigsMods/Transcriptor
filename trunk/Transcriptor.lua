@@ -97,20 +97,11 @@ L = AL:GetLocale("Transcriptor")
 
 local eventFrame = CreateFrame("Frame")
 
--- The builtin strjoin doesn't handle nils ..
-local function strjoin(delimiter, ...)
-	local ret = nil
-	for i = 1, select("#", ...) do
-		ret = (ret or "") .. tostring((select(i, ...))) .. delimiter
-	end
-	return ret
-end
-
 local sh = {}
 function sh.UPDATE_WORLD_STATES()
 	local ret = nil
 	for i = 1, GetNumWorldStateUI() do
-		local m = strjoin("#", GetWorldStateUIInfo(i))
+		local m = strjoin("#", tostringall(GetWorldStateUIInfo(i)))
 		if m and m:trim() ~= "0#" then
 			ret = (ret or "") .. "|" .. m
 		end
@@ -123,7 +114,7 @@ function sh.COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 		eventFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		return
 	end
-	return strjoin("#", ...)
+	return strjoin("#", tostringall(...))
 end
 function sh.PLAYER_REGEN_DISABLED() return " ++ > Regen Disabled : Entering combat! ++ > " end
 function sh.PLAYER_REGEN_ENABLED() return " -- < Regen Enabled : Leaving combat! -- < " end
@@ -169,7 +160,7 @@ function sh.UNIT_SPELLCAST_CHANNEL_START(unit)
 end
 function sh.UNIT_SPELLCAST_SUCCEEDED(unit, ...)
 	if not unit:find("pet$") then 
-		return strjoin(":", UnitName(unit), ...)
+		return strjoin(":", tostringall(UnitName(unit), ...))
 	end
 end
 
@@ -209,7 +200,7 @@ local function eventHandler(self, event, ...)
 	elseif sh[event] then
 		line = sh[event](...)
 	else
-		line = strjoin("#", event, ...)
+		line = strjoin("#", tostringall(event, ...))
 	end
 	if type(line) ~= "string" or line:len() < 5 then return end
 	local e = aliases[event] or event
