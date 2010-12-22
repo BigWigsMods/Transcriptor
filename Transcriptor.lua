@@ -88,6 +88,22 @@ if L then
 	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55f클릭|r: 전투 기록 시작 / 멈춤."
 	L["|cffFF0000Recording|r"] = "|cffFF0000기록중|r"
 end
+L = AL:NewLocale("Transcriptor", "ruRU")
+if L then
+	L["Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."] = "Чтобы получить лучшие записи боя, не забудьте остановить и запустить Transcriptor между вайпом или убийством босса."
+	L["You are already logging an encounter."] = "Вы уже записываете бой."
+	L["Beginning Transcript: "] = "Начало записи: "
+	L["You are not logging an encounter."] = "Вы не записываете бой."
+	L["Ending Transcript: "] = "Окончание записи: "
+	L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "Записи боя будут записаны в WoW\\WTF\\Account\\<название>\\SavedVariables\\Transcriptor.lua после того как вы перезайдете или перезагрузите пользовательский интерфейс."
+	L["All transcripts cleared."] = "Все записи очищены."
+	L["You can't clear your transcripts while logging an encounter."] = "Вы не можите очистить ваши записи пока идет запись боя."
+	L["|cff696969Idle|r"] = "|cff696969Ожидание|r"
+	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55fЛКМ|r - запустить или остановить запись.\n|cffeda55fПКМ|r - настройка событий.\n|cffeda55fAlt-СКМ|r - очистить все сохраненные записи."
+	L["|cffFF0000Recording|r"] = "|cffFF0000Запись|r"
+	L["Transcriptor will not log CLEU."] = "Transcriptor не будет записывать CLEU."
+	L["Transcriptor will log CLEU."] = "Transcriptor будет записывать CLEU."
+end
 
 L = AL:GetLocale("Transcriptor")
 
