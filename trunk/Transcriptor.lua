@@ -85,7 +85,7 @@ if L then
 	L["You can't clear your transcripts while logging an encounter."] = "전투 기록중엔 기록을 초기화 할 수 없습니다."
 	L["|cffFF0000Recording|r: "] = "|cffFF0000기록중|r: "
 	L["|cff696969Idle|r"] = "|cff696969무시|r"
-	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55f클릭|r: 전투 기록 시작 / 멈춤."
+	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55f클릭|r 전투 기록 시작/정지. |cffeda55f우-클릭|r 이벤트 설정. |cffeda55f알트-중앙 클릭|r 기록된 자료 삭제."
 	L["|cffFF0000Recording|r"] = "|cffFF0000기록중|r"
 end
 L = AL:NewLocale("Transcriptor", "ruRU")
