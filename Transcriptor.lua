@@ -179,6 +179,15 @@ function sh.UNIT_SPELLCAST_SUCCEEDED(unit, ...)
 		return strjoin(":", tostringall(UnitName(unit), ...))
 	end
 end
+function sh.INSTANCE_ENCOUNTER_ENGAGE_UNIT(...)
+	return strjoin("#", tostringall("Fake Args:",
+		UnitExists("boss1"), UnitIsVisible("boss1"), UnitName("boss1"), UnitGUID("boss1"),
+		UnitExists("boss2"), UnitIsVisible("boss2"), UnitName("boss2"), UnitGUID("boss2"),
+		UnitExists("boss3"), UnitIsVisible("boss3"), UnitName("boss3"), UnitGUID("boss3"),
+		UnitExists("boss4"), UnitIsVisible("boss4"), UnitName("boss4"), UnitGUID("boss4"),
+		"Real Args:", ...)
+	)
+end
 
 local aliases = {
 	["COMBAT_LOG_EVENT_UNFILTERED"] = "CLEU",
