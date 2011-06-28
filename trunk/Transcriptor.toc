@@ -1,9 +1,9 @@
-## Interface: 40100
+## Interface: 40200
 ## Title: Transcriptor
 ## Notes: Logging utility for boss encounters.
 ## Notes-zhCN: 战斗纪录器
 ## Notes-zhTW: 戰鬥紀錄器
-## Version: 3.4
+## Version: 3.41
 ## Author: Rabbit, Funkydude
 ## X-Credits: Kyahx(Original Author)
 ## X-Category: Development Tools
