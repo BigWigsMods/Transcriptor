@@ -139,8 +139,8 @@ function sh.COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 end
 function sh.PLAYER_REGEN_DISABLED() return " ++ > Regen Disabled : Entering combat! ++ > " end
 function sh.PLAYER_REGEN_ENABLED() return " -- < Regen Enabled : Leaving combat! -- < " end
-function sh.UNIT_SPELLCAST_STOP(unit) 
-	if not unit:find("pet$") then 
+function sh.UNIT_SPELLCAST_STOP(unit)
+	if not unit:find("pet$") then
 		return UnitName(unit)
 	end
 end
@@ -169,7 +169,7 @@ function sh.UNIT_SPELLCAST_START(unit)
 	local spell, rank, displayName, icon, startTime, endTime = UnitCastingInfo(unit)
 	if not spell then return end
 	local time = ((endTime - startTime) / 1000)
-	if not unit:find("pet$") then 
+	if not unit:find("pet$") then
 		return fmt("[%s][%s][%s][%s][%s][%s sec]", UnitName(unit), tostring(spell), tostring(rank), tostring(displayName), tostring(icon), tostring(time))
 	end
 end
@@ -180,7 +180,7 @@ function sh.UNIT_SPELLCAST_CHANNEL_START(unit)
 	return fmt("[%s][%s][%s][%s][%s][%s sec]", UnitName(unit), tostring(spell), tostring(rank), tostring(displayName), tostring(icon), tostring(time))
 end
 function sh.UNIT_SPELLCAST_SUCCEEDED(unit, ...)
-	if not unit:find("pet$") then 
+	if not unit:find("pet$") then
 		return strjoin(":", tostringall(UnitName(unit), ...))
 	end
 end
@@ -394,9 +394,9 @@ function Transcriptor:StartLog(silent)
 		ldb.icon = "Interface\\AddOns\\Transcriptor\\icon_on"
 
 		logStartTime = GetTime()
-		local dD = GetDungeonDifficulty()
-		local rD = GetRaidDifficulty()
-		logName = logNameFormat:format(date("%H:%M:%S"), GetZoneText(), GetRealZoneText(), GetSubZoneText() or "none", dD, rD, revision or 1)
+		local dD = GetDungeonDifficulty() or 0
+		local rD = GetRaidDifficulty() or 0
+		logName = logNameFormat:format(date("%H:%M:%S"), GetZoneText() or "?", GetRealZoneText() or "?", GetSubZoneText() or "none", dD, rD, revision or 1)
 
 		if type(TranscriptDB[logName]) ~= "table" then TranscriptDB[logName] = {} end
 		if type(TranscriptDB.ignoredEvents) ~= "table" then TranscriptDB.ignoredEvents = {} end
