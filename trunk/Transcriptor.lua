@@ -139,9 +139,10 @@ function sh.COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 end
 function sh.PLAYER_REGEN_DISABLED() return " ++ > Regen Disabled : Entering combat! ++ > " end
 function sh.PLAYER_REGEN_ENABLED() return " -- < Regen Enabled : Leaving combat! -- < " end
-function sh.UNIT_SPELLCAST_STOP(unit)
+function sh.UNIT_SPELLCAST_STOP(possibleTarget, ...)
+	local unit = ...
 	if not unit:find("pet$") then
-		return UnitName(unit)
+		return strjoin(":", tostringall(UnitName(unit), possibleTarget, ... ))
 	end
 end
 sh.UNIT_SPELLCAST_CHANNEL_STOP = sh.UNIT_SPELLCAST_STOP
@@ -165,7 +166,7 @@ function sh.PLAYER_TARGET_CHANGED()
 		return (fmt("%s %s (%s) - %s # %s # %s", tostring(level), tostring(reaction), tostring(typeclass), tostring(name), tostring(guid), tostring(mobid)))
 	end
 end
-function sh.UNIT_SPELLCAST_START(unit)
+function sh.UNIT_SPELLCAST_START(_, unit)
 	local spell, rank, displayName, icon, startTime, endTime = UnitCastingInfo(unit)
 	if not spell then return end
 	local time = ((endTime - startTime) / 1000)
@@ -173,15 +174,16 @@ function sh.UNIT_SPELLCAST_START(unit)
 		return fmt("[%s][%s][%s][%s][%s][%s sec]", UnitName(unit), tostring(spell), tostring(rank), tostring(displayName), tostring(icon), tostring(time))
 	end
 end
-function sh.UNIT_SPELLCAST_CHANNEL_START(unit)
+function sh.UNIT_SPELLCAST_CHANNEL_START(_, unit)
 	local spell, rank, displayName, icon, startTime, endTime = UnitChannelInfo(unit)
 	if not spell then return end
 	local time = ((endTime - startTime) / 1000)
 	return fmt("[%s][%s][%s][%s][%s][%s sec]", UnitName(unit), tostring(spell), tostring(rank), tostring(displayName), tostring(icon), tostring(time))
 end
-function sh.UNIT_SPELLCAST_SUCCEEDED(unit, ...)
+function sh.UNIT_SPELLCAST_SUCCEEDED(possibleTarget, ...)
+	local unit = ...
 	if not unit:find("pet$") then
-		return strjoin(":", tostringall(UnitName(unit), ...))
+		return strjoin(":", tostringall(UnitName(unit), possibleTarget, ... ))
 	end
 end
 function sh.INSTANCE_ENCOUNTER_ENGAGE_UNIT(...)
@@ -235,7 +237,7 @@ local function eventHandler(self, event, ...)
 	if sh[event] and event:find("^UNIT_SPELLCAST") then
 		local unit = ...
 		if not UnitExists(unit) or UnitInRaid(unit) then return end
-		line = sh[event](..., "Possible Target<"..(UnitName(unit.."target") or "nil")..">")
+		line = sh[event]("Possible Target<"..(UnitName(unit.."target") or "nil")..">", ...)
 	elseif sh[event] then
 		line = sh[event](...)
 	else
