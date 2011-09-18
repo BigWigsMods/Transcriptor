@@ -141,7 +141,7 @@ function sh.PLAYER_REGEN_DISABLED() return " ++ > Regen Disabled : Entering comb
 function sh.PLAYER_REGEN_ENABLED() return " -- < Regen Enabled : Leaving combat! -- < " end
 function sh.UNIT_SPELLCAST_STOP(possibleTarget, ...)
 	local unit = ...
-	if not unit:find("pet$") then
+	if not unit:find("pet%d?%d?$") then
 		return strjoin(":", tostringall(UnitName(unit), possibleTarget, ... ))
 	end
 end
@@ -170,7 +170,7 @@ function sh.UNIT_SPELLCAST_START(_, unit)
 	local spell, rank, displayName, icon, startTime, endTime = UnitCastingInfo(unit)
 	if not spell then return end
 	local time = ((endTime - startTime) / 1000)
-	if not unit:find("pet$") then
+	if not unit:find("pet%d?%d?$") then
 		return fmt("[%s][%s][%s][%s][%s][%s sec]", UnitName(unit), tostring(spell), tostring(rank), tostring(displayName), tostring(icon), tostring(time))
 	end
 end
@@ -182,7 +182,7 @@ function sh.UNIT_SPELLCAST_CHANNEL_START(_, unit)
 end
 function sh.UNIT_SPELLCAST_SUCCEEDED(possibleTarget, ...)
 	local unit = ...
-	if not unit:find("pet$") then
+	if not unit:find("pet%d?%d?$") then
 		return strjoin(":", tostringall(UnitName(unit), possibleTarget, ... ))
 	end
 end
