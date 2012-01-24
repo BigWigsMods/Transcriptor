@@ -130,6 +130,7 @@ function sh.UPDATE_WORLD_STATES()
 	return ret
 end
 sh.WORLD_STATE_UI_TIMER_UPDATE = sh.UPDATE_WORLD_STATES
+
 function sh.COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 	if combatLogActive then
 		eventFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
@@ -139,14 +140,33 @@ function sh.COMBAT_LOG_EVENT_UNFILTERED(_, ...)
 end
 function sh.PLAYER_REGEN_DISABLED() return " ++ > Regen Disabled : Entering combat! ++ > " end
 function sh.PLAYER_REGEN_ENABLED() return " -- < Regen Enabled : Leaving combat! -- < " end
-function sh.UNIT_SPELLCAST_STOP(possibleTarget, ...)
-	local unit = ...
+function sh.UNIT_SPELLCAST_STOP(unit, ...)
+	if not UnitExists(unit) or UnitInRaid(unit) then return end
 	if not unit:find("pet%d?%d?$") then
-		return strjoin(":", tostringall(UnitName(unit), possibleTarget, ... ))
+		return UnitName(unit) .. " [[" .. strjoin(":", tostringall(unit, ...)) .. "]]"
 	end
 end
 sh.UNIT_SPELLCAST_CHANNEL_STOP = sh.UNIT_SPELLCAST_STOP
 sh.UNIT_SPELLCAST_INTERRUPTED = sh.UNIT_SPELLCAST_STOP
+sh.UNIT_SPELLCAST_SUCCEEDED = sh.UNIT_SPELLCAST_STOP
+function sh.UNIT_SPELLCAST_START(unit, ...)
+	if not UnitExists(unit) or UnitInRaid(unit) then return end
+	local _, _, _, icon, startTime, endTime = UnitCastingInfo(unit)
+	local time = ((endTime or 0) - (startTime or 0)) / 1000
+	icon = icon and icon:sub(19) or "no icon"
+	if not unit:find("pet%d?%d?$") then
+		return UnitName(unit) .. " - " .. icon .. " - " .. time .. "sec [[" .. strjoin(":", tostringall(unit, ...)) .. "]]"
+	end
+end
+function sh.UNIT_SPELLCAST_CHANNEL_START(unit, ...)
+	if not UnitExists(unit) or UnitInRaid(unit) then return end
+	local _, _, _, icon, startTime, endTime = UnitChannelInfo(unit)
+	local time = ((endTime or 0) - (startTime or 0)) / 1000
+	icon = icon and icon:sub(19) or "no icon"
+	if not unit:find("pet%d?%d?$") then
+		return UnitName(unit) .. " - " .. icon .. " - " .. time .. "sec [[" .. strjoin(":", tostringall(unit, ...)) .. "]]"
+	end
+end
 
 function sh.PLAYER_TARGET_CHANGED()
 	if UnitExists("target") and not UnitInRaid("target") then
@@ -164,26 +184,6 @@ function sh.PLAYER_TARGET_CHANGED()
 			mobid = tonumber(guid:sub(7, 10), 16)
 		end
 		return (fmt("%s %s (%s) - %s # %s # %s", tostring(level), tostring(reaction), tostring(typeclass), tostring(name), tostring(guid), tostring(mobid)))
-	end
-end
-function sh.UNIT_SPELLCAST_START(_, unit)
-	local spell, rank, displayName, icon, startTime, endTime = UnitCastingInfo(unit)
-	if not spell then return end
-	local time = ((endTime - startTime) / 1000)
-	if not unit:find("pet%d?%d?$") then
-		return fmt("[%s][%s][%s][%s][%s][%s sec]", UnitName(unit), tostring(spell), tostring(rank), tostring(displayName), tostring(icon), tostring(time))
-	end
-end
-function sh.UNIT_SPELLCAST_CHANNEL_START(_, unit)
-	local spell, rank, displayName, icon, startTime, endTime = UnitChannelInfo(unit)
-	if not spell then return end
-	local time = ((endTime - startTime) / 1000)
-	return fmt("[%s][%s][%s][%s][%s][%s sec]", UnitName(unit), tostring(spell), tostring(rank), tostring(displayName), tostring(icon), tostring(time))
-end
-function sh.UNIT_SPELLCAST_SUCCEEDED(possibleTarget, ...)
-	local unit = ...
-	if not unit:find("pet%d?%d?$") then
-		return strjoin(":", tostringall(UnitName(unit), possibleTarget, ... ))
 	end
 end
 function sh.INSTANCE_ENCOUNTER_ENGAGE_UNIT(...)
@@ -206,51 +206,27 @@ function sh.UNIT_POWER(unit, typeName)
 	return strjoin("#", typeName, typeIndex, mainPower, maxPower, alternatePower, alternatePowerMax)
 end
 
-local aliases = {
-	COMBAT_LOG_EVENT_UNFILTERED = "CLEU",
-	PLAYER_REGEN_DISABLED = "PLAYER_REGEN_DISABLED",
-	PLAYER_REGEN_ENABLED = "PLAYER_REGEN_ENABLED",
-	CHAT_MSG_MONSTER_EMOTE = "CHAT_MSG_MONSTER_EMOTE",
-	CHAT_MSG_MONSTER_SAY = "CHAT_MSG_MONSTER_SAY",
-	CHAT_MSG_MONSTER_WHISPER = "CHAT_MSG_MONSTER_WHISPER",
-	CHAT_MSG_MONSTER_YELL = "CHAT_MSG_MONSTER_YELL",
-	CHAT_MSG_RAID_WARNING = "CHAT_MSG_RAID_WARNING",
-	UNIT_SPELLCAST_START = "UNIT_SPELLCAST_START",
-	UNIT_SPELLCAST_STOP = "UNIT_SPELLCAST_STOP",
-	UNIT_SPELLCAST_SUCCEEDED = "UNIT_SPELLCAST_SUCCEEDED",
-	UNIT_SPELLCAST_INTERRUPTED = "UNIT_SPELLCAST_INTERRUPTED",
-	UNIT_SPELLCAST_CHANNEL_START = "UNIT_SPELLCAST_CHANNEL_START",
-	UNIT_SPELLCAST_CHANNEL_STOP = "UNIT_SPELLCAST_CHANNEL_STOP",
-	UNIT_SPELLCAST_INTERRUPTIBLE = "UNIT_SPELLCAST_INTERRUPTIBLE",
-	UNIT_SPELLCAST_NOT_INTERRUPTIBLE = "UNIT_SPELLCAST_NOT_INTERRUPTIBLE",
-	INSTANCE_ENCOUNTER_ENGAGE_UNIT = "INSTANCE_ENCOUNTER_ENGAGE_UNIT",
-	WORLD_STATE_UI_TIMER_UPDATE = "WORLD_STATE_UI_TIMER_UPDATE",
-	UPDATE_WORLD_STATES = "UPDATE_WORLD_STATES",
-	UNIT_POWER = "UNIT_POWER",
-}
-
 local lineFormat = "<%s> %s"
 local totalFormat = "[%s] %s"
 local function eventHandler(self, event, ...)
 	if TranscriptDB.ignoredEvents[event] then return end
-	local line = nil
-	if sh[event] and event:find("^UNIT_SPELLCAST") then
-		local unit = ...
-		if not UnitExists(unit) or UnitInRaid(unit) then return end
-		line = sh[event]("Possible Target<"..(UnitName(unit.."target") or "nil")..">", ...)
-	elseif sh[event] then
+	local line
+	if sh[event] then
 		line = sh[event](...)
 	else
 		line = strjoin("#", tostringall(event, ...))
 	end
 	if type(line) ~= "string" or line:len() < 5 then return end
-	local e = aliases[event] or event
 	local t = GetTime() - logStartTime
-	insert(currentLog.total, lineFormat:format(fmt("%.1f", t), totalFormat:format(e, line)))
 	-- We only have CLEU in the total log, it's way too much information to log twice.
-	if event == "COMBAT_LOG_EVENT_UNFILTERED" then return end
-	if type(currentLog[e]) ~= "table" then currentLog[e] = {} end
-	insert(currentLog[e], lineFormat:format(fmt("%.1f", t), line))
+	if event == "COMBAT_LOG_EVENT_UNFILTERED" then
+		insert(currentLog.total, lineFormat:format(fmt("%.1f", t), totalFormat:format("CLEU", line)))
+		return
+	else
+		insert(currentLog.total, lineFormat:format(fmt("%.1f", t), totalFormat:format(event, line)))
+	end
+	if type(currentLog[event]) ~= "table" then currentLog[event] = {} end
+	insert(currentLog[event], lineFormat:format(fmt("%.1f", t), line))
 end
 eventFrame:SetScript("OnEvent", eventHandler)
 
