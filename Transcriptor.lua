@@ -364,7 +364,7 @@ local function ace3EventHandler(...)
 end
 
 
-local logNameFormat = "[%s] - %s/%s/%s@%d/%d (r%d)"
+local logNameFormat = "[%s]@[%s] - %s/%s/%s@%d/%d (r%d) (%s.%s)"
 function Transcriptor:StartLog(silent)
 	if logging then
 		print(L["You are already logging an encounter."])
@@ -375,7 +375,8 @@ function Transcriptor:StartLog(silent)
 		logStartTime = GetTime()
 		local dD = GetDungeonDifficulty() or 0
 		local rD = GetRaidDifficulty() or 0
-		logName = logNameFormat:format(date("%H:%M:%S"), GetZoneText() or "?", GetRealZoneText() or "?", GetSubZoneText() or "none", dD, rD, revision or 1)
+		local wowVersion, buildRevision = GetBuildInfo() -- Note that both returns here are strings, not numbers.
+		logName = logNameFormat:format(date("%Y-%m-%d"), date("%H:%M:%S"), GetZoneText() or "?", GetRealZoneText() or "?", GetSubZoneText() or "none", dD, rD, revision or 1, tostring(wowVersion), tostring(buildRevision))
 
 		if type(TranscriptDB[logName]) ~= "table" then TranscriptDB[logName] = {} end
 		if type(TranscriptDB.ignoredEvents) ~= "table" then TranscriptDB.ignoredEvents = {} end
