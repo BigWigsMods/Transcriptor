@@ -373,7 +373,7 @@ function Transcriptor:StartLog(silent)
 		ldb.icon = "Interface\\AddOns\\Transcriptor\\icon_on"
 
 		logStartTime = GetTime()
-		local dD = GetDungeonDifficulty() or 0
+		local dD = select(4, _G.GetBuildInfo()) >= 50000 and GetDungeonDifficultyID() or GetDungeonDifficulty() or 0
 		local rD = GetRaidDifficulty() or 0
 		local wowVersion, buildRevision = GetBuildInfo() -- Note that both returns here are strings, not numbers.
 		logName = logNameFormat:format(date("%Y-%m-%d"), date("%H:%M:%S"), GetZoneText() or "?", GetRealZoneText() or "?", GetSubZoneText() or "none", dD, rD, revision or 1, tostring(wowVersion), tostring(buildRevision))
