@@ -256,6 +256,7 @@ local wowEvents = {
 }
 local ace3Events = {
 	"BigWigs_Message",
+	"BigWigs_StartBar",
 }
 
 --------------------------------------------------------------------------------
