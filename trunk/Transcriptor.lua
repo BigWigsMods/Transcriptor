@@ -153,7 +153,7 @@ function sh.UNIT_SPELLCAST_START(unit, ...)
 	if not UnitExists(unit) or UnitInRaid(unit) then return end
 	local _, _, _, icon, startTime, endTime = UnitCastingInfo(unit)
 	local time = ((endTime or 0) - (startTime or 0)) / 1000
-	icon = icon and icon:sub(19) or "no icon"
+	icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
 	if not unit:find("pet%d?%d?$") then
 		return UnitName(unit) .. " - " .. icon .. " - " .. time .. "sec [[" .. strjoin(":", tostringall(unit, ...)) .. "]]"
 	end
@@ -162,7 +162,7 @@ function sh.UNIT_SPELLCAST_CHANNEL_START(unit, ...)
 	if not UnitExists(unit) or UnitInRaid(unit) then return end
 	local _, _, _, icon, startTime, endTime = UnitChannelInfo(unit)
 	local time = ((endTime or 0) - (startTime or 0)) / 1000
-	icon = icon and icon:sub(19) or "no icon"
+	icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
 	if not unit:find("pet%d?%d?$") then
 		return UnitName(unit) .. " - " .. icon .. " - " .. time .. "sec [[" .. strjoin(":", tostringall(unit, ...)) .. "]]"
 	end
