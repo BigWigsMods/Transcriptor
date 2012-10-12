@@ -141,7 +141,7 @@ end
 function sh.PLAYER_REGEN_DISABLED() return " ++ > Regen Disabled : Entering combat! ++ > " end
 function sh.PLAYER_REGEN_ENABLED() return " -- < Regen Enabled : Leaving combat! -- < " end
 function sh.UNIT_SPELLCAST_STOP(unit, ...)
-	if not UnitExists(unit) or UnitInRaid(unit) then return end
+	if not UnitExists(unit) or UnitInRaid(unit) or UnitInParty(unit) then return end
 	if not unit:find("pet%d?%d?$") then
 		return UnitName(unit) .. " [[" .. strjoin(":", tostringall(unit, ...)) .. "]]"
 	end
@@ -150,7 +150,7 @@ sh.UNIT_SPELLCAST_CHANNEL_STOP = sh.UNIT_SPELLCAST_STOP
 sh.UNIT_SPELLCAST_INTERRUPTED = sh.UNIT_SPELLCAST_STOP
 sh.UNIT_SPELLCAST_SUCCEEDED = sh.UNIT_SPELLCAST_STOP
 function sh.UNIT_SPELLCAST_START(unit, ...)
-	if not UnitExists(unit) or UnitInRaid(unit) then return end
+	if not UnitExists(unit) or UnitInRaid(unit) or UnitInParty(unit) then return end
 	local _, _, _, icon, startTime, endTime = UnitCastingInfo(unit)
 	local time = ((endTime or 0) - (startTime or 0)) / 1000
 	icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
@@ -159,7 +159,7 @@ function sh.UNIT_SPELLCAST_START(unit, ...)
 	end
 end
 function sh.UNIT_SPELLCAST_CHANNEL_START(unit, ...)
-	if not UnitExists(unit) or UnitInRaid(unit) then return end
+	if not UnitExists(unit) or UnitInRaid(unit) or UnitInParty(unit) then return end
 	local _, _, _, icon, startTime, endTime = UnitChannelInfo(unit)
 	local time = ((endTime or 0) - (startTime or 0)) / 1000
 	icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
@@ -169,7 +169,7 @@ function sh.UNIT_SPELLCAST_CHANNEL_START(unit, ...)
 end
 
 function sh.PLAYER_TARGET_CHANGED()
-	if UnitExists("target") and not UnitInRaid("target") then
+	if UnitExists("target") and not UnitInRaid("target") and not UnitInParty("target") then
 		local level = UnitLevel("target") or "nil"
 		local reaction = "Hostile"
 		if UnitIsFriend("target", "player") then reaction = "Friendly" end
