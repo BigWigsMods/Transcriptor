@@ -106,6 +106,47 @@ do
 end
 
 --------------------------------------------------------------------------------
+-- Utility
+--
+
+function GetMapID(name)
+	name = name:lower()
+	for i=1,2000 do
+		local fetchedName = GetMapNameByID(i)
+		if fetchedName then
+			local lowerFetchedName = fetchedName:lower()
+			if lowerFetchedName:find(name) then
+				print(fetchedName, i)
+			end
+		end
+	end
+end
+function GetBossID(name)
+	name = name:lower()
+	for i=1,2000 do
+		local fetchedName = EJ_GetEncounterInfo(i)
+		if fetchedName then
+			local lowerFetchedName = fetchedName:lower()
+			if lowerFetchedName:find(name) then
+				print(fetchedName, i)
+			end
+		end
+	end
+end
+function GetSectionID(name)
+	name = name:lower()
+	for i=1,15000 do
+		local fetchedName = EJ_GetSectionInfo(i)
+		if fetchedName then
+			local lowerFetchedName = fetchedName:lower()
+			if lowerFetchedName:find(name) then
+				print(fetchedName, i)
+			end
+		end
+	end
+end
+
+--------------------------------------------------------------------------------
 -- Events
 --
 
