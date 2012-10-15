@@ -7,6 +7,7 @@ local logging = nil
 local tinsert = table.insert
 local format = string.format
 local tostringall = tostringall
+local type = type
 local date = date
 local combatLogActive = nil
 
@@ -188,7 +189,7 @@ function sh.INSTANCE_ENCOUNTER_ENGAGE_UNIT(...)
 		"Real Args:", ...)
 	)
 end
-local allowedPowerUnits = {boss1 = true, boss2 = true, boss3 = true, boss4 = true}
+local allowedPowerUnits = {boss1 = true, boss2 = true, boss3 = true, boss4 = true, boss5 = true}
 function sh.UNIT_POWER(unit, typeName)
 	if not allowedPowerUnits[unit] then return end
 	local typeIndex = UnitPowerType(unit)
