@@ -4,11 +4,13 @@ local logName = nil
 local currentLog = nil
 local logStartTime = nil
 local logging = nil
-local insert = table.insert
-local fmt = string.format
+local tinsert = table.insert
+local format = string.format
+local tostringall = tostringall
+local date = date
 local combatLogActive = nil
 
-local origPrint = _G.print
+local origPrint = print
 local function print(msg)
 	return origPrint("|cffffff00" .. msg .. "|r")
 end
@@ -16,101 +18,91 @@ end
 --------------------------------------------------------------------------------
 -- Localization
 --
-local AL = LibStub("AceLocale-3.0")
 
-local L = AL:NewLocale("Transcriptor", "enUS", true)
-if L then
-	L["Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."] = true
-	L["You are already logging an encounter."] = true
-	L["Beginning Transcript: "] = true
-	L["You are not logging an encounter."] = true
-	L["Ending Transcript: "] = true
-	L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = true
-	L["All transcripts cleared."] = true
-	L["You can't clear your transcripts while logging an encounter."] = true
-	L["|cff696969Idle|r"] = true
-	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = true
-	L["|cffFF0000Recording|r"] = true
-	L["Transcriptor will not log CLEU."] = true
-	L["Transcriptor will log CLEU."] = true
-end
-L = AL:NewLocale("Transcriptor", "deDE")
-if L then
-	L["Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."] = "Um die besten Logs zu bekommen, solltest du Transcriptor zwischen Wipes oder Bosskills stoppen bzw. starten."
-	L["You are already logging an encounter."] = "Du zeichnest bereits einen Begegnung auf."
-	L["Beginning Transcript: "] = "Beginne Aufzeichnung: "
-	L["You are not logging an encounter."] = "Du zeichnest keine Begegnung auf."
-	L["Ending Transcript: "] = "Beende Aufzeichnung: "
-	L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "Aufzeichnungen werden gespeichert nach WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua sobald du reloggst oder das Interface neu lädst."
-	L["All transcripts cleared."] = "Alle Aufzeichnungen gelöscht."
-	L["You can't clear your transcripts while logging an encounter."] = "Du kannst deine Aufzeichnungen nicht löschen, während du eine Begegnung aufnimmst."
-	L["|cff696969Idle|r"] = "|cff696969Leerlauf|r"
-	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55fKlicken|r, um eine Aufzeichnung zu starten oder zu stoppen. |cffeda55fRechts-Klicken|r, um Events zu konfigurieren. |cffeda55fAlt-Mittel-Klicken|r, um alle Aufzeichnungen zu löschen."
-	L["|cffFF0000Recording|r"] = "|cffFF0000Aufzeichnung|r"
-	L["Transcriptor will not log CLEU."] = "Transcriptor wird CLEU nicht aufzeichnen."
-	L["Transcriptor will log CLEU."] = "Transcriptor wird CLEU aufzeichnen."
-end
-L = AL:NewLocale("Transcriptor", "zhTW")
-if L then
-	L["You are already logging an encounter."] = "你已經準備記錄戰鬥"
-	L["Beginning Transcript: "] = "開始記錄於: "
-	L["You are not logging an encounter."] = "你不處於記錄狀態"
-	L["Ending Transcript: "] = "結束記錄於: "
-	L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "記錄儲存於 WoW\\WTF\\Account\\<名字>\\SavedVariables\\Transcriptor.lua"
-	L["You are not logging an encounter."] = "你沒有記錄此次戰鬥"
-	L["All transcripts cleared."] = "所有記錄已清除"
-	L["You can't clear your transcripts while logging an encounter."] = "正在記錄中，你不能清除。"
-	L["|cffFF0000Recording|r: "] = "|cffFF0000記錄中|r: "
-	L["|cff696969Idle|r"] = "|cff696969閒置|r"
-	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55f點擊|r開始/停止記錄戰鬥"
-	L["|cffFF0000Recording|r"] = "|cffFF0000記錄中|r"
-end
-L = AL:NewLocale("Transcriptor", "zhCN")
-if L then
-	L["You are already logging an encounter."] = "你已经准备记录战斗"
-	L["Beginning Transcript: "] = "开始记录于: "
-	L["You are not logging an encounter."] = "你不处于记录状态"
-	L["Ending Transcript: "] = "结束记录于："
-	L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "记录保存于WoW\\WTF\\Account\\<名字>\\SavedVariables\\Transcriptor.lua中,你可以上传于Cwowaddon.com论坛,提供最新的BOSS数据."
-	L["You are not logging an encounter."] = "你没有记录此次战斗"
-	L["Added Note: "] = "添加书签于: "
-	L["All transcripts cleared."] = "所有记录已清除"
-	L["You can't clear your transcripts while logging an encounter."] = "正在记录中,你不能清除."
-	L["|cffFF0000Recording|r: "] = "|cffFF0000记录中|r: "
-	L["|cff696969Idle|r"] = "|cff696969空闲|r"
-	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55f点击|r开始/停止记录战斗."
-	L["|cffFF0000Recording|r"] = "|cffFF0000记录中|r"
-end
-L = AL:NewLocale("Transcriptor", "koKR")
-if L then
-	L["Beginning Transcript: "] = "기록 시작됨: "
-	L["Ending Transcript: "] = "기록 종료: "
-	L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "리로드 하기 전까진 WoW\\WTF\\Account\\<아이디>\\SavedVariables\\Transcriptor.lua 에 기록이 저장됩니다."
-	L["All transcripts cleared."] = "모든 기록 초기화 완료"
-	L["You can't clear your transcripts while logging an encounter."] = "전투 기록중엔 기록을 초기화 할 수 없습니다."
-	L["|cffFF0000Recording|r: "] = "|cffFF0000기록중|r: "
-	L["|cff696969Idle|r"] = "|cff696969무시|r"
-	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55f클릭|r 전투 기록 시작/정지. |cffeda55f우-클릭|r 이벤트 설정. |cffeda55f알트-중앙 클릭|r 기록된 자료 삭제."
-	L["|cffFF0000Recording|r"] = "|cffFF0000기록중|r"
-end
-L = AL:NewLocale("Transcriptor", "ruRU")
-if L then
-	L["Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."] = "Чтобы получить лучшие записи боя, не забудьте остановить и запустить Transcriptor между вайпом или убийством босса."
-	L["You are already logging an encounter."] = "Вы уже записываете бой."
-	L["Beginning Transcript: "] = "Начало записи: "
-	L["You are not logging an encounter."] = "Вы не записываете бой."
-	L["Ending Transcript: "] = "Окончание записи: "
-	L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "Записи боя будут записаны в WoW\\WTF\\Account\\<название>\\SavedVariables\\Transcriptor.lua после того как вы перезайдете или перезагрузите пользовательский интерфейс."
-	L["All transcripts cleared."] = "Все записи очищены."
-	L["You can't clear your transcripts while logging an encounter."] = "Вы не можите очистить ваши записи пока идет запись боя."
-	L["|cff696969Idle|r"] = "|cff696969Ожидание|r"
-	L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55fЛКМ|r - запустить или остановить запись.\n|cffeda55fПКМ|r - настройка событий.\n|cffeda55fAlt-СКМ|r - очистить все сохраненные записи."
-	L["|cffFF0000Recording|r"] = "|cffFF0000Запись|r"
-	L["Transcriptor will not log CLEU."] = "Transcriptor не будет записывать CLEU."
-	L["Transcriptor will log CLEU."] = "Transcriptor будет записывать CLEU."
-end
+local L = {}
+L["Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."] = "Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."
+L["You are already logging an encounter."] = "You are already logging an encounter."
+L["Beginning Transcript: "] = "Beginning Transcript: "
+L["You are not logging an encounter."] = "You are not logging an encounter."
+L["Ending Transcript: "] = "Ending Transcript: "
+L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."
+L["All transcripts cleared."] = "All transcripts cleared."
+L["You can't clear your transcripts while logging an encounter."] = "You can't clear your transcripts while logging an encounter."
+L["|cff696969Idle|r"] = "|cff696969Idle|r"
+L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."
+L["|cffFF0000Recording|r"] = "|cffFF0000Recording|r"
+L["Transcriptor will not log CLEU."] = "Transcriptor will not log CLEU."
+L["Transcriptor will log CLEU."] = "Transcriptor will log CLEU."
 
-L = AL:GetLocale("Transcriptor")
+do
+	local locale = GetLocale()
+	if locale == "deDE" then
+		L["Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."] = "Um die besten Logs zu bekommen, solltest du Transcriptor zwischen Wipes oder Bosskills stoppen bzw. starten."
+		L["You are already logging an encounter."] = "Du zeichnest bereits einen Begegnung auf."
+		L["Beginning Transcript: "] = "Beginne Aufzeichnung: "
+		L["You are not logging an encounter."] = "Du zeichnest keine Begegnung auf."
+		L["Ending Transcript: "] = "Beende Aufzeichnung: "
+		L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "Aufzeichnungen werden gespeichert nach WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua sobald du reloggst oder das Interface neu lädst."
+		L["All transcripts cleared."] = "Alle Aufzeichnungen gelöscht."
+		L["You can't clear your transcripts while logging an encounter."] = "Du kannst deine Aufzeichnungen nicht löschen, während du eine Begegnung aufnimmst."
+		L["|cff696969Idle|r"] = "|cff696969Leerlauf|r"
+		L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55fKlicken|r, um eine Aufzeichnung zu starten oder zu stoppen. |cffeda55fRechts-Klicken|r, um Events zu konfigurieren. |cffeda55fAlt-Mittel-Klicken|r, um alle Aufzeichnungen zu löschen."
+		L["|cffFF0000Recording|r"] = "|cffFF0000Aufzeichnung|r"
+		L["Transcriptor will not log CLEU."] = "Transcriptor wird CLEU nicht aufzeichnen."
+		L["Transcriptor will log CLEU."] = "Transcriptor wird CLEU aufzeichnen."
+	elseif locale == "zhTW" then
+		L["You are already logging an encounter."] = "你已經準備記錄戰鬥"
+		L["Beginning Transcript: "] = "開始記錄於: "
+		L["You are not logging an encounter."] = "你不處於記錄狀態"
+		L["Ending Transcript: "] = "結束記錄於: "
+		L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "記錄儲存於 WoW\\WTF\\Account\\<名字>\\SavedVariables\\Transcriptor.lua"
+		L["You are not logging an encounter."] = "你沒有記錄此次戰鬥"
+		L["All transcripts cleared."] = "所有記錄已清除"
+		L["You can't clear your transcripts while logging an encounter."] = "正在記錄中，你不能清除。"
+		L["|cffFF0000Recording|r: "] = "|cffFF0000記錄中|r: "
+		L["|cff696969Idle|r"] = "|cff696969閒置|r"
+		L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55f點擊|r開始/停止記錄戰鬥"
+		L["|cffFF0000Recording|r"] = "|cffFF0000記錄中|r"
+	elseif locale == "zhCN" then
+		L["You are already logging an encounter."] = "你已经准备记录战斗"
+		L["Beginning Transcript: "] = "开始记录于: "
+		L["You are not logging an encounter."] = "你不处于记录状态"
+		L["Ending Transcript: "] = "结束记录于："
+		L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "记录保存于WoW\\WTF\\Account\\<名字>\\SavedVariables\\Transcriptor.lua中,你可以上传于Cwowaddon.com论坛,提供最新的BOSS数据."
+		L["You are not logging an encounter."] = "你没有记录此次战斗"
+		L["Added Note: "] = "添加书签于: "
+		L["All transcripts cleared."] = "所有记录已清除"
+		L["You can't clear your transcripts while logging an encounter."] = "正在记录中,你不能清除."
+		L["|cffFF0000Recording|r: "] = "|cffFF0000记录中|r: "
+		L["|cff696969Idle|r"] = "|cff696969空闲|r"
+		L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55f点击|r开始/停止记录战斗."
+		L["|cffFF0000Recording|r"] = "|cffFF0000记录中|r"
+	elseif locale == "koKR" then
+		L["Beginning Transcript: "] = "기록 시작됨: "
+		L["Ending Transcript: "] = "기록 종료: "
+		L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "리로드 하기 전까진 WoW\\WTF\\Account\\<아이디>\\SavedVariables\\Transcriptor.lua 에 기록이 저장됩니다."
+		L["All transcripts cleared."] = "모든 기록 초기화 완료"
+		L["You can't clear your transcripts while logging an encounter."] = "전투 기록중엔 기록을 초기화 할 수 없습니다."
+		L["|cffFF0000Recording|r: "] = "|cffFF0000기록중|r: "
+		L["|cff696969Idle|r"] = "|cff696969무시|r"
+		L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55f클릭|r 전투 기록 시작/정지. |cffeda55f우-클릭|r 이벤트 설정. |cffeda55f알트-중앙 클릭|r 기록된 자료 삭제."
+		L["|cffFF0000Recording|r"] = "|cffFF0000기록중|r"
+	elseif locale == "ruRU" then
+		L["Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."] = "Чтобы получить лучшие записи боя, не забудьте остановить и запустить Transcriptor между вайпом или убийством босса."
+		L["You are already logging an encounter."] = "Вы уже записываете бой."
+		L["Beginning Transcript: "] = "Начало записи: "
+		L["You are not logging an encounter."] = "Вы не записываете бой."
+		L["Ending Transcript: "] = "Окончание записи: "
+		L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "Записи боя будут записаны в WoW\\WTF\\Account\\<название>\\SavedVariables\\Transcriptor.lua после того как вы перезайдете или перезагрузите пользовательский интерфейс."
+		L["All transcripts cleared."] = "Все записи очищены."
+		L["You can't clear your transcripts while logging an encounter."] = "Вы не можите очистить ваши записи пока идет запись боя."
+		L["|cff696969Idle|r"] = "|cff696969Ожидание|r"
+		L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55fЛКМ|r - запустить или остановить запись.\n|cffeda55fПКМ|r - настройка событий.\n|cffeda55fAlt-СКМ|r - очистить все сохраненные записи."
+		L["|cffFF0000Recording|r"] = "|cffFF0000Запись|r"
+		L["Transcriptor will not log CLEU."] = "Transcriptor не будет записывать CLEU."
+		L["Transcriptor will log CLEU."] = "Transcriptor будет записывать CLEU."
+	end
+end
 
 --------------------------------------------------------------------------------
 -- Events
@@ -183,7 +175,7 @@ function sh.PLAYER_TARGET_CHANGED()
 		if guid then
 			mobid = tonumber(guid:sub(7, 10), 16)
 		end
-		return (fmt("%s %s (%s) - %s # %s # %s", tostring(level), tostring(reaction), tostring(typeclass), tostring(name), tostring(guid), tostring(mobid)))
+		return (format("%s %s (%s) - %s # %s # %s", tostring(level), tostring(reaction), tostring(typeclass), tostring(name), tostring(guid), tostring(mobid)))
 	end
 end
 function sh.INSTANCE_ENCOUNTER_ENGAGE_UNIT(...)
@@ -192,6 +184,7 @@ function sh.INSTANCE_ENCOUNTER_ENGAGE_UNIT(...)
 		UnitExists("boss2"), UnitIsVisible("boss2"), UnitName("boss2"), UnitGUID("boss2"), UnitClassification("boss2"), UnitHealth("boss2"),
 		UnitExists("boss3"), UnitIsVisible("boss3"), UnitName("boss3"), UnitGUID("boss3"), UnitClassification("boss3"), UnitHealth("boss3"),
 		UnitExists("boss4"), UnitIsVisible("boss4"), UnitName("boss4"), UnitGUID("boss4"), UnitClassification("boss4"), UnitHealth("boss4"),
+		UnitExists("boss5"), UnitIsVisible("boss5"), UnitName("boss5"), UnitGUID("boss5"), UnitClassification("boss5"), UnitHealth("boss5"),
 		"Real Args:", ...)
 	)
 end
@@ -206,8 +199,6 @@ function sh.UNIT_POWER(unit, typeName)
 	return strjoin("#", typeName, typeIndex, mainPower, maxPower, alternatePower, alternatePowerMax)
 end
 
-local lineFormat = "<%s> %s"
-local totalFormat = "[%s] %s"
 local function eventHandler(self, event, ...)
 	if TranscriptDB.ignoredEvents[event] then return end
 	local line
@@ -216,17 +207,19 @@ local function eventHandler(self, event, ...)
 	else
 		line = strjoin("#", tostringall(event, ...))
 	end
-	if type(line) ~= "string" or line:len() < 5 then return end
+	if not line then return end
 	local t = GetTime() - logStartTime
+	local passed = format("%.1f", t)
+	local time = date("%H:%M:%S")
 	-- We only have CLEU in the total log, it's way too much information to log twice.
 	if event == "COMBAT_LOG_EVENT_UNFILTERED" then
-		insert(currentLog.total, lineFormat:format(fmt("%.1f", t), totalFormat:format("CLEU", line)))
+		tinsert(currentLog.total, "<"..passed.." "..time.."> [CLEU] "..line)
 		return
 	else
-		insert(currentLog.total, lineFormat:format(fmt("%.1f", t), totalFormat:format(event, line)))
+		tinsert(currentLog.total, "<"..passed.." "..time.."> ["..event.."] "..line)
 	end
 	if type(currentLog[event]) ~= "table" then currentLog[event] = {} end
-	insert(currentLog[event], lineFormat:format(fmt("%.1f", t), line))
+	tinsert(currentLog[event], "<"..passed.." "..time.."> "..line)
 end
 eventFrame:SetScript("OnEvent", eventHandler)
 
@@ -301,10 +294,10 @@ local ldb = LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("Transcriptor"
 
 local function insertMenuItems(tbl)
 	for i, v in next, tbl do
-		table.insert(menu, {
+		tinsert(menu, {
 			text = v,
 			tooltipTitle = v,
-			tooltipText = ("Disable logging of %s events."):format(v),
+			tooltipText = format("Disable logging of %s events.", v),
 			func = function() TranscriptDB.ignoredEvents[v] = not TranscriptDB.ignoredEvents[v] end,
 			checked = function() return TranscriptDB.ignoredEvents[v] end,
 		})
@@ -393,7 +386,7 @@ function Transcriptor:StartLog(silent)
 			diff = tostring(diff)
 		end
 		local wowVersion, buildRevision = GetBuildInfo() -- Note that both returns here are strings, not numbers.
-		logName = logNameFormat:format(date("%Y-%m-%d"), date("%H:%M:%S"), GetZoneText() or "?", GetRealZoneText() or "?", GetSubZoneText() or "none", diff, revision or 1, tostring(wowVersion), tostring(buildRevision))
+		logName = format(logNameFormat, date("%Y-%m-%d"), date("%H:%M:%S"), GetZoneText() or "?", GetRealZoneText() or "?", GetSubZoneText() or "none", diff, revision or 1, tostring(wowVersion), tostring(buildRevision))
 
 		if type(TranscriptDB[logName]) ~= "table" then TranscriptDB[logName] = {} end
 		if type(TranscriptDB.ignoredEvents) ~= "table" then TranscriptDB.ignoredEvents = {} end
