@@ -8,11 +8,10 @@
 ## X-Credits: Kyahx (Former Author)
 ## X-Category: Development Tools
 ## SavedVariables: TranscriptDB
-## OptionalDeps: Ace3
 
-libs\LibStub\LibStub.lua
-libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
-LibDataBroker-1.1.lua
+libs\LibStub.lua
+libs\CallbackHandler-1.0.lua
+libs\LibDataBroker-1.1.lua
 
 Transcriptor.lua
 
