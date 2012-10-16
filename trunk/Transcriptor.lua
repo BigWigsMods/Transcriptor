@@ -116,7 +116,7 @@ function GetMapID(name)
 		if fetchedName then
 			local lowerFetchedName = fetchedName:lower()
 			if lowerFetchedName:find(name) then
-				print(fetchedName, i)
+				print(fetchedName..": "..i)
 			end
 		end
 	end
@@ -128,7 +128,7 @@ function GetBossID(name)
 		if fetchedName then
 			local lowerFetchedName = fetchedName:lower()
 			if lowerFetchedName:find(name) then
-				print(fetchedName, i)
+				print(fetchedName..": "..i)
 			end
 		end
 	end
@@ -140,7 +140,7 @@ function GetSectionID(name)
 		if fetchedName then
 			local lowerFetchedName = fetchedName:lower()
 			if lowerFetchedName:find(name) then
-				print(fetchedName, i)
+				print(fetchedName..": "..i)
 			end
 		end
 	end
