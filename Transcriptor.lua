@@ -215,7 +215,7 @@ function sh.PLAYER_TARGET_CHANGED()
 		local mobid = "nil"
 		local guid = UnitGUID("target")
 		if guid then
-			mobid = tonumber(guid:sub(7, 10), 16)
+			mobid = tonumber(guid:sub(6, 10), 16)
 		end
 		return (format("%s %s (%s) - %s # %s # %s", tostring(level), tostring(reaction), tostring(typeclass), tostring(name), tostring(guid), tostring(mobid)))
 	end
