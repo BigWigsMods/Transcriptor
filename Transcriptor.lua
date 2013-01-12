@@ -289,7 +289,7 @@ local wowEvents = {
 	"COMBAT_LOG_EVENT_UNFILTERED",
 	"INSTANCE_ENCOUNTER_ENGAGE_UNIT",
 }
-local ace3Events = {
+local bwEvents = {
 	"BigWigs_Message",
 	"BigWigs_StartBar",
 }
@@ -353,7 +353,7 @@ init:SetScript("OnEvent", function(self, event, addon)
 	if not TranscriptDB.ignoredEvents then TranscriptDB.ignoredEvents = {} end
 
 	insertMenuItems(wowEvents)
-	insertMenuItems(ace3Events)
+	insertMenuItems(bwEvents)
 
 	hooksecurefunc("LoggingCombat", function(input)
 		-- Hopefully no idiots are passing in nil as meaning false
@@ -392,13 +392,9 @@ init:RegisterEvent("ADDON_LOADED")
 -- Logging
 --
 
-local ae3 = LibStub and LibStub("AceEvent-3.0", true) or nil
-local dummyAce3Addon = {}
-if ae3 then ae3:Embed(dummyAce3Addon) end
-local function ace3EventHandler(...)
+local function BWEventHandler(event, ...)
 	eventHandler(eventFrame, ...)
 end
-
 
 local logNameFormat = "[%s]@[%s] - %s/%s/%s@%s (r%d) (%s.%s)"
 function Transcriptor:StartLog(silent)
@@ -441,10 +437,10 @@ function Transcriptor:StartLog(silent)
 				eventFrame:RegisterEvent(event)
 			end
 		end
-		if dummyAce3Addon.RegisterMessage then
-			for i, event in next, ace3Events do
+		if BigWigsLoader then
+			for i, event in next, bwEvents do
 				if not TranscriptDB.ignoredEvents[event] then
-					dummyAce3Addon:RegisterMessage(event, ace3EventHandler)
+					BigWigsLoader.RegisterMessage(eventFrame, event, BWEventHandler)
 				end
 			end
 		end
@@ -476,8 +472,8 @@ function Transcriptor:StopLog(silent)
 		ldb.icon = "Interface\\AddOns\\Transcriptor\\icon_off"
 		--Clear Events
 		eventFrame:UnregisterAllEvents()
-		if dummyAce3Addon.UnregisterAllMessages then
-			dummyAce3Addon:UnregisterAllMessages()
+		if BigWigsLoader then
+			BigWigsLoader.SendMessage(eventFrame, "BigWigs_OnPluginDisable", eventFrame)
 		end
 		--Notify Stop
 		if not silent then
