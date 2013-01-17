@@ -392,7 +392,7 @@ init:RegisterEvent("ADDON_LOADED")
 -- Logging
 --
 
-local function BWEventHandler(event, ...)
+local function BWEventHandler(...)
 	eventHandler(eventFrame, ...)
 end
 
