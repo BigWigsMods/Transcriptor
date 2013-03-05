@@ -1,9 +1,9 @@
-## Interface: 50100
+## Interface: 50200
 ## Title: Transcriptor
 ## Notes: Logging utility for boss encounters.
 ## Notes-zhCN: 战斗纪录器
 ## Notes-zhTW: 戰鬥紀錄器
-## Version: 3.72
+## Version: 3.73
 ## Author: Rabbit, Funkydude
 ## X-Credits: Kyahx (Former Author)
 ## X-Category: Development Tools
