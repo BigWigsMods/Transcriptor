@@ -396,7 +396,7 @@ local function BWEventHandler(...)
 	eventHandler(eventFrame, ...)
 end
 
-local logNameFormat = "[%s]@[%s] - %s/%s/%s@%s (r%d) (%s.%s)"
+local logNameFormat = "[%s]@[%s] - %d/%s/%s/%s@%s (r%d) (%s.%s)"
 function Transcriptor:StartLog(silent)
 	if logging then
 		print(L["You are already logging an encounter."])
@@ -424,7 +424,8 @@ function Transcriptor:StartLog(silent)
 			diff = tostring(diff)
 		end
 		local wowVersion, buildRevision = GetBuildInfo() -- Note that both returns here are strings, not numbers.
-		logName = format(logNameFormat, date("%Y-%m-%d"), date("%H:%M:%S"), GetZoneText() or "?", GetRealZoneText() or "?", GetSubZoneText() or "none", diff, revision or 1, tostring(wowVersion), tostring(buildRevision))
+		SetMapToCurrentZone() -- Update map ID
+		logName = format(logNameFormat, date("%Y-%m-%d"), date("%H:%M:%S"), GetCurrentMapAreaID(), GetZoneText() or "?", GetRealZoneText() or "?", GetSubZoneText() or "none", diff, revision or 1, tostring(wowVersion), tostring(buildRevision))
 
 		if type(TranscriptDB[logName]) ~= "table" then TranscriptDB[logName] = {} end
 		if type(TranscriptDB.ignoredEvents) ~= "table" then TranscriptDB.ignoredEvents = {} end
