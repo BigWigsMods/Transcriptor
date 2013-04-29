@@ -241,6 +241,26 @@ function sh.UNIT_POWER(unit, typeName)
 	return strjoin("#", typeName, typeIndex, mainPower, maxPower, alternatePower, alternatePowerMax)
 end
 
+function sh.SCENARIO_UPDATE(newStep)
+	local _, _, numCriteria = C_Scenario.GetStepInfo()
+	local ret = "newStep#" .. tostring(newStep) .. "#Info#" .. strjoin("#", tostringall(C_Scenario.GetInfo())) .. "#StepInfo#" .. strjoin("#", tostringall(C_Scenario.GetStepInfo()))
+	local temp = ""
+	for i = 1, numCriteria do
+		temp = temp .. "#CriteriaInfo" .. i .. "#" .. strjoin("#", tostringall(C_Scenario.GetCriteriaInfo(i)))
+	end
+	return ret .. temp
+end
+
+function sh.SCENARIO_CRITERIA_UPDATE(criteriaID)
+	local _, _, numCriteria = C_Scenario.GetStepInfo()
+	local ret = "criteriaID#" .. tostring(criteriaID) .. "#StepInfo#" .. strjoin("#", tostringall(C_Scenario.GetStepInfo()))
+	local temp = ""
+	for i = 1, numCriteria do
+		temp = temp .. "#CriteriaInfo" .. i .. "#" .. strjoin("#", tostringall(C_Scenario.GetCriteriaInfo(i)))
+	end
+	return ret .. temp
+end
+
 local function eventHandler(self, event, ...)
 	if TranscriptDB.ignoredEvents[event] then return end
 	local line
@@ -288,6 +308,8 @@ local wowEvents = {
 	"WORLD_STATE_UI_TIMER_UPDATE",
 	"COMBAT_LOG_EVENT_UNFILTERED",
 	"INSTANCE_ENCOUNTER_ENGAGE_UNIT",
+	"SCENARIO_UPDATE",
+	"SCENARIO_CRITERIA_UPDATE",
 }
 local bwEvents = {
 	"BigWigs_Message",
