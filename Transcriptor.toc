@@ -3,7 +3,7 @@
 ## Notes: Logging utility for boss encounters.
 ## Notes-zhCN: 战斗纪录器
 ## Notes-zhTW: 戰鬥紀錄器
-## Version: 3.75
+## Version: 3.76
 ## Author: Rabbit, Funkydude
 ## X-Credits: Kyahx (Former Author)
 ## X-Category: Development Tools

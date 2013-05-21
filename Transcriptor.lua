@@ -20,6 +20,20 @@ end
 -- Localization
 --
 
+do
+	local f = CreateFrame("Frame")
+	f:Hide() -- Show for encounter debugging
+	f:SetScript("OnUpdate", function(self)
+		if not self.combat and IsEncounterInProgress() then
+			print("Transcriptor: ++ ENTERING ENCOUNTER ++")
+			self.combat = true
+		elseif self.combat and not IsEncounterInProgress() then
+			print("Transcriptor: -- LEAVING ENCOUNTER --")
+			self.combat = nil
+		end
+	end)
+end
+
 local L = {}
 L["Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."] = "Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."
 L["You are already logging an encounter."] = "You are already logging an encounter."
