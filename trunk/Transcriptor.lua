@@ -256,45 +256,52 @@ function sh.UNIT_POWER(unit, typeName)
 end
 
 function sh.SCENARIO_UPDATE(newStep)
-	local ret = "newStep#" .. tostring(newStep)
-	ret = ret .. "#Info#" .. strjoin("#", tostringall(C_Scenario.GetInfo()))
-	ret = ret .. "#StepInfo#" .. strjoin("#", tostringall(C_Scenario.GetStepInfo()))
-	ret = ret .. "#BonusStepInfo#" .. strjoin("#", tostringall(C_Scenario.GetBonusStepInfo())) -- 5.3
+	--Proving Grounds
+	local ret = ""
+	if C_Scenario.GetInfo() == "Proving Grounds" then
+		local diffID, currWave, maxWave, duration = C_Scenario.GetProvingGroundsInfo()
+		ret = "currentMedal:"..diffID.." currWave: "..currWave.." maxWave: "..maxWave.." duration: "..duration
+	end
 
-	local temp = ""
+	local ret2 = "#newStep#" .. tostring(newStep)
+	ret2 = ret2 .. "#Info#" .. strjoin("#", tostringall(C_Scenario.GetInfo()))
+	ret2 = ret2 .. "#StepInfo#" .. strjoin("#", tostringall(C_Scenario.GetStepInfo()))
+	ret2 = ret2 .. "#BonusStepInfo#" .. strjoin("#", tostringall(C_Scenario.GetBonusStepInfo()))
+
+	local ret3 = ""
 	local _, _, numCriteria = C_Scenario.GetStepInfo()
 	for i = 1, numCriteria do
-		temp = temp .. "#CriteriaInfo" .. i .. "#" .. strjoin("#", tostringall(C_Scenario.GetCriteriaInfo(i)))
+		ret3 = ret3 .. "#CriteriaInfo" .. i .. "#" .. strjoin("#", tostringall(C_Scenario.GetCriteriaInfo(i)))
 	end
-
-	local temp2 = ""
+	
+	local ret4 = ""
 	local _, _, numBonusCriteria, _ = C_Scenario.GetBonusStepInfo()
 	for i = 1, numBonusCriteria do
-		temp2 = temp2 .. "#BonusCriteriaInfo" .. i .. "#" .. strjoin("#", tostringall(C_Scenario.GetBonusCriteriaInfo(i)))
+		ret4 = ret4 .. "#BonusCriteriaInfo" .. i .. "#" .. strjoin("#", tostringall(C_Scenario.GetBonusCriteriaInfo(i)))
 	end
 
-	return ret .. temp .. temp2
+	return ret .. ret2 .. ret3 .. ret4
 end
 
 function sh.SCENARIO_CRITERIA_UPDATE(criteriaID)
 	local ret = "criteriaID#" .. tostring(criteriaID)
 	ret = ret .. "#Info#" .. strjoin("#", tostringall(C_Scenario.GetInfo()))
 	ret = ret .. "#StepInfo#" .. strjoin("#", tostringall(C_Scenario.GetStepInfo()))
-	ret = ret .. "#BonusStepInfo#" .. strjoin("#", tostringall(C_Scenario.GetBonusStepInfo())) -- 5.3
+	ret = ret .. "#BonusStepInfo#" .. strjoin("#", tostringall(C_Scenario.GetBonusStepInfo()))
 
-	local temp = ""
+	local ret2 = ""
 	local _, _, numCriteria = C_Scenario.GetStepInfo()
 	for i = 1, numCriteria do
-		temp = temp .. "#CriteriaInfo" .. i .. "#" .. strjoin("#", tostringall(C_Scenario.GetCriteriaInfo(i)))
+		ret2 = ret2 .. "#CriteriaInfo" .. i .. "#" .. strjoin("#", tostringall(C_Scenario.GetCriteriaInfo(i)))
 	end
 
-	local temp2 = ""
+	local ret3 = ""
 	local _, _, numBonusCriteria, _ = C_Scenario.GetBonusStepInfo()
 	for i = 1, numBonusCriteria do
-		temp2 = temp2 .. "#BonusCriteriaInfo" .. i .. "#" .. strjoin("#", tostringall(C_Scenario.GetBonusCriteriaInfo(i)))
+		ret3 = ret3 .. "#BonusCriteriaInfo" .. i .. "#" .. strjoin("#", tostringall(C_Scenario.GetBonusCriteriaInfo(i)))
 	end
 
-	return ret .. temp .. temp2
+	return ret .. ret2 .. ret3
 end
 
 local function eventHandler(self, event, ...)
