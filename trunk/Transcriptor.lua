@@ -234,13 +234,17 @@ function sh.PLAYER_TARGET_CHANGED()
 		return (format("%s %s (%s) - %s # %s # %s", tostring(level), tostring(reaction), tostring(typeclass), tostring(name), tostring(guid), tostring(mobid)))
 	end
 end
+local readyToFight = GetSpellInfo(143542)
 function sh.INSTANCE_ENCOUNTER_ENGAGE_UNIT(...)
 	return strjoin("#", tostringall("Fake Args:",
-		UnitExists("boss1"), UnitIsVisible("boss1"), UnitName("boss1"), UnitGUID("boss1"), UnitClassification("boss1"), UnitHealth("boss1"),
-		UnitExists("boss2"), UnitIsVisible("boss2"), UnitName("boss2"), UnitGUID("boss2"), UnitClassification("boss2"), UnitHealth("boss2"),
-		UnitExists("boss3"), UnitIsVisible("boss3"), UnitName("boss3"), UnitGUID("boss3"), UnitClassification("boss3"), UnitHealth("boss3"),
-		UnitExists("boss4"), UnitIsVisible("boss4"), UnitName("boss4"), UnitGUID("boss4"), UnitClassification("boss4"), UnitHealth("boss4"),
-		UnitExists("boss5"), UnitIsVisible("boss5"), UnitName("boss5"), UnitGUID("boss5"), UnitClassification("boss5"), UnitHealth("boss5"),
+		-- UnitBuff("boss1", GetSpellInfo(143542)) is a temporary fight specific check, but VERY important as it is the ONLY way to identify which boss is useless on Paragons.
+		-- including it is in the interest of all boss mods since IEEU is used by all of us to detect paragons joining the fight and starting timers,
+		-- and it fires when a non activating boss gains 143542. IEEU fires a second time when the boss really joins fight and that time UnitBuff will be false.
+		UnitExists("boss1"), UnitIsVisible("boss1"), UnitName("boss1"), UnitGUID("boss1"), UnitClassification("boss1"), UnitHealth("boss1"), UnitBuff("boss1", readyToFight),
+		UnitExists("boss2"), UnitIsVisible("boss2"), UnitName("boss2"), UnitGUID("boss2"), UnitClassification("boss2"), UnitHealth("boss2"), UnitBuff("boss2", readyToFight),
+		UnitExists("boss3"), UnitIsVisible("boss3"), UnitName("boss3"), UnitGUID("boss3"), UnitClassification("boss3"), UnitHealth("boss3"), UnitBuff("boss3", readyToFight),
+		UnitExists("boss4"), UnitIsVisible("boss4"), UnitName("boss4"), UnitGUID("boss4"), UnitClassification("boss4"), UnitHealth("boss4"), UnitBuff("boss4", readyToFight),
+		UnitExists("boss5"), UnitIsVisible("boss5"), UnitName("boss5"), UnitGUID("boss5"), UnitClassification("boss5"), UnitHealth("boss5"), UnitBuff("boss5", readyToFight),
 		"Real Args:", ...)
 	)
 end
