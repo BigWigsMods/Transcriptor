@@ -20,19 +20,17 @@ end
 -- Localization
 --
 
-do
-	local f = CreateFrame("Frame")
-	f:Hide() -- Show for encounter debugging
-	f:SetScript("OnUpdate", function(self)
-		if not self.combat and IsEncounterInProgress() then
-			print("Transcriptor: ++ ENTERING ENCOUNTER ++")
-			self.combat = true
-		elseif self.combat and not IsEncounterInProgress() then
-			print("Transcriptor: -- LEAVING ENCOUNTER --")
-			self.combat = nil
-		end
-	end)
-end
+local encounterChecker = CreateFrame("Frame")
+encounterChecker:Hide() -- Show for encounter debugging
+encounterChecker:SetScript("OnUpdate", function(self)
+	if not self.combat and IsEncounterInProgress() then
+		print("Transcriptor: ++ ENTERING ENCOUNTER ++")
+		self.combat = true
+	elseif self.combat and not IsEncounterInProgress() then
+		print("Transcriptor: -- LEAVING ENCOUNTER --")
+		self.combat = nil
+	end
+end)
 
 local L = {}
 L["Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."] = "Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."
@@ -249,10 +247,16 @@ function sh.INSTANCE_ENCOUNTER_ENGAGE_UNIT(...)
 	)
 end
 function sh.ENCOUNTER_START(...)
+	if encounterChecker:IsShown() then
+		print("Transcriptor: ++ ENTERING ENCOUNTER (EVENT) ++")
+	end
 	--encounter ID, encounter name (localized), difficulty ID, group size
 	return strjoin("#", tostringall(...))
 end
 function sh.ENCOUNTER_END(...)
+	if encounterChecker:IsShown() then
+		print("Transcriptor: -- LEAVING ENCOUNTER (EVENT) --")
+	end
 	--encounter ID, encounter name (localized), difficulty ID, group size, success
 	return strjoin("#", tostringall(...))
 end
