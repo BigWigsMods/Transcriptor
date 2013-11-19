@@ -248,6 +248,14 @@ function sh.INSTANCE_ENCOUNTER_ENGAGE_UNIT(...)
 		"Real Args:", ...)
 	)
 end
+function sh.ENCOUNTER_START(...)
+	--encounter ID, encounter name (localized), difficulty ID, group size
+	return strjoin("#", tostringall(...))
+end
+function sh.ENCOUNTER_END(...)
+	--encounter ID, encounter name (localized), difficulty ID, group size, success
+	return strjoin("#", tostringall(...))
+end
 local allowedPowerUnits = {boss1 = true, boss2 = true, boss3 = true, boss4 = true, boss5 = true}
 function sh.UNIT_POWER(unit, typeName)
 	if not allowedPowerUnits[unit] then return end
@@ -355,6 +363,8 @@ local wowEvents = {
 	"WORLD_STATE_UI_TIMER_UPDATE",
 	"COMBAT_LOG_EVENT_UNFILTERED",
 	"INSTANCE_ENCOUNTER_ENGAGE_UNIT",
+	"ENCOUNTER_START",
+	"ENCOUNTER_END",
 	"SCENARIO_UPDATE",
 	"SCENARIO_CRITERIA_UPDATE",
 }
