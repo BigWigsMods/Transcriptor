@@ -93,7 +93,7 @@ do
 	elseif locale == "koKR" then
 		L["Beginning Transcript: "] = "기록 시작됨: "
 		L["Ending Transcript: "] = "기록 종료: "
-		L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "리로드 하기 전까진 WoW\\WTF\\Account\\<아이디>\\SavedVariables\\Transcriptor.lua 에 기록이 저장됩니다."
+		L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "UI 재시작 후에 WoW\\WTF\\Account\\<아이디>\\SavedVariables\\Transcriptor.lua 에 기록이 저장됩니다."
 		L["All transcripts cleared."] = "모든 기록 초기화 완료"
 		L["You can't clear your transcripts while logging an encounter."] = "전투 기록중엔 기록을 초기화 할 수 없습니다."
 		L["|cffFF0000Recording|r: "] = "|cffFF0000기록중|r: "
@@ -376,6 +376,12 @@ local bwEvents = {
 	"BigWigs_Message",
 	"BigWigs_StartBar",
 }
+local dbmEvents = {
+	"DBM_Announce",
+	"DBM_SpecWarn",
+	"DBM_TimerStart",
+	"DBM_TimerStop",
+}
 
 --------------------------------------------------------------------------------
 -- Addon
@@ -437,6 +443,7 @@ init:SetScript("OnEvent", function(self, event, addon)
 
 	insertMenuItems(wowEvents)
 	insertMenuItems(bwEvents)
+	insertMenuItems(dbmEvents)
 
 	hooksecurefunc("LoggingCombat", function(input)
 		-- Hopefully no idiots are passing in nil as meaning false
@@ -475,7 +482,7 @@ init:RegisterEvent("ADDON_LOADED")
 -- Logging
 --
 
-local function BWEventHandler(...)
+local function BossModEventHandler(...)
 	eventHandler(eventFrame, ...)
 end
 
@@ -524,7 +531,14 @@ function Transcriptor:StartLog(silent)
 		if BigWigsLoader then
 			for i, event in next, bwEvents do
 				if not TranscriptDB.ignoredEvents[event] then
-					BigWigsLoader.RegisterMessage(eventFrame, event, BWEventHandler)
+					BigWigsLoader.RegisterMessage(eventFrame, event, BossModEventHandler)
+				end
+			end
+		end
+		if DBM then
+			for i, event in next, dbmEvents do
+				if not TranscriptDB.ignoredEvents[event] then
+					DBM:RegisterCallback(event, BossModEventHandler)
 				end
 			end
 		end
@@ -558,6 +572,11 @@ function Transcriptor:StopLog(silent)
 		eventFrame:UnregisterAllEvents()
 		if BigWigsLoader then
 			BigWigsLoader.SendMessage(eventFrame, "BigWigs_OnPluginDisable", eventFrame)
+		end
+		if DBM and DBM.UnregisterCallback then
+			for i, event in pairs(dbmEvents) do
+				DBM:UnregisterCallback(event)
+			end
 		end
 		--Notify Stop
 		if not silent then
