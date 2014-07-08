@@ -10,6 +10,7 @@ local tostringall = tostringall
 local type = type
 local date = date
 local combatLogActive = nil
+local wowVersion, buildRevision, _, buildTOC = GetBuildInfo() -- Note that both returns here are strings, not numbers.
 
 local origPrint = print
 local function print(msg)
@@ -227,22 +228,40 @@ function sh.PLAYER_TARGET_CHANGED()
 		local mobid = "nil"
 		local guid = UnitGUID("target")
 		if guid then
-			mobid = tonumber(guid:sub(6, 10), 16)
+			--mobid probably completely redundant and worth removing actually in 6.0 since CID is in the GUID already converted.
+			if buildTOC == 60000 then--Possibly completely redundant and worth removing actually in 6.0
+				local type, _, _, _, _, cid = strsplit(":", guid)
+				if type and (type == "Creature" or type == "Vehicle" or type == "Pet") then
+					mobid = tonumber(cid)
+				else
+					mobid = 0
+				end
+			else
+				mobid = tonumber(guid:sub(6, 10), 16)
+			end
 		end
 		return (format("%s %s (%s) - %s # %s # %s", tostring(level), tostring(reaction), tostring(typeclass), tostring(name), tostring(guid), tostring(mobid)))
 	end
 end
-local readyToFight = GetSpellInfo(143542)
+
 function sh.INSTANCE_ENCOUNTER_ENGAGE_UNIT(...)
 	return strjoin("#", tostringall("Fake Args:",
-		-- UnitBuff("boss1", GetSpellInfo(143542)) is a temporary fight specific check, but VERY important as it is the ONLY way to identify which boss is useless on Paragons.
-		-- including it is in the interest of all boss mods since IEEU is used by all of us to detect paragons joining the fight and starting timers,
-		-- and it fires when a non activating boss gains 143542. IEEU fires a second time when the boss really joins fight and that time UnitBuff will be false.
-		UnitExists("boss1"), UnitIsVisible("boss1"), UnitName("boss1"), UnitGUID("boss1"), UnitClassification("boss1"), UnitHealth("boss1"), UnitBuff("boss1", readyToFight),
-		UnitExists("boss2"), UnitIsVisible("boss2"), UnitName("boss2"), UnitGUID("boss2"), UnitClassification("boss2"), UnitHealth("boss2"), UnitBuff("boss2", readyToFight),
-		UnitExists("boss3"), UnitIsVisible("boss3"), UnitName("boss3"), UnitGUID("boss3"), UnitClassification("boss3"), UnitHealth("boss3"), UnitBuff("boss3", readyToFight),
-		UnitExists("boss4"), UnitIsVisible("boss4"), UnitName("boss4"), UnitGUID("boss4"), UnitClassification("boss4"), UnitHealth("boss4"), UnitBuff("boss4", readyToFight),
-		UnitExists("boss5"), UnitIsVisible("boss5"), UnitName("boss5"), UnitGUID("boss5"), UnitClassification("boss5"), UnitHealth("boss5"), UnitBuff("boss5", readyToFight),
+		UnitExists("boss1"), UnitIsVisible("boss1"), UnitName("boss1"), UnitGUID("boss1"), UnitClassification("boss1"), UnitHealth("boss1"), UnitBuff("boss1"),
+		UnitExists("boss2"), UnitIsVisible("boss2"), UnitName("boss2"), UnitGUID("boss2"), UnitClassification("boss2"), UnitHealth("boss2"), UnitBuff("boss2"),
+		UnitExists("boss3"), UnitIsVisible("boss3"), UnitName("boss3"), UnitGUID("boss3"), UnitClassification("boss3"), UnitHealth("boss3"), UnitBuff("boss3"),
+		UnitExists("boss4"), UnitIsVisible("boss4"), UnitName("boss4"), UnitGUID("boss4"), UnitClassification("boss4"), UnitHealth("boss4"), UnitBuff("boss4"),
+		UnitExists("boss5"), UnitIsVisible("boss5"), UnitName("boss5"), UnitGUID("boss5"), UnitClassification("boss5"), UnitHealth("boss5"), UnitBuff("boss5"),
+		"Real Args:", ...)
+	)
+end
+--in 6.0, IEEU is no longer seems to used for mid combat join/leave of bosses. UNIT_TARGETABLE_CHANGED is.
+function sh.UNIT_TARGETABLE_CHANGED(...)
+	return strjoin("#", tostringall("Fake Args:",
+		UnitExists("boss1"), UnitIsVisible("boss1"), UnitName("boss1"), UnitGUID("boss1"), UnitClassification("boss1"), UnitHealth("boss1"), UnitBuff("boss1"),
+		UnitExists("boss2"), UnitIsVisible("boss2"), UnitName("boss2"), UnitGUID("boss2"), UnitClassification("boss2"), UnitHealth("boss2"), UnitBuff("boss2"),
+		UnitExists("boss3"), UnitIsVisible("boss3"), UnitName("boss3"), UnitGUID("boss3"), UnitClassification("boss3"), UnitHealth("boss3"), UnitBuff("boss3"),
+		UnitExists("boss4"), UnitIsVisible("boss4"), UnitName("boss4"), UnitGUID("boss4"), UnitClassification("boss4"), UnitHealth("boss4"), UnitBuff("boss4"),
+		UnitExists("boss5"), UnitIsVisible("boss5"), UnitName("boss5"), UnitGUID("boss5"), UnitClassification("boss5"), UnitHealth("boss5"), UnitBuff("boss5"),
 		"Real Args:", ...)
 	)
 end
@@ -282,7 +301,9 @@ function sh.SCENARIO_UPDATE(newStep)
 	local ret2 = "#newStep#" .. tostring(newStep)
 	ret2 = ret2 .. "#Info#" .. strjoin("#", tostringall(C_Scenario.GetInfo()))
 	ret2 = ret2 .. "#StepInfo#" .. strjoin("#", tostringall(C_Scenario.GetStepInfo()))
-	ret2 = ret2 .. "#BonusStepInfo#" .. strjoin("#", tostringall(C_Scenario.GetBonusStepInfo()))
+	if C_Scenario.GetBonusStepInfo() then
+		ret2 = ret2 .. "#BonusStepInfo#" .. strjoin("#", tostringall(C_Scenario.GetBonusStepInfo()))
+	end
 
 	local ret3 = ""
 	local _, _, numCriteria = C_Scenario.GetStepInfo()
@@ -291,9 +312,11 @@ function sh.SCENARIO_UPDATE(newStep)
 	end
 	
 	local ret4 = ""
-	local _, _, numBonusCriteria, _ = C_Scenario.GetBonusStepInfo()
-	for i = 1, numBonusCriteria do
-		ret4 = ret4 .. "#BonusCriteriaInfo" .. i .. "#" .. strjoin("#", tostringall(C_Scenario.GetBonusCriteriaInfo(i)))
+	if C_Scenario.GetBonusStepInfo() then
+		local _, _, numBonusCriteria, _ = C_Scenario.GetBonusStepInfo()
+		for i = 1, numBonusCriteria do
+			ret4 = ret4 .. "#BonusCriteriaInfo" .. i .. "#" .. strjoin("#", tostringall(C_Scenario.GetBonusCriteriaInfo(i)))
+		end
 	end
 
 	return ret .. ret2 .. ret3 .. ret4
@@ -367,6 +390,7 @@ local wowEvents = {
 	"WORLD_STATE_UI_TIMER_UPDATE",
 	"COMBAT_LOG_EVENT_UNFILTERED",
 	"INSTANCE_ENCOUNTER_ENGAGE_UNIT",
+	"UNIT_TARGETABLE_CHANGED",
 	"ENCOUNTER_START",
 	"ENCOUNTER_END",
 	"SCENARIO_UPDATE",
@@ -508,12 +532,17 @@ function Transcriptor:StartLog(silent)
 			diff = "HC10M"
 		elseif diff == 6 then
 			diff = "HC25M"
-		elseif diff == 7 then
+		elseif diff == 7 or diff == 17 then
 			diff = "LFR"
+		elseif diff == 14 then
+			diff = (buildTOC == 60000) and "Normal" or "Flex"
+		elseif diff == 15 then
+			diff = "Heroic"
+		elseif diff == 16 then
+			diff = "Mythic"
 		else
 			diff = tostring(diff)
 		end
-		local wowVersion, buildRevision = GetBuildInfo() -- Note that both returns here are strings, not numbers.
 		SetMapToCurrentZone() -- Update map ID
 		logName = format(logNameFormat, date("%Y-%m-%d"), date("%H:%M:%S"), GetCurrentMapAreaID(), select(8, GetInstanceInfo()), GetZoneText() or "?", GetRealZoneText() or "?", GetSubZoneText() or "none", diff, revision or 1, tostring(wowVersion), tostring(buildRevision))
 
@@ -605,4 +634,3 @@ function Transcriptor:ClearAll()
 end
 
 _G.Transcriptor = Transcriptor
-
