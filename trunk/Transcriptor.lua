@@ -301,7 +301,7 @@ function sh.SCENARIO_UPDATE(newStep)
 	local ret2 = "#newStep#" .. tostring(newStep)
 	ret2 = ret2 .. "#Info#" .. strjoin("#", tostringall(C_Scenario.GetInfo()))
 	ret2 = ret2 .. "#StepInfo#" .. strjoin("#", tostringall(C_Scenario.GetStepInfo()))
-	if C_Scenario.GetBonusStepInfo() then
+	if C_Scenario.GetBonusStepInfo then
 		ret2 = ret2 .. "#BonusStepInfo#" .. strjoin("#", tostringall(C_Scenario.GetBonusStepInfo()))
 	end
 
@@ -312,7 +312,7 @@ function sh.SCENARIO_UPDATE(newStep)
 	end
 	
 	local ret4 = ""
-	if C_Scenario.GetBonusStepInfo() then
+	if C_Scenario.GetBonusStepInfo then
 		local _, _, numBonusCriteria, _ = C_Scenario.GetBonusStepInfo()
 		for i = 1, numBonusCriteria do
 			ret4 = ret4 .. "#BonusCriteriaInfo" .. i .. "#" .. strjoin("#", tostringall(C_Scenario.GetBonusCriteriaInfo(i)))
@@ -326,7 +326,7 @@ function sh.SCENARIO_CRITERIA_UPDATE(criteriaID)
 	local ret = "criteriaID#" .. tostring(criteriaID)
 	ret = ret .. "#Info#" .. strjoin("#", tostringall(C_Scenario.GetInfo()))
 	ret = ret .. "#StepInfo#" .. strjoin("#", tostringall(C_Scenario.GetStepInfo()))
-	if C_Scenario.GetBonusStepInfo() then
+	if C_Scenario.GetBonusStepInfo then
 		ret = ret .. "#BonusStepInfo#" .. strjoin("#", tostringall(C_Scenario.GetBonusStepInfo()))
 	end
 
@@ -337,7 +337,7 @@ function sh.SCENARIO_CRITERIA_UPDATE(criteriaID)
 	end
 
 	local ret3 = ""
-	if C_Scenario.GetBonusStepInfo() then
+	if C_Scenario.GetBonusStepInfo then
 		local _, _, numBonusCriteria, _ = C_Scenario.GetBonusStepInfo()
 		for i = 1, numBonusCriteria do
 			ret3 = ret3 .. "#BonusCriteriaInfo" .. i .. "#" .. strjoin("#", tostringall(C_Scenario.GetBonusCriteriaInfo(i)))
