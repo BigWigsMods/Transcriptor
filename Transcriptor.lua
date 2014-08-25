@@ -490,7 +490,7 @@ init:SetScript("OnEvent", function(self, event, addon)
 	end)
 
 	SlashCmdList["TRANSCRIPTOR"] = function(input)
-		if type(input) == "string" and input == "clear" then
+		if type(input) == "string" and input:lower() == "clear" then
 			Transcriptor:ClearAll()
 		else
 			if not logging then
