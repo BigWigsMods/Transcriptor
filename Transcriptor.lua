@@ -286,7 +286,7 @@ function sh.UNIT_POWER(unit, typeName)
 	local mainPower = UnitPower(unit)
 	local maxPower = UnitPowerMax(unit)
 	local alternatePower = UnitPower(unit, ALTERNATE_POWER_INDEX)
-	local alternatePowerMax = UnitPower(unit, ALTERNATE_POWER_INDEX)
+	local alternatePowerMax = UnitPowerMax(unit, ALTERNATE_POWER_INDEX)
 	return strjoin("#", typeName, typeIndex, mainPower, maxPower, alternatePower, alternatePowerMax)
 end
 
