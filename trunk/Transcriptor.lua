@@ -229,8 +229,8 @@ function sh.PLAYER_TARGET_CHANGED()
 		local guid = UnitGUID("target")
 		if guid then
 			--mobid probably completely redundant and worth removing actually in 6.0 since CID is in the GUID already converted.
-			if buildTOC == 60000 then--Possibly completely redundant and worth removing actually in 6.0
-				local type, _, _, _, _, cid = strsplit(":", guid)
+			if buildTOC == 60000 then
+				local type, _, _, _, _, cid = strsplit("-", guid)
 				if type and (type == "Creature" or type == "Vehicle" or type == "Pet") then
 					mobid = tonumber(cid)
 				else
@@ -254,7 +254,7 @@ function sh.INSTANCE_ENCOUNTER_ENGAGE_UNIT(...)
 		"Real Args:", ...)
 	)
 end
---in 6.0, IEEU is no longer seems to used for mid combat join/leave of bosses. UNIT_TARGETABLE_CHANGED is.
+--in 6.0, IEEU is no longer seems to be used for mid combat join/leave of bosses. UNIT_TARGETABLE_CHANGED is.
 function sh.UNIT_TARGETABLE_CHANGED(...)
 	return strjoin("#", tostringall("Fake Args:",
 		UnitExists("boss1"), UnitIsVisible("boss1"), UnitName("boss1"), UnitGUID("boss1"), UnitClassification("boss1"), UnitHealth("boss1"),
