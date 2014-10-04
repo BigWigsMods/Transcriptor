@@ -347,6 +347,12 @@ function sh.SCENARIO_CRITERIA_UPDATE(criteriaID)
 	return ret .. ret2 .. ret3
 end
 
+function sh.ZONE_CHANGED(...)
+	return strjoin("#", GetZoneText() or "?", GetRealZoneText() or "?", GetSubZoneText() or "?", ...)
+end
+sh.ZONE_CHANGED_INDOORS = sh.ZONE_CHANGED
+sh.ZONE_CHANGED_NEW_AREA = sh.ZONE_CHANGED
+
 local function eventHandler(self, event, ...)
 	if TranscriptDB.ignoredEvents[event] then return end
 	local line
@@ -399,6 +405,9 @@ local wowEvents = {
 	"ENCOUNTER_END",
 	"SCENARIO_UPDATE",
 	"SCENARIO_CRITERIA_UPDATE",
+	"ZONE_CHANGED",
+	"ZONE_CHANGED_INDOORS",
+	"ZONE_CHANGED_NEW_AREA",
 }
 local bwEvents = {
 	"BigWigs_Message",
