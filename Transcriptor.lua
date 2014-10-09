@@ -4,6 +4,7 @@ local logName = nil
 local currentLog = nil
 local logStartTime = nil
 local logging = nil
+local inEncounter = false
 local tinsert = table.insert
 local format = string.format
 local tostringall = tostringall
@@ -20,18 +21,6 @@ end
 --------------------------------------------------------------------------------
 -- Localization
 --
-
-local encounterChecker = CreateFrame("Frame")
-encounterChecker:Hide() -- Show for encounter debugging
-encounterChecker:SetScript("OnUpdate", function(self)
-	if not self.combat and IsEncounterInProgress() then
-		print("Transcriptor: ++ ENTERING ENCOUNTER ++")
-		self.combat = true
-	elseif self.combat and not IsEncounterInProgress() then
-		print("Transcriptor: -- LEAVING ENCOUNTER --")
-		self.combat = nil
-	end
-end)
 
 local L = {}
 L["Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."] = "Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."
@@ -265,20 +254,7 @@ function sh.UNIT_TARGETABLE_CHANGED(...)
 		"Real Args:", ...)
 	)
 end
-function sh.ENCOUNTER_START(...)
-	if encounterChecker:IsShown() then
-		print("Transcriptor: ++ ENTERING ENCOUNTER (EVENT) ++")
-	end
-	--encounter ID, encounter name (localized), difficulty ID, group size
-	return strjoin("#", tostringall(...))
-end
-function sh.ENCOUNTER_END(...)
-	if encounterChecker:IsShown() then
-		print("Transcriptor: -- LEAVING ENCOUNTER (EVENT) --")
-	end
-	--encounter ID, encounter name (localized), difficulty ID, group size, success
-	return strjoin("#", tostringall(...))
-end
+
 local allowedPowerUnits = {boss1 = true, boss2 = true, boss3 = true, boss4 = true, boss5 = true}
 function sh.UNIT_POWER(unit, typeName)
 	if not allowedPowerUnits[unit] then return end
@@ -368,6 +344,20 @@ local function eventHandler(self, event, ...)
 	-- We only have CLEU in the total log, it's way too much information to log twice.
 	if event == "COMBAT_LOG_EVENT_UNFILTERED" then
 		tinsert(currentLog.total, "<"..passed.." "..time.."> [CLEU] "..line)
+
+		-- Throw this in here rather than polling it.
+		if not inEncounter and IsEncounterInProgress() then
+			inEncounter = true
+			tinsert(currentLog.total, "<"..passed.." "..time.."> [IsEncounterInProgress()] true")
+			if type(currentLog["IsEncounterInProgress()"]) ~= "table" then currentLog["IsEncounterInProgress()"] = {} end
+			tinsert(currentLog["IsEncounterInProgress()"], "<"..passed.." "..time.."> true")
+		elseif inEncounter and not IsEncounterInProgress() then
+			inEncounter = false
+			tinsert(currentLog.total, "<"..passed.." "..time.."> [IsEncounterInProgress()] false")
+			if type(currentLog["IsEncounterInProgress()"]) ~= "table" then currentLog["IsEncounterInProgress()"] = {} end
+			tinsert(currentLog["IsEncounterInProgress()"], "<"..passed.." "..time.."> false")
+		end
+
 		return
 	else
 		tinsert(currentLog.total, "<"..passed.." "..time.."> ["..event.."] "..line)
