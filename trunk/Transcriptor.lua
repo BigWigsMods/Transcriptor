@@ -156,11 +156,15 @@ local eventFrame = CreateFrame("Frame")
 
 local sh = {}
 function sh.UPDATE_WORLD_STATES()
-	local ret = nil
+	local ret
 	for i = 1, GetNumWorldStateUI() do
 		local m = strjoin("#", tostringall(GetWorldStateUIInfo(i)))
-		if m and m:trim() ~= "0#" then
-			ret = (ret or "") .. "|" .. m
+		if m then
+			if not ret then
+				ret = format("[%d] %s", i, m)
+			else
+				ret = format("%s [%d] %s", ret, i, m)
+			end
 		end
 	end
 	return ret
