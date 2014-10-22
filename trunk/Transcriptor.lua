@@ -98,7 +98,7 @@ do
 		L["Ending Transcript: "] = "Окончание записи: "
 		L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "Записи боя будут записаны в WoW\\WTF\\Account\\<название>\\SavedVariables\\Transcriptor.lua после того как вы перезайдете или перезагрузите пользовательский интерфейс."
 		L["All transcripts cleared."] = "Все записи очищены."
-		L["You can't clear your transcripts while logging an encounter."] = "Вы не можите очистить ваши записи пока идет запись боя."
+		L["You can't clear your transcripts while logging an encounter."] = "Вы не можете очистить ваши записи пока идет запись боя."
 		L["|cff696969Idle|r"] = "|cff696969Ожидание|r"
 		L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55fЛКМ|r - запустить или остановить запись.\n|cffeda55fПКМ|r - настройка событий.\n|cffeda55fAlt-СКМ|r - очистить все сохраненные записи."
 		L["|cffFF0000Recording|r"] = "|cffFF0000Запись|r"
