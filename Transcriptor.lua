@@ -179,31 +179,25 @@ end
 function sh.PLAYER_REGEN_DISABLED() return " ++ > Regen Disabled : Entering combat! ++ > " end
 function sh.PLAYER_REGEN_ENABLED() return " -- < Regen Enabled : Leaving combat! -- < " end
 function sh.UNIT_SPELLCAST_STOP(unit, ...)
-	if (not UnitExists(unit) and not unit:find("boss")) or UnitInRaid(unit) or UnitInParty(unit) or unit == "target" or unit == "player" then return end
-	if not unit:find("pet%d?%d?$") then
-		return format("%s [[%s]]", UnitName(unit), strjoin(":", tostringall(unit, ...)))
-	end
+	if (not UnitExists(unit) and not unit:find("boss", nil, true)) or UnitInRaid(unit) or UnitInParty(unit) or unit:find("pet", nil, true) then return end
+	return format("%s [[%s]]", UnitName(unit), strjoin(":", tostringall(unit, ...)))
 end
 sh.UNIT_SPELLCAST_CHANNEL_STOP = sh.UNIT_SPELLCAST_STOP
 sh.UNIT_SPELLCAST_INTERRUPTED = sh.UNIT_SPELLCAST_STOP
 sh.UNIT_SPELLCAST_SUCCEEDED = sh.UNIT_SPELLCAST_STOP
 function sh.UNIT_SPELLCAST_START(unit, ...)
-	if (not UnitExists(unit) and not unit:find("boss")) or UnitInRaid(unit) or UnitInParty(unit) or unit == "target" or unit == "player" then return end
+	if (not UnitExists(unit) and not unit:find("boss", nil, true)) or UnitInRaid(unit) or UnitInParty(unit) or unit:find("pet", nil, true) then return end
 	local _, _, _, icon, startTime, endTime = UnitCastingInfo(unit)
 	local time = ((endTime or 0) - (startTime or 0)) / 1000
 	icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
-	if not unit:find("pet%d?%d?$") then
-		return format("%s - %s - %ssec [[%s]]", UnitName(unit), icon, time, strjoin(":", tostringall(unit, ...)))
-	end
+	return format("%s - %s - %ssec [[%s]]", UnitName(unit), icon, time, strjoin(":", tostringall(unit, ...)))
 end
 function sh.UNIT_SPELLCAST_CHANNEL_START(unit, ...)
-	if (not UnitExists(unit) and not unit:find("boss")) or UnitInRaid(unit) or UnitInParty(unit) or unit == "target" or unit == "player" then return end
+	if (not UnitExists(unit) and not unit:find("boss", nil, true)) or UnitInRaid(unit) or UnitInParty(unit) or unit:find("pet", nil, true) then return end
 	local _, _, _, icon, startTime, endTime = UnitChannelInfo(unit)
 	local time = ((endTime or 0) - (startTime or 0)) / 1000
 	icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
-	if not unit:find("pet%d?%d?$") then
-		return format("%s - %s - %ssec [[%s]]", UnitName(unit), icon, time, strjoin(":", tostringall(unit, ...)))
-	end
+	return format("%s - %s - %ssec [[%s]]", UnitName(unit), icon, time, strjoin(":", tostringall(unit, ...)))
 end
 
 function sh.PLAYER_TARGET_CHANGED()
@@ -222,11 +216,11 @@ end
 
 function sh.INSTANCE_ENCOUNTER_ENGAGE_UNIT(...)
 	return strjoin("#", tostringall("Fake Args:",
-		UnitExists("boss1"), UnitIsVisible("boss1"), UnitName("boss1"), UnitGUID("boss1"), UnitClassification("boss1"), UnitHealth("boss1"),
-		UnitExists("boss2"), UnitIsVisible("boss2"), UnitName("boss2"), UnitGUID("boss2"), UnitClassification("boss2"), UnitHealth("boss2"),
-		UnitExists("boss3"), UnitIsVisible("boss3"), UnitName("boss3"), UnitGUID("boss3"), UnitClassification("boss3"), UnitHealth("boss3"),
-		UnitExists("boss4"), UnitIsVisible("boss4"), UnitName("boss4"), UnitGUID("boss4"), UnitClassification("boss4"), UnitHealth("boss4"),
-		UnitExists("boss5"), UnitIsVisible("boss5"), UnitName("boss5"), UnitGUID("boss5"), UnitClassification("boss5"), UnitHealth("boss5"),
+		UnitCanAttack("player", "boss1"), UnitExists("boss1"), UnitIsVisible("boss1"), UnitName("boss1"), UnitGUID("boss1"), UnitClassification("boss1"), UnitHealth("boss1"),
+		UnitCanAttack("player", "boss2"), UnitExists("boss2"), UnitIsVisible("boss2"), UnitName("boss2"), UnitGUID("boss2"), UnitClassification("boss2"), UnitHealth("boss2"),
+		UnitCanAttack("player", "boss3"), UnitExists("boss3"), UnitIsVisible("boss3"), UnitName("boss3"), UnitGUID("boss3"), UnitClassification("boss3"), UnitHealth("boss3"),
+		UnitCanAttack("player", "boss4"), UnitExists("boss4"), UnitIsVisible("boss4"), UnitName("boss4"), UnitGUID("boss4"), UnitClassification("boss4"), UnitHealth("boss4"),
+		UnitCanAttack("player", "boss5"), UnitExists("boss5"), UnitIsVisible("boss5"), UnitName("boss5"), UnitGUID("boss5"), UnitClassification("boss5"), UnitHealth("boss5"),
 		"Real Args:", ...)
 	)
 end
@@ -504,14 +498,16 @@ function Transcriptor:StartLog(silent)
 			diff = "HC10M"
 		elseif diff == 6 then
 			diff = "HC25M"
-		elseif diff == 7 or diff == 17 then
-			diff = "LFR"
+		elseif diff == 7 then
+			diff = "LFR25"
 		elseif diff == 14 then
 			diff = "Normal"
 		elseif diff == 15 then
 			diff = "Heroic"
 		elseif diff == 16 then
 			diff = "Mythic"
+		elseif diff == 17 then
+			diff = "LFR"
 		else
 			diff = tostring(diff)
 		end
