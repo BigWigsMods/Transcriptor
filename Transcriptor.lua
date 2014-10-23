@@ -10,8 +10,10 @@ local format = string.format
 local tostringall = tostringall
 local type = type
 local date = date
-local combatLogActive = nil
+local C_Scenario = C_Scenario
 local wowVersion, buildRevision, _, buildTOC = GetBuildInfo() -- Note that both returns here are strings, not numbers.
+
+-- GLOBALS: TranscriptDB BigWigsLoader DBM CLOSE SlashCmdList SLASH_TRANSCRIPTOR1 SLASH_TRANSCRIPTOR2 SLASH_TRANSCRIPTOR3
 
 local origPrint = print
 local function print(msg)
@@ -34,8 +36,7 @@ L["You can't clear your transcripts while logging an encounter."] = "You can't c
 L["|cff696969Idle|r"] = "|cff696969Idle|r"
 L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."
 L["|cffFF0000Recording|r"] = "|cffFF0000Recording|r"
-L["Transcriptor will not log CLEU."] = "Transcriptor will not log CLEU."
-L["Transcriptor will log CLEU."] = "Transcriptor will log CLEU."
+L["|cFFFFD200Transcriptor|r - Disabled Events"] = "|cFFFFD200Transcriptor|r - Disabled Events"
 
 do
 	local locale = GetLocale()
@@ -51,8 +52,7 @@ do
 		L["|cff696969Idle|r"] = "|cff696969Leerlauf|r"
 		L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55fKlicken|r, um eine Aufzeichnung zu starten oder zu stoppen. |cffeda55fRechts-Klicken|r, um Events zu konfigurieren. |cffeda55fAlt-Mittel-Klicken|r, um alle Aufzeichnungen zu löschen."
 		L["|cffFF0000Recording|r"] = "|cffFF0000Aufzeichnung|r"
-		L["Transcriptor will not log CLEU."] = "Transcriptor wird CLEU nicht aufzeichnen."
-		L["Transcriptor will log CLEU."] = "Transcriptor wird CLEU aufzeichnen."
+		--L["|cFFFFD200Transcriptor|r - Disabled Events"] = "|cFFFFD200Transcriptor|r - Disabled Events"
 	elseif locale == "zhTW" then
 		L["You are already logging an encounter."] = "你已經準備記錄戰鬥"
 		L["Beginning Transcript: "] = "開始記錄於: "
@@ -66,6 +66,7 @@ do
 		L["|cff696969Idle|r"] = "|cff696969閒置|r"
 		L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55f點擊|r開始/停止記錄戰鬥"
 		L["|cffFF0000Recording|r"] = "|cffFF0000記錄中|r"
+		--L["|cFFFFD200Transcriptor|r - Disabled Events"] = "|cFFFFD200Transcriptor|r - Disabled Events"
 	elseif locale == "zhCN" then
 		L["You are already logging an encounter."] = "你已经准备记录战斗"
 		L["Beginning Transcript: "] = "开始记录于: "
@@ -80,6 +81,7 @@ do
 		L["|cff696969Idle|r"] = "|cff696969空闲|r"
 		L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55f点击|r开始/停止记录战斗."
 		L["|cffFF0000Recording|r"] = "|cffFF0000记录中|r"
+		--L["|cFFFFD200Transcriptor|r - Disabled Events"] = "|cFFFFD200Transcriptor|r - Disabled Events"
 	elseif locale == "koKR" then
 		L["Beginning Transcript: "] = "기록 시작됨: "
 		L["Ending Transcript: "] = "기록 종료: "
@@ -90,6 +92,7 @@ do
 		L["|cff696969Idle|r"] = "|cff696969무시|r"
 		L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55f클릭|r 전투 기록 시작/정지. |cffeda55f우-클릭|r 이벤트 설정. |cffeda55f알트-중앙 클릭|r 기록된 자료 삭제."
 		L["|cffFF0000Recording|r"] = "|cffFF0000기록중|r"
+		--L["|cFFFFD200Transcriptor|r - Disabled Events"] = "|cFFFFD200Transcriptor|r - Disabled Events"
 	elseif locale == "ruRU" then
 		L["Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."] = "Чтобы получить лучшие записи боя, не забудьте остановить и запустить Transcriptor между вайпом или убийством босса."
 		L["You are already logging an encounter."] = "Вы уже записываете бой."
@@ -102,8 +105,7 @@ do
 		L["|cff696969Idle|r"] = "|cff696969Ожидание|r"
 		L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55fЛКМ|r - запустить или остановить запись.\n|cffeda55fПКМ|r - настройка событий.\n|cffeda55fAlt-СКМ|r - очистить все сохраненные записи."
 		L["|cffFF0000Recording|r"] = "|cffFF0000Запись|r"
-		L["Transcriptor will not log CLEU."] = "Transcriptor не будет записывать CLEU."
-		L["Transcriptor will log CLEU."] = "Transcriptor будет записывать CLEU."
+		--L["|cFFFFD200Transcriptor|r - Disabled Events"] = "|cFFFFD200Transcriptor|r - Disabled Events"
 	end
 end
 
@@ -172,39 +174,35 @@ end
 sh.WORLD_STATE_UI_TIMER_UPDATE = sh.UPDATE_WORLD_STATES
 
 function sh.COMBAT_LOG_EVENT_UNFILTERED(_, ...)
-	if combatLogActive then
-		eventFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		return
-	end
 	return strjoin("#", tostringall(...))
 end
 function sh.PLAYER_REGEN_DISABLED() return " ++ > Regen Disabled : Entering combat! ++ > " end
 function sh.PLAYER_REGEN_ENABLED() return " -- < Regen Enabled : Leaving combat! -- < " end
 function sh.UNIT_SPELLCAST_STOP(unit, ...)
-	if not unit:find("boss") and (not UnitExists(unit) or UnitInRaid(unit) or UnitInParty(unit)) then return end
+	if (not UnitExists(unit) and not unit:find("boss")) or UnitInRaid(unit) or UnitInParty(unit) or unit == "target" or unit == "player" then return end
 	if not unit:find("pet%d?%d?$") then
-		return UnitName(unit) .. " [[" .. strjoin(":", tostringall(unit, ...)) .. "]]"
+		return format("%s [[%s]]", UnitName(unit), strjoin(":", tostringall(unit, ...)))
 	end
 end
 sh.UNIT_SPELLCAST_CHANNEL_STOP = sh.UNIT_SPELLCAST_STOP
 sh.UNIT_SPELLCAST_INTERRUPTED = sh.UNIT_SPELLCAST_STOP
 sh.UNIT_SPELLCAST_SUCCEEDED = sh.UNIT_SPELLCAST_STOP
 function sh.UNIT_SPELLCAST_START(unit, ...)
-	if not UnitExists(unit) or UnitInRaid(unit) or UnitInParty(unit) then return end
+	if (not UnitExists(unit) and not unit:find("boss")) or UnitInRaid(unit) or UnitInParty(unit) or unit == "target" or unit == "player" then return end
 	local _, _, _, icon, startTime, endTime = UnitCastingInfo(unit)
 	local time = ((endTime or 0) - (startTime or 0)) / 1000
 	icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
 	if not unit:find("pet%d?%d?$") then
-		return UnitName(unit) .. " - " .. icon .. " - " .. time .. "sec [[" .. strjoin(":", tostringall(unit, ...)) .. "]]"
+		return format("%s - %s - %ssec [[%s]]", UnitName(unit), icon, time, strjoin(":", tostringall(unit, ...)))
 	end
 end
 function sh.UNIT_SPELLCAST_CHANNEL_START(unit, ...)
-	if not unit:find("boss") and (not UnitExists(unit) or UnitInRaid(unit) or UnitInParty(unit)) then return end
+	if (not UnitExists(unit) and not unit:find("boss")) or UnitInRaid(unit) or UnitInParty(unit) or unit == "target" or unit == "player" then return end
 	local _, _, _, icon, startTime, endTime = UnitChannelInfo(unit)
 	local time = ((endTime or 0) - (startTime or 0)) / 1000
 	icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
 	if not unit:find("pet%d?%d?$") then
-		return UnitName(unit) .. " - " .. icon .. " - " .. time .. "sec [[" .. strjoin(":", tostringall(unit, ...)) .. "]]"
+		return format("%s - %s - %ssec [[%s]]", UnitName(unit), icon, time, strjoin(":", tostringall(unit, ...)))
 	end
 end
 
@@ -215,25 +213,10 @@ function sh.PLAYER_TARGET_CHANGED()
 		if UnitIsFriend("target", "player") then reaction = "Friendly" end
 		local classification = UnitClassification("target") or "nil"
 		local creatureType = UnitCreatureType("target") or "nil"
-		local typeclass
-		if classification == "normal" then typeclass = creatureType else typeclass = (classification.." "..creatureType) end
+		local typeclass = classification == "normal" and creatureType or (classification.." "..creatureType)
 		local name = UnitName("target") or "nil"
-		local mobid = "nil"
 		local guid = UnitGUID("target")
-		if guid then
-			--mobid probably completely redundant and worth removing actually in 6.0 since CID is in the GUID already converted.
-			if buildTOC == 60000 then
-				local type, _, _, _, _, cid = strsplit("-", guid)
-				if type and (type == "Creature" or type == "Vehicle" or type == "Pet") then
-					mobid = tonumber(cid)
-				else
-					mobid = 0
-				end
-			else
-				mobid = tonumber(guid:sub(6, 10), 16)
-			end
-		end
-		return (format("%s %s (%s) - %s # %s # %s", tostring(level), tostring(reaction), tostring(typeclass), tostring(name), tostring(guid), tostring(mobid)))
+		return (format("%s %s (%s) - %s # %s", tostring(level), tostring(reaction), tostring(typeclass), tostring(name), tostring(guid)))
 	end
 end
 
@@ -247,17 +230,7 @@ function sh.INSTANCE_ENCOUNTER_ENGAGE_UNIT(...)
 		"Real Args:", ...)
 	)
 end
---in 6.0, IEEU is no longer seems to be used for mid combat join/leave of bosses. UNIT_TARGETABLE_CHANGED is.
-function sh.UNIT_TARGETABLE_CHANGED(...)
-	return strjoin("#", tostringall("Fake Args:",
-		UnitCanAttack("player", "boss1"), UnitExists("boss1"), UnitIsVisible("boss1"), UnitName("boss1"), UnitGUID("boss1"), UnitClassification("boss1"), UnitHealth("boss1"),
-		UnitCanAttack("player", "boss2"), UnitExists("boss2"), UnitIsVisible("boss2"), UnitName("boss2"), UnitGUID("boss2"), UnitClassification("boss2"), UnitHealth("boss2"),
-		UnitCanAttack("player", "boss3"), UnitExists("boss3"), UnitIsVisible("boss3"), UnitName("boss3"), UnitGUID("boss3"), UnitClassification("boss3"), UnitHealth("boss3"),
-		UnitCanAttack("player", "boss4"), UnitExists("boss4"), UnitIsVisible("boss4"), UnitName("boss4"), UnitGUID("boss4"), UnitClassification("boss4"), UnitHealth("boss4"),
-		UnitCanAttack("player", "boss5"), UnitExists("boss5"), UnitIsVisible("boss5"), UnitName("boss5"), UnitGUID("boss5"), UnitClassification("boss5"), UnitHealth("boss5"),
-		"Real Args:", ...)
-	)
-end
+sh.UNIT_TARGETABLE_CHANGED = sh.INSTANCE_ENCOUNTER_ENGAGE_UNIT
 
 local allowedPowerUnits = {boss1 = true, boss2 = true, boss3 = true, boss4 = true, boss5 = true}
 function sh.UNIT_POWER(unit, typeName)
@@ -265,9 +238,9 @@ function sh.UNIT_POWER(unit, typeName)
 	local typeIndex = UnitPowerType(unit)
 	local mainPower = UnitPower(unit)
 	local maxPower = UnitPowerMax(unit)
-	local alternatePower = UnitPower(unit, ALTERNATE_POWER_INDEX)
-	local alternatePowerMax = UnitPowerMax(unit, ALTERNATE_POWER_INDEX)
-	return strjoin("#", typeName, typeIndex, mainPower, maxPower, alternatePower, alternatePowerMax)
+	local alternatePower = UnitPower(unit, 10)
+	local alternatePowerMax = UnitPowerMax(unit, 10)
+	return strjoin("#", UnitName(unit), typeName, typeIndex, mainPower, maxPower, alternatePower, alternatePowerMax)
 end
 
 function sh.SCENARIO_UPDATE(newStep)
@@ -290,7 +263,7 @@ function sh.SCENARIO_UPDATE(newStep)
 	for i = 1, numCriteria do
 		ret3 = ret3 .. "#CriteriaInfo" .. i .. "#" .. strjoin("#", tostringall(C_Scenario.GetCriteriaInfo(i)))
 	end
-	
+
 	local ret4 = ""
 	if C_Scenario.GetBonusStepInfo then
 		local _, _, numBonusCriteria, _ = C_Scenario.GetBonusStepInfo()
@@ -343,35 +316,35 @@ local function eventHandler(self, event, ...)
 	end
 	if not line then return end
 	local t = GetTime() - logStartTime
-	local passed = format("%.1f", t)
 	local time = date("%H:%M:%S")
 	-- We only have CLEU in the total log, it's way too much information to log twice.
 	if event == "COMBAT_LOG_EVENT_UNFILTERED" then
-		tinsert(currentLog.total, "<"..passed.." "..time.."> [CLEU] "..line)
+		tinsert(currentLog.total, format("<%.1f %s> [CLEU] %s", t, time, line))
 
 		-- Throw this in here rather than polling it.
 		if not inEncounter and IsEncounterInProgress() then
 			inEncounter = true
-			tinsert(currentLog.total, "<"..passed.." "..time.."> [IsEncounterInProgress()] true")
+			tinsert(currentLog.total, format("<%.1f %s> [IsEncounterInProgress()] true", t, time))
 			if type(currentLog["IsEncounterInProgress()"]) ~= "table" then currentLog["IsEncounterInProgress()"] = {} end
-			tinsert(currentLog["IsEncounterInProgress()"], "<"..passed.." "..time.."> true")
+			tinsert(currentLog["IsEncounterInProgress()"], format("<%.1f %s> true", t, time))
 		elseif inEncounter and not IsEncounterInProgress() then
 			inEncounter = false
-			tinsert(currentLog.total, "<"..passed.." "..time.."> [IsEncounterInProgress()] false")
+			tinsert(currentLog.total, format("<%.1f %s> [IsEncounterInProgress()] false", t, time))
 			if type(currentLog["IsEncounterInProgress()"]) ~= "table" then currentLog["IsEncounterInProgress()"] = {} end
-			tinsert(currentLog["IsEncounterInProgress()"], "<"..passed.." "..time.."> false")
+			tinsert(currentLog["IsEncounterInProgress()"], format("<%.1f %s> false", t, time))
 		end
 
 		return
 	else
-		tinsert(currentLog.total, "<"..passed.." "..time.."> ["..event.."] "..line)
+		tinsert(currentLog.total, format("<%.1f %s> [%s] %s", t, time, event, line))
 	end
 	if type(currentLog[event]) ~= "table" then currentLog[event] = {} end
-	tinsert(currentLog[event], "<"..passed.." "..time.."> "..line)
+	tinsert(currentLog[event], format("<%.1f %s> %s", t, time, line))
 end
 eventFrame:SetScript("OnEvent", eventHandler)
 
 local wowEvents = {
+	"COMBAT_LOG_EVENT_UNFILTERED",
 	"PLAYER_REGEN_DISABLED",
 	"PLAYER_REGEN_ENABLED",
 	"CHAT_MSG_MONSTER_EMOTE",
@@ -392,7 +365,6 @@ local wowEvents = {
 	"UNIT_POWER",
 	"UPDATE_WORLD_STATES",
 	"WORLD_STATE_UI_TIMER_UPDATE",
-	"COMBAT_LOG_EVENT_UNFILTERED",
 	"INSTANCE_ENCOUNTER_ENGAGE_UNIT",
 	"UNIT_TARGETABLE_CHANGED",
 	"ENCOUNTER_START",
@@ -406,6 +378,7 @@ local wowEvents = {
 local bwEvents = {
 	"BigWigs_Message",
 	"BigWigs_StartBar",
+	--"BigWigs_Debug",
 }
 local dbmEvents = {
 	"DBM_Announce",
@@ -454,43 +427,30 @@ local ldb = LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("Transcriptor"
 	end,
 })
 
+Transcriptor.events = {}
 local function insertMenuItems(tbl)
 	for i, v in next, tbl do
 		tinsert(menu, {
 			text = v,
-			tooltipTitle = v,
-			tooltipText = format("Disable logging of %s events.", v),
 			func = function() TranscriptDB.ignoredEvents[v] = not TranscriptDB.ignoredEvents[v] end,
 			checked = function() return TranscriptDB.ignoredEvents[v] end,
+			isNotRadio = true,
+			keepShownOnClick = 1,
 		})
+		tinsert(Transcriptor.events, v)
 	end
 end
 
 local init = CreateFrame("Frame")
 init:SetScript("OnEvent", function(self, event, addon)
-	if addon:lower() ~= "transcriptor" then return end
 	TranscriptDB = TranscriptDB or {}
 	if not TranscriptDB.ignoredEvents then TranscriptDB.ignoredEvents = {} end
 
+	tinsert(menu, { text = L["|cFFFFD200Transcriptor|r - Disabled Events"], fontObject = "GameTooltipHeader", notCheckable = 1 })
 	insertMenuItems(wowEvents)
-	insertMenuItems(bwEvents)
-	insertMenuItems(dbmEvents)
-
-	hooksecurefunc("LoggingCombat", function(input)
-		-- Hopefully no idiots are passing in nil as meaning false
-		if type(input) ~= "boolean" then return end
-		if input then
-			eventFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-			combatLogActive = true
-			print(L["Transcriptor will not log CLEU."])
-		else
-			combatLogActive = nil
-			if logging and not TranscriptDB.ignoredEvents.COMBAT_LOG_EVENT_UNFILTERED then
-				eventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-				print(L["Transcriptor will log CLEU."])
-			end
-		end
-	end)
+	if BigWigsLoader then insertMenuItems(bwEvents) end
+	if DBM then insertMenuItems(dbmEvents) end
+	tinsert(menu, { text = CLOSE, func = function() CloseDropDownMenus() end, notCheckable = 1 })
 
 	SlashCmdList["TRANSCRIPTOR"] = function(input)
 		if type(input) == "string" and input:lower() == "clear" then
@@ -507,13 +467,18 @@ init:SetScript("OnEvent", function(self, event, addon)
 	SLASH_TRANSCRIPTOR2 = "/transcript"
 	SLASH_TRANSCRIPTOR3 = "/ts"
 end)
-init:RegisterEvent("ADDON_LOADED")
+init:RegisterEvent("PLAYER_LOGIN")
 
 --------------------------------------------------------------------------------
 -- Logging
 --
 
-local function BossModEventHandler(...)
+local function BWEventHandler(event, module, ...)
+	if module == "BigWigs_Plugins_Common Auras" then return end
+	eventHandler(eventFrame, event, module, ...)
+end
+
+local function DBMEventHandler(...)
 	eventHandler(eventFrame, ...)
 end
 
@@ -542,7 +507,7 @@ function Transcriptor:StartLog(silent)
 		elseif diff == 7 or diff == 17 then
 			diff = "LFR"
 		elseif diff == 14 then
-			diff = (buildTOC == 60000) and "Normal" or "Flex"
+			diff = "Normal"
 		elseif diff == 15 then
 			diff = "Heroic"
 		elseif diff == 16 then
@@ -567,14 +532,14 @@ function Transcriptor:StartLog(silent)
 		if BigWigsLoader then
 			for i, event in next, bwEvents do
 				if not TranscriptDB.ignoredEvents[event] then
-					BigWigsLoader.RegisterMessage(eventFrame, event, BossModEventHandler)
+					BigWigsLoader.RegisterMessage(eventFrame, event, BWEventHandler)
 				end
 			end
 		end
 		if DBM then
 			for i, event in next, dbmEvents do
 				if not TranscriptDB.ignoredEvents[event] then
-					DBM:RegisterCallback(event, BossModEventHandler)
+					DBM:RegisterCallback(event, DBMEventHandler)
 				end
 			end
 		end
