@@ -509,9 +509,11 @@ function Transcriptor:StartLog(silent)
 		elseif diff == 17 then
 			diff = "LFR"
 		elseif diff == 18 then--Example, UBRS 90
-			diff = "Event5"
-		elseif diff == 19 then--Example, Molten Core 40 man LFR
 			diff = "Event40"
+		elseif diff == 19 then--Example, Molten Core 40 man LFR
+			diff = "Event5"
+		elseif diff == 20 then--Example, Unknown use, scenario 20?
+			diff = "Event20"
 		else
 			diff = tostring(diff)
 		end
