@@ -300,6 +300,14 @@ end
 sh.ZONE_CHANGED_INDOORS = sh.ZONE_CHANGED
 sh.ZONE_CHANGED_NEW_AREA = sh.ZONE_CHANGED
 
+function sh.CINEMATIC_START(...)
+	SetMapToCurrentZone()
+	local areaId = GetCurrentMapAreaID() or 0
+	local areaLevel = GetCurrentMapDungeonLevel() or 0
+	local id = ("%d:%d"):format(areaId, areaLevel)
+	return strjoin("#", "Fake ID:", id, "Real Args:", ...)
+end
+
 local function eventHandler(self, event, ...)
 	if TranscriptDB.ignoredEvents[event] then return end
 	local line
@@ -368,6 +376,8 @@ local wowEvents = {
 	"ZONE_CHANGED",
 	"ZONE_CHANGED_INDOORS",
 	"ZONE_CHANGED_NEW_AREA",
+	"PLAY_MOVIE",
+	"CINEMATIC_START",
 }
 local bwEvents = {
 	"BigWigs_Message",
