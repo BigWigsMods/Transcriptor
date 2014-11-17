@@ -305,7 +305,7 @@ function sh.CINEMATIC_START(...)
 	local areaId = GetCurrentMapAreaID() or 0
 	local areaLevel = GetCurrentMapDungeonLevel() or 0
 	local id = ("%d:%d"):format(areaId, areaLevel)
-	return strjoin("#", "Fake ID:", id, "Real Args:", ...)
+	return strjoin("#", "Fake ID:", id, "Real Args:", tostringall(...))
 end
 
 local function eventHandler(self, event, ...)
