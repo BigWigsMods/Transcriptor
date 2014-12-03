@@ -478,7 +478,7 @@ init:RegisterEvent("PLAYER_LOGIN")
 --
 
 local function BWEventHandler(event, module, ...)
-	if module == "BigWigs_Plugins_Common Auras" then return end
+	if module.baseName == "BigWigs_CommonAuras" then return end
 	eventHandler(eventFrame, event, module, ...)
 end
 
@@ -509,7 +509,9 @@ function Transcriptor:StartLog(silent)
 		elseif diff == 6 then
 			diff = "HC25M"
 		elseif diff == 7 then
-			diff = "LFR25"
+			diff = "LFR25M"
+		elseif diff == 8 then
+			diff = "CM5M"
 		elseif diff == 14 then
 			diff = "Normal"
 		elseif diff == 15 then
@@ -518,12 +520,10 @@ function Transcriptor:StartLog(silent)
 			diff = "Mythic"
 		elseif diff == 17 then
 			diff = "LFR"
-		elseif diff == 18 then--Example, UBRS 90
-			diff = "Event40"
-		elseif diff == 19 then--Example, Molten Core 40 man LFR
-			diff = "Event5"
-		elseif diff == 20 then--Example, Unknown use, scenario 20?
-			diff = "Event20"
+		elseif diff == 18 then
+			diff = "Event40M"
+		elseif diff == 19 then
+			diff = "Event5M"
 		else
 			diff = tostring(diff)
 		end
