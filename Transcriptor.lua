@@ -478,7 +478,7 @@ init:RegisterEvent("PLAYER_LOGIN")
 --
 
 local function BWEventHandler(event, module, ...)
-	if module.baseName == "BigWigs_CommonAuras" then return end
+	if module and module.baseName == "BigWigs_CommonAuras" then return end
 	eventHandler(eventFrame, event, module, ...)
 end
 
