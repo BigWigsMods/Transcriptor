@@ -479,7 +479,7 @@ init:RegisterEvent("PLAYER_LOGIN")
 
 local function BWEventHandler(event, module, ...)
 	if module and module.baseName == "BigWigs_CommonAuras" then return end
-	eventHandler(eventFrame, event, module, ...)
+	eventHandler(eventFrame, event, module and module.moduleName, ...)
 end
 
 local function DBMEventHandler(...)
