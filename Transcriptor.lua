@@ -10,6 +10,7 @@ local format = string.format
 local tostringall = tostringall
 local type = type
 local date = date
+local GetTime = GetTime
 local C_Scenario = C_Scenario
 local wowVersion, buildRevision, _, buildTOC = GetBuildInfo() -- Note that both returns here are strings, not numbers.
 
@@ -321,27 +322,27 @@ local function eventHandler(self, event, ...)
 	local time = date("%H:%M:%S")
 	-- We only have CLEU in the total log, it's way too much information to log twice.
 	if event == "COMBAT_LOG_EVENT_UNFILTERED" then
-		tinsert(currentLog.total, format("<%.1f %s> [CLEU] %s", t, time, line))
+		tinsert(currentLog.total, format("<%.3f %s> [CLEU] %s", t, time, line))
 
 		-- Throw this in here rather than polling it.
 		if not inEncounter and IsEncounterInProgress() then
 			inEncounter = true
-			tinsert(currentLog.total, format("<%.1f %s> [IsEncounterInProgress()] true", t, time))
+			tinsert(currentLog.total, format("<%.3f %s> [IsEncounterInProgress()] true", t, time))
 			if type(currentLog["IsEncounterInProgress()"]) ~= "table" then currentLog["IsEncounterInProgress()"] = {} end
-			tinsert(currentLog["IsEncounterInProgress()"], format("<%.1f %s> true", t, time))
+			tinsert(currentLog["IsEncounterInProgress()"], format("<%.3f %s> true", t, time))
 		elseif inEncounter and not IsEncounterInProgress() then
 			inEncounter = false
-			tinsert(currentLog.total, format("<%.1f %s> [IsEncounterInProgress()] false", t, time))
+			tinsert(currentLog.total, format("<%.3f %s> [IsEncounterInProgress()] false", t, time))
 			if type(currentLog["IsEncounterInProgress()"]) ~= "table" then currentLog["IsEncounterInProgress()"] = {} end
-			tinsert(currentLog["IsEncounterInProgress()"], format("<%.1f %s> false", t, time))
+			tinsert(currentLog["IsEncounterInProgress()"], format("<%.3f %s> false", t, time))
 		end
 
 		return
 	else
-		tinsert(currentLog.total, format("<%.1f %s> [%s] %s", t, time, event, line))
+		tinsert(currentLog.total, format("<%.3f %s> [%s] %s", t, time, event, line))
 	end
 	if type(currentLog[event]) ~= "table" then currentLog[event] = {} end
-	tinsert(currentLog[event], format("<%.1f %s> %s", t, time, line))
+	tinsert(currentLog[event], format("<%.3f %s> %s", t, time, line))
 end
 eventFrame:SetScript("OnEvent", eventHandler)
 
