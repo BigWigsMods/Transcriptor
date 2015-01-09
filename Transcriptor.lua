@@ -10,7 +10,7 @@ local format = string.format
 local tostringall = tostringall
 local type = type
 local date = date
-local GetTime = GetTime
+local debugprofilestop = debugprofilestop
 local C_Scenario = C_Scenario
 local wowVersion, buildRevision, _, buildTOC = GetBuildInfo() -- Note that both returns here are strings, not numbers.
 
@@ -180,21 +180,21 @@ end
 function sh.PLAYER_REGEN_DISABLED() return " ++ > Regen Disabled : Entering combat! ++ > " end
 function sh.PLAYER_REGEN_ENABLED() return " -- < Regen Enabled : Leaving combat! -- < " end
 function sh.UNIT_SPELLCAST_STOP(unit, ...)
-	if (not UnitExists(unit) and not unit:find("boss", nil, true)) or UnitInRaid(unit) or UnitInParty(unit) or unit:find("pet", nil, true) then return end
+	if (not UnitExists(unit) and not unit:find("boss", nil, true) and not unit:find("arena", nil, true)) or UnitInRaid(unit) or UnitInParty(unit) or unit:find("pet", nil, true) then return end
 	return format("%s [[%s]]", UnitName(unit), strjoin(":", tostringall(unit, ...)))
 end
 sh.UNIT_SPELLCAST_CHANNEL_STOP = sh.UNIT_SPELLCAST_STOP
 sh.UNIT_SPELLCAST_INTERRUPTED = sh.UNIT_SPELLCAST_STOP
 sh.UNIT_SPELLCAST_SUCCEEDED = sh.UNIT_SPELLCAST_STOP
 function sh.UNIT_SPELLCAST_START(unit, ...)
-	if (not UnitExists(unit) and not unit:find("boss", nil, true)) or UnitInRaid(unit) or UnitInParty(unit) or unit:find("pet", nil, true) then return end
+	if (not UnitExists(unit) and not unit:find("boss", nil, true) and not unit:find("arena", nil, true)) or UnitInRaid(unit) or UnitInParty(unit) or unit:find("pet", nil, true) then return end
 	local _, _, _, icon, startTime, endTime = UnitCastingInfo(unit)
 	local time = ((endTime or 0) - (startTime or 0)) / 1000
 	icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
 	return format("%s - %s - %ssec [[%s]]", UnitName(unit), icon, time, strjoin(":", tostringall(unit, ...)))
 end
 function sh.UNIT_SPELLCAST_CHANNEL_START(unit, ...)
-	if (not UnitExists(unit) and not unit:find("boss", nil, true)) or UnitInRaid(unit) or UnitInParty(unit) or unit:find("pet", nil, true) then return end
+	if (not UnitExists(unit) and not unit:find("boss", nil, true) and not unit:find("arena", nil, true)) or UnitInRaid(unit) or UnitInParty(unit) or unit:find("pet", nil, true) then return end
 	local _, _, _, icon, startTime, endTime = UnitChannelInfo(unit)
 	local time = ((endTime or 0) - (startTime or 0)) / 1000
 	icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
@@ -227,7 +227,7 @@ function sh.INSTANCE_ENCOUNTER_ENGAGE_UNIT(...)
 end
 sh.UNIT_TARGETABLE_CHANGED = sh.INSTANCE_ENCOUNTER_ENGAGE_UNIT
 
-local allowedPowerUnits = {boss1 = true, boss2 = true, boss3 = true, boss4 = true, boss5 = true}
+local allowedPowerUnits = {boss1 = true, boss2 = true, boss3 = true, boss4 = true, boss5 = true, arena1 = true, arena2 = true, arena3 = true, arena4 = true, arena5 = true}
 function sh.UNIT_POWER(unit, typeName)
 	if not allowedPowerUnits[unit] then return end
 	local typeIndex = UnitPowerType(unit)
@@ -318,31 +318,32 @@ local function eventHandler(self, event, ...)
 		line = strjoin("#", tostringall(event, ...))
 	end
 	if not line then return end
-	local t = GetTime() - logStartTime
+	local stop = debugprofilestop() / 1000
+	local t = stop - logStartTime
 	local time = date("%H:%M:%S")
 	-- We only have CLEU in the total log, it's way too much information to log twice.
 	if event == "COMBAT_LOG_EVENT_UNFILTERED" then
-		tinsert(currentLog.total, format("<%.3f %s> [CLEU] %s", t, time, line))
+		tinsert(currentLog.total, format("<%.2f %s> [CLEU] %s", t, time, line))
 
 		-- Throw this in here rather than polling it.
 		if not inEncounter and IsEncounterInProgress() then
 			inEncounter = true
-			tinsert(currentLog.total, format("<%.3f %s> [IsEncounterInProgress()] true", t, time))
+			tinsert(currentLog.total, format("<%.2f %s> [IsEncounterInProgress()] true", t, time))
 			if type(currentLog["IsEncounterInProgress()"]) ~= "table" then currentLog["IsEncounterInProgress()"] = {} end
-			tinsert(currentLog["IsEncounterInProgress()"], format("<%.3f %s> true", t, time))
+			tinsert(currentLog["IsEncounterInProgress()"], format("<%.2f %s> true", t, time))
 		elseif inEncounter and not IsEncounterInProgress() then
 			inEncounter = false
-			tinsert(currentLog.total, format("<%.3f %s> [IsEncounterInProgress()] false", t, time))
+			tinsert(currentLog.total, format("<%.2f %s> [IsEncounterInProgress()] false", t, time))
 			if type(currentLog["IsEncounterInProgress()"]) ~= "table" then currentLog["IsEncounterInProgress()"] = {} end
-			tinsert(currentLog["IsEncounterInProgress()"], format("<%.3f %s> false", t, time))
+			tinsert(currentLog["IsEncounterInProgress()"], format("<%.2f %s> false", t, time))
 		end
 
 		return
 	else
-		tinsert(currentLog.total, format("<%.3f %s> [%s] %s", t, time, event, line))
+		tinsert(currentLog.total, format("<%.2f %s> [%s] %s", t, time, event, line))
 	end
 	if type(currentLog[event]) ~= "table" then currentLog[event] = {} end
-	tinsert(currentLog[event], format("<%.3f %s> %s", t, time, line))
+	tinsert(currentLog[event], format("<%.2f %s> %s", t, time, line))
 end
 eventFrame:SetScript("OnEvent", eventHandler)
 
@@ -495,7 +496,7 @@ function Transcriptor:StartLog(silent)
 		ldb.text = L["|cffFF0000Recording|r"]
 		ldb.icon = "Interface\\AddOns\\Transcriptor\\icon_on"
 
-		logStartTime = GetTime()
+		logStartTime = debugprofilestop() / 1000
 		local _, _, diff = GetInstanceInfo()
 		if diff == 1 then
 			diff = "5M"
