@@ -20,6 +20,11 @@ local origPrint = print
 local function print(msg)
 	return origPrint("|cffffff00" .. msg .. "|r")
 end
+local origUnitName = UnitName
+local function UnitName(name)
+	local n = origUnitName(name)
+	return n or "??"
+end
 
 --------------------------------------------------------------------------------
 -- Localization
