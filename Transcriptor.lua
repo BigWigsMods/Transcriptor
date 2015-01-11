@@ -185,29 +185,33 @@ end
 function sh.PLAYER_REGEN_DISABLED() return " ++ > Regen Disabled : Entering combat! ++ > " end
 function sh.PLAYER_REGEN_ENABLED() return " -- < Regen Enabled : Leaving combat! -- < " end
 function sh.UNIT_SPELLCAST_STOP(unit, ...)
-	if (not UnitExists(unit) and not unit:find("boss", nil, true) and not unit:find("arena", nil, true)) or UnitInRaid(unit) or UnitInParty(unit) or unit:find("pet", nil, true) then return end
-	return format("%s [[%s]]", UnitName(unit), strjoin(":", tostringall(unit, ...)))
+	if ((unit == "target" or unit == "focus") and not UnitInRaid(unit) and not UnitInParty(unit)) or unit:find("boss", nil, true) or unit:find("arena", nil, true) then
+		return format("%s [[%s]]", UnitName(unit), strjoin(":", tostringall(unit, ...)))
+	end
 end
 sh.UNIT_SPELLCAST_CHANNEL_STOP = sh.UNIT_SPELLCAST_STOP
 sh.UNIT_SPELLCAST_INTERRUPTED = sh.UNIT_SPELLCAST_STOP
 sh.UNIT_SPELLCAST_SUCCEEDED = sh.UNIT_SPELLCAST_STOP
 function sh.UNIT_SPELLCAST_START(unit, ...)
-	if (not UnitExists(unit) and not unit:find("boss", nil, true) and not unit:find("arena", nil, true)) or UnitInRaid(unit) or UnitInParty(unit) or unit:find("pet", nil, true) then return end
-	local _, _, _, icon, startTime, endTime = UnitCastingInfo(unit)
-	local time = ((endTime or 0) - (startTime or 0)) / 1000
-	icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
-	return format("%s - %s - %ssec [[%s]]", UnitName(unit), icon, time, strjoin(":", tostringall(unit, ...)))
+	if ((unit == "target" or unit == "focus") and not UnitInRaid(unit) and not UnitInParty(unit)) or unit:find("boss", nil, true) or unit:find("arena", nil, true) then
+		local _, _, _, icon, startTime, endTime = UnitCastingInfo(unit)
+		local time = ((endTime or 0) - (startTime or 0)) / 1000
+		icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
+		return format("%s - %s - %ssec [[%s]]", UnitName(unit), icon, time, strjoin(":", tostringall(unit, ...)))
+	end
 end
 function sh.UNIT_SPELLCAST_CHANNEL_START(unit, ...)
-	if (not UnitExists(unit) and not unit:find("boss", nil, true) and not unit:find("arena", nil, true)) or UnitInRaid(unit) or UnitInParty(unit) or unit:find("pet", nil, true) then return end
-	local _, _, _, icon, startTime, endTime = UnitChannelInfo(unit)
-	local time = ((endTime or 0) - (startTime or 0)) / 1000
-	icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
-	return format("%s - %s - %ssec [[%s]]", UnitName(unit), icon, time, strjoin(":", tostringall(unit, ...)))
+	if ((unit == "target" or unit == "focus") and not UnitInRaid(unit) and not UnitInParty(unit)) or unit:find("boss", nil, true) or unit:find("arena", nil, true) then
+		local _, _, _, icon, startTime, endTime = UnitChannelInfo(unit)
+		local time = ((endTime or 0) - (startTime or 0)) / 1000
+		icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
+		return format("%s - %s - %ssec [[%s]]", UnitName(unit), icon, time, strjoin(":", tostringall(unit, ...)))
+	end
 end
 
 function sh.PLAYER_TARGET_CHANGED()
-	if UnitExists("target") and not UnitInRaid("target") and not UnitInParty("target") then
+	local guid = UnitGUID("target")
+	if guid and not UnitInRaid("target") and not UnitInParty("target") then
 		local level = UnitLevel("target") or "nil"
 		local reaction = "Hostile"
 		if UnitIsFriend("target", "player") then reaction = "Friendly" end
@@ -215,7 +219,6 @@ function sh.PLAYER_TARGET_CHANGED()
 		local creatureType = UnitCreatureType("target") or "nil"
 		local typeclass = classification == "normal" and creatureType or (classification.." "..creatureType)
 		local name = UnitName("target") or "nil"
-		local guid = UnitGUID("target")
 		return (format("%s %s (%s) - %s # %s", tostring(level), tostring(reaction), tostring(typeclass), tostring(name), tostring(guid)))
 	end
 end
@@ -232,15 +235,21 @@ function sh.INSTANCE_ENCOUNTER_ENGAGE_UNIT(...)
 end
 sh.UNIT_TARGETABLE_CHANGED = sh.INSTANCE_ENCOUNTER_ENGAGE_UNIT
 
-local allowedPowerUnits = {boss1 = true, boss2 = true, boss3 = true, boss4 = true, boss5 = true, arena1 = true, arena2 = true, arena3 = true, arena4 = true, arena5 = true}
-function sh.UNIT_POWER(unit, typeName)
-	if not allowedPowerUnits[unit] then return end
-	local typeIndex = UnitPowerType(unit)
-	local mainPower = UnitPower(unit)
-	local maxPower = UnitPowerMax(unit)
-	local alternatePower = UnitPower(unit, 10)
-	local alternatePowerMax = UnitPowerMax(unit, 10)
-	return strjoin("#", UnitName(unit), typeName, typeIndex, mainPower, maxPower, alternatePower, alternatePowerMax)
+do
+	local allowedPowerUnits = {
+		boss1 = true, boss2 = true, boss3 = true, boss4 = true, boss5 = true,
+		arena1 = true, arena2 = true, arena3 = true, arena4 = true, arena5 = true,
+		arenapet1 = true, arenapet2 = true, arenapet3 = true, arenapet4 = true, arenapet5 = true
+	}
+	function sh.UNIT_POWER(unit, typeName)
+		if not allowedPowerUnits[unit] then return end
+		local typeIndex = UnitPowerType(unit)
+		local mainPower = UnitPower(unit)
+		local maxPower = UnitPowerMax(unit)
+		local alternatePower = UnitPower(unit, 10)
+		local alternatePowerMax = UnitPowerMax(unit, 10)
+		return strjoin("#", unit, UnitName(unit), typeName, typeIndex, mainPower, maxPower, alternatePower, alternatePowerMax)
+	end
 end
 
 function sh.SCENARIO_UPDATE(newStep)
