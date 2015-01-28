@@ -406,7 +406,6 @@ local bwEvents = {
 }
 local dbmEvents = {
 	"DBM_Announce",
-	"DBM_SpecWarn",
 	"DBM_TimerStart",
 	"DBM_TimerStop",
 }
