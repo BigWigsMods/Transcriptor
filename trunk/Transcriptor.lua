@@ -179,8 +179,8 @@ function sh.UPDATE_WORLD_STATES()
 end
 sh.WORLD_STATE_UI_TIMER_UPDATE = sh.UPDATE_WORLD_STATES
 
-function sh.COMBAT_LOG_EVENT_UNFILTERED(_, ...)
-	return strjoin("#", tostringall(...))
+function sh.COMBAT_LOG_EVENT_UNFILTERED(timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount)
+	return strjoin("#", tostringall(event, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount))
 end
 function sh.PLAYER_REGEN_DISABLED() return " ++ > Regen Disabled : Entering combat! ++ > " end
 function sh.PLAYER_REGEN_ENABLED() return " -- < Regen Enabled : Leaving combat! -- < " end
@@ -218,7 +218,7 @@ function sh.PLAYER_TARGET_CHANGED()
 		local classification = UnitClassification("target") or "nil"
 		local creatureType = UnitCreatureType("target") or "nil"
 		local typeclass = classification == "normal" and creatureType or (classification.." "..creatureType)
-		local name = UnitName("target") or "nil"
+		local name = UnitName("target")
 		return (format("%s %s (%s) - %s # %s", tostring(level), tostring(reaction), tostring(typeclass), tostring(name), tostring(guid)))
 	end
 end
