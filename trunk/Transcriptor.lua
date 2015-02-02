@@ -179,9 +179,33 @@ function sh.UPDATE_WORLD_STATES()
 end
 sh.WORLD_STATE_UI_TIMER_UPDATE = sh.UPDATE_WORLD_STATES
 
-function sh.COMBAT_LOG_EVENT_UNFILTERED(timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount)
-	return strjoin("#", tostringall(event, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount))
+do
+	local badPlayerEvents = {
+		["SPELL_DAMAGE"] = true,
+		["SPELL_MISSED"] = true,
+
+		["SWING_DAMAGE"] = true,
+		["SWING_MISSED"] = true,
+
+		["RANGE_DAMAGE"] = true,
+
+		["SPELL_PERIODIC_DAMAGE"] = true,
+		["SPELL_PERIODIC_MISSED"] = true,
+
+		["SPELL_HEAL"] = true,
+		["SPELL_PERIODIC_HEAL"] = true,
+	}
+	local playerOrPet = 5120 -- COMBATLOG_OBJECT_TYPE_PLAYER + COMBATLOG_OBJECT_TYPE_PET
+	local band = bit.band
+	function sh.COMBAT_LOG_EVENT_UNFILTERED(timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount)
+		if badPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0 then
+			return
+		else
+			return strjoin("#", tostringall(event, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount))
+		end
+	end
 end
+
 function sh.PLAYER_REGEN_DISABLED() return " ++ > Regen Disabled : Entering combat! ++ > " end
 function sh.PLAYER_REGEN_ENABLED() return " -- < Regen Enabled : Leaving combat! -- < " end
 function sh.UNIT_SPELLCAST_STOP(unit, ...)
