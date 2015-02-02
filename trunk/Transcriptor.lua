@@ -195,10 +195,14 @@ do
 		["SPELL_HEAL"] = true,
 		["SPELL_PERIODIC_HEAL"] = true,
 	}
+	local badEvents = {
+		["SPELL_ABSORBED"] = true,
+		["SPELL_CAST_FAILED"] = true,
+	}
 	local playerOrPet = 5120 -- COMBATLOG_OBJECT_TYPE_PLAYER + COMBATLOG_OBJECT_TYPE_PET
 	local band = bit.band
 	function sh.COMBAT_LOG_EVENT_UNFILTERED(timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount)
-		if badPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0 then
+		if badEvents[event] or badPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0 then
 			return
 		else
 			return strjoin("#", tostringall(event, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount))
