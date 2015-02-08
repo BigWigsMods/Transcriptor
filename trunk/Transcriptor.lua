@@ -199,7 +199,7 @@ do
 		["SPELL_ABSORBED"] = true,
 		["SPELL_CAST_FAILED"] = true,
 	}
-	local playerOrPet = 5120 -- COMBATLOG_OBJECT_TYPE_PLAYER + COMBATLOG_OBJECT_TYPE_PET
+	local playerOrPet = 13568 -- COMBATLOG_OBJECT_CONTROL_PLAYER + COMBATLOG_OBJECT_TYPE_PLAYER + COMBATLOG_OBJECT_TYPE_PET + COMBATLOG_OBJECT_TYPE_GUARDIAN
 	local band = bit.band
 	function sh.COMBAT_LOG_EVENT_UNFILTERED(timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount)
 		if badEvents[event] or badPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0 then
