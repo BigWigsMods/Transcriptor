@@ -214,7 +214,7 @@ function sh.PLAYER_REGEN_DISABLED() return " ++ > Regen Disabled : Entering comb
 function sh.PLAYER_REGEN_ENABLED() return " -- < Regen Enabled : Leaving combat! -- < " end
 function sh.UNIT_SPELLCAST_STOP(unit, ...)
 	if ((unit == "target" or unit == "focus") and not UnitInRaid(unit) and not UnitInParty(unit)) or unit:find("boss", nil, true) or unit:find("arena", nil, true) then
-		return format("%s [[%s]]", UnitName(unit), strjoin(":", tostringall(unit, ...)))
+		return format("%s(%s) [[%s]]", UnitName(unit), UnitName(unit.."target"), strjoin(":", tostringall(unit, ...)))
 	end
 end
 sh.UNIT_SPELLCAST_CHANNEL_STOP = sh.UNIT_SPELLCAST_STOP
@@ -225,7 +225,7 @@ function sh.UNIT_SPELLCAST_START(unit, ...)
 		local _, _, _, icon, startTime, endTime = UnitCastingInfo(unit)
 		local time = ((endTime or 0) - (startTime or 0)) / 1000
 		icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
-		return format("%s - %s - %ssec [[%s]]", UnitName(unit), icon, time, strjoin(":", tostringall(unit, ...)))
+		return format("%s(%s) - %s - %ssec [[%s]]", UnitName(unit), UnitName(unit.."target"), icon, time, strjoin(":", tostringall(unit, ...)))
 	end
 end
 function sh.UNIT_SPELLCAST_CHANNEL_START(unit, ...)
@@ -233,7 +233,7 @@ function sh.UNIT_SPELLCAST_CHANNEL_START(unit, ...)
 		local _, _, _, icon, startTime, endTime = UnitChannelInfo(unit)
 		local time = ((endTime or 0) - (startTime or 0)) / 1000
 		icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
-		return format("%s - %s - %ssec [[%s]]", UnitName(unit), icon, time, strjoin(":", tostringall(unit, ...)))
+		return format("%s(%s) - %s - %ssec [[%s]]", UnitName(unit), UnitName(unit.."target"), icon, time, strjoin(":", tostringall(unit, ...)))
 	end
 end
 
