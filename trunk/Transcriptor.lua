@@ -196,6 +196,7 @@ do
 		["SPELL_PERIODIC_HEAL"] = true,
 
 		["SPELL_ENERGIZE"] = true,
+		["SPELL_PERIODIC_ENERGIZE"] = true,
 	}
 	local badEvents = {
 		["SPELL_ABSORBED"] = true,
