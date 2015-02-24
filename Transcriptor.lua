@@ -357,7 +357,7 @@ function sh.CINEMATIC_START(...)
 	return strjoin("#", "Fake ID:", id, "Real Args:", tostringall(...))
 end
 
-function mod:CHAT_MSG_ADDON(prefix, msg, channel, sender)
+function sh:CHAT_MSG_ADDON(prefix, msg, channel, sender)
 	if prefix == "Transcriptor" then
 		return strjoin("#", "RAID_BOSS_WHISPER_SYNC", msg, sender)
 	end
