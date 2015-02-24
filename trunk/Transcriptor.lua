@@ -357,6 +357,12 @@ function sh.CINEMATIC_START(...)
 	return strjoin("#", "Fake ID:", id, "Real Args:", tostringall(...))
 end
 
+function mod:CHAT_MSG_ADDON(prefix, msg, channel, sender)
+	if prefix == "Transcriptor" then
+		return strjoin("#", "RAID_BOSS_WHISPER_SYNC", msg, sender)
+	end
+end
+
 local function eventHandler(self, event, ...)
 	if TranscriptDB.ignoredEvents[event] then return end
 	local line
@@ -397,6 +403,7 @@ eventFrame:SetScript("OnEvent", eventHandler)
 
 local wowEvents = {
 	-- Raids
+	"CHAT_MSG_ADDON",
 	"COMBAT_LOG_EVENT_UNFILTERED",
 	"PLAYER_REGEN_DISABLED",
 	"PLAYER_REGEN_ENABLED",
@@ -514,6 +521,8 @@ init:SetScript("OnEvent", function(self, event, addon)
 	if BigWigsLoader then insertMenuItems(bwEvents) end
 	if DBM then insertMenuItems(dbmEvents) end
 	tinsert(menu, { text = CLOSE, func = function() CloseDropDownMenus() end, notCheckable = 1 })
+
+	RegisterAddonMessagePrefix("Transcriptor")
 
 	SlashCmdList["TRANSCRIPTOR"] = function(input)
 		if type(input) == "string" and input:lower() == "clear" then
