@@ -1,10 +1,10 @@
-## Interface: 60000
+## Interface: 60100
 ## Title: Transcriptor
 ## Notes: Logging utility for boss encounters.
 ## Notes-zhCN: 战斗纪录器
 ## Notes-zhTW: 戰鬥紀錄器
 ## Author: Funkydude
-## X-Credits: Kyahx, Rabbit, MysticalOS
+## X-Credits: Kyahx, Rabbit, MysticalOS, nebula169
 ## X-Category: Development Tools
 ## SavedVariables: TranscriptDB
 
