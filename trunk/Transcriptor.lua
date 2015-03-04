@@ -27,6 +27,47 @@ local function UnitName(name)
 end
 
 --------------------------------------------------------------------------------
+-- Utility
+--
+
+function GetMapID(name)
+	name = name:lower()
+	for i=1,2000 do
+		local fetchedName = GetMapNameByID(i)
+		if fetchedName then
+			local lowerFetchedName = fetchedName:lower()
+			if lowerFetchedName:find(name) then
+				print(fetchedName..": "..i)
+			end
+		end
+	end
+end
+function GetBossID(name)
+	name = name:lower()
+	for i=1,2000 do
+		local fetchedName = EJ_GetEncounterInfo(i)
+		if fetchedName then
+			local lowerFetchedName = fetchedName:lower()
+			if lowerFetchedName:find(name) then
+				print(fetchedName..": "..i)
+			end
+		end
+	end
+end
+function GetSectionID(name)
+	name = name:lower()
+	for i=1,15000 do
+		local fetchedName = EJ_GetSectionInfo(i)
+		if fetchedName then
+			local lowerFetchedName = fetchedName:lower()
+			if lowerFetchedName:find(name) then
+				print(fetchedName..": "..i)
+			end
+		end
+	end
+end
+
+--------------------------------------------------------------------------------
 -- Localization
 --
 
@@ -116,47 +157,6 @@ do
 end
 
 --------------------------------------------------------------------------------
--- Utility
---
-
-function GetMapID(name)
-	name = name:lower()
-	for i=1,2000 do
-		local fetchedName = GetMapNameByID(i)
-		if fetchedName then
-			local lowerFetchedName = fetchedName:lower()
-			if lowerFetchedName:find(name) then
-				print(fetchedName..": "..i)
-			end
-		end
-	end
-end
-function GetBossID(name)
-	name = name:lower()
-	for i=1,2000 do
-		local fetchedName = EJ_GetEncounterInfo(i)
-		if fetchedName then
-			local lowerFetchedName = fetchedName:lower()
-			if lowerFetchedName:find(name) then
-				print(fetchedName..": "..i)
-			end
-		end
-	end
-end
-function GetSectionID(name)
-	name = name:lower()
-	for i=1,15000 do
-		local fetchedName = EJ_GetSectionInfo(i)
-		if fetchedName then
-			local lowerFetchedName = fetchedName:lower()
-			if lowerFetchedName:find(name) then
-				print(fetchedName..": "..i)
-			end
-		end
-	end
-end
-
---------------------------------------------------------------------------------
 -- Events
 --
 
@@ -180,6 +180,12 @@ end
 sh.WORLD_STATE_UI_TIMER_UPDATE = sh.UPDATE_WORLD_STATES
 
 do
+	local badPlayerToPlayerEvents = {
+		["SPELL_CAST_SUCCESS"] = true,
+		["SPELL_AURA_APPLIED"] = true,
+		["SPELL_AURA_REFRESH"] = true,
+		["SPELL_AURA_REMOVED"] = true,
+	}
 	local badPlayerEvents = {
 		["SPELL_DAMAGE"] = true,
 		["SPELL_MISSED"] = true,
@@ -207,7 +213,7 @@ do
 	local playerOrPet = 13568 -- COMBATLOG_OBJECT_CONTROL_PLAYER + COMBATLOG_OBJECT_TYPE_PLAYER + COMBATLOG_OBJECT_TYPE_PET + COMBATLOG_OBJECT_TYPE_GUARDIAN
 	local band = bit.band
 	function sh.COMBAT_LOG_EVENT_UNFILTERED(timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount)
-		if badEvents[event] or (badPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0) then
+		if badEvents[event] or (badPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0) or (badPlayerToPlayerEvents[event] and destFlags and band(sourceFlags, playerOrPet) ~= 0 and band(destFlags, playerOrPet) ~= 0) then
 			return
 		else
 			return strjoin("#", tostringall(event, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount))
