@@ -213,7 +213,7 @@ do
 	local playerOrPet = 13568 -- COMBATLOG_OBJECT_CONTROL_PLAYER + COMBATLOG_OBJECT_TYPE_PLAYER + COMBATLOG_OBJECT_TYPE_PET + COMBATLOG_OBJECT_TYPE_GUARDIAN
 	local band = bit.band
 	function sh.COMBAT_LOG_EVENT_UNFILTERED(timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount)
-		if badEvents[event] or (badPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0) or (sourceGUID and destGUID and badPlayerToPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0 and band(destFlags, playerOrPet) ~= 0) then
+		if badEvents[event] or (sourceGUID and badPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0) or (sourceGUID and destGUID and badPlayerToPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0 and band(destFlags, playerOrPet) ~= 0) then
 			return
 		else
 			return strjoin("#", tostringall(event, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount))
