@@ -194,6 +194,7 @@ do
 		["SWING_MISSED"] = true,
 
 		["RANGE_DAMAGE"] = true,
+		["RANGE_MISSED"] = true,
 
 		["SPELL_PERIODIC_DAMAGE"] = true,
 		["SPELL_PERIODIC_MISSED"] = true,
