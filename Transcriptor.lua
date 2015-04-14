@@ -601,6 +601,10 @@ function Transcriptor:StartLog(silent)
 			diff = "Event40M"
 		elseif diff == 19 then
 			diff = "Event5M"
+		elseif diff == 23 then
+			diff = "Mythic5M"
+		elseif diff == 24 then
+			diff = "TW5M"
 		else
 			diff = tostring(diff)
 		end
