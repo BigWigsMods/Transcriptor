@@ -6,6 +6,7 @@ local logStartTime = nil
 local logging = nil
 local compareSuccess = nil
 local compareStart = nil
+local compareStartTime = nil
 local inEncounter = false
 local tinsert = table.insert
 local format = string.format
@@ -222,12 +223,12 @@ do
 			if event == "SPELL_CAST_SUCCESS" and (not sourceName or band(sourceFlags, playerOrPet) == 0) then
 				if not compareSuccess then compareSuccess = {} end
 				if not compareSuccess[spellId] then compareSuccess[spellId] = {} end
-				compareSuccess[spellId][#compareSuccess[spellId]+1] = timeStamp
+				compareSuccess[spellId][#compareSuccess[spellId]+1] = debugprofilestop()
 			end
 			if event == "SPELL_CAST_START" and (not sourceName or band(sourceFlags, playerOrPet) == 0) then
 				if not compareStart then compareStart = {} end
 				if not compareStart[spellId] then compareStart[spellId] = {} end
-				compareStart[spellId][#compareStart[spellId]+1] = timeStamp
+				compareStart[spellId][#compareStart[spellId]+1] = debugprofilestop()
 			end
 			return strjoin("#", tostringall(event, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount))
 		end
@@ -382,6 +383,11 @@ function sh.CHAT_MSG_ADDON(prefix, msg, channel, sender)
 	if prefix == "Transcriptor" then
 		return strjoin("#", "RAID_BOSS_WHISPER_SYNC", msg, sender)
 	end
+end
+
+function sh.ENCOUNTER_START(...)
+	compareStartTime = debugprofilestop()
+	return strjoin("#", "ENCOUNTER_START", ...)
 end
 
 local function eventHandler(self, event, ...)
@@ -583,7 +589,8 @@ function Transcriptor:StartLog(silent)
 		ldb.text = L["|cffFF0000Recording|r"]
 		ldb.icon = "Interface\\AddOns\\Transcriptor\\icon_on"
 
-		logStartTime = debugprofilestop() / 1000
+		compareStartTime = debugprofilestop()
+		logStartTime = compareStartTime / 1000
 		local _, _, diff = GetInstanceInfo()
 		if diff == 1 then
 			diff = "5M"
@@ -696,13 +703,14 @@ function Transcriptor:StopLog(silent)
 				currentLog.COMPARISONS.SPELL_CAST_SUCCESS = {}
 				for id,tbl in next, compareSuccess do
 					local n = format("%d-%s", id, (GetSpellInfo(id)))
-					local str = ""
+					local str
 					for i = 1, #tbl do
-						if i == 1 then
-							str = "0" -- fixme
+						if not str then
+							local t = tbl[i] - compareStartTime
+							str = format("%.1f", t/1000)
 						else
 							local t = tbl[i] - tbl[i-1]
-							str = format("%s, %.1f", str, t)
+							str = format("%s, %.1f", str, t/1000)
 						end
 					end
 					currentLog.COMPARISONS.SPELL_CAST_SUCCESS[n] = str
@@ -712,13 +720,14 @@ function Transcriptor:StopLog(silent)
 				currentLog.COMPARISONS.SPELL_CAST_START = {}
 				for id,tbl in next, compareStart do
 					local n = format("%d-%s", id, (GetSpellInfo(id)))
-					local str = ""
+					local str
 					for i = 1, #tbl do
-						if i == 1 then
-							str = "0" -- fixme
+						if not str then
+							local t = tbl[i] - compareStartTime
+							str = format("%.1f", t/1000)
 						else
 							local t = tbl[i] - tbl[i-1]
-							str = format("%s, %.1f", str, t)
+							str = format("%s, %.1f", str, t/1000)
 						end
 					end
 					currentLog.COMPARISONS.SPELL_CAST_START[n] = str
@@ -732,6 +741,7 @@ function Transcriptor:StopLog(silent)
 		logging = nil
 		compareSuccess = nil
 		compareStart = nil
+		logStartTime = nil
 	end
 end
 
