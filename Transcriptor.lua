@@ -707,7 +707,7 @@ function Transcriptor:StopLog(silent)
 					for i = 1, #tbl do
 						if not str then
 							local t = tbl[i] - compareStartTime
-							str = format("%.1f", t/1000)
+							str = format("pull:%.1f", t/1000)
 						else
 							local t = tbl[i] - tbl[i-1]
 							str = format("%s, %.1f", str, t/1000)
@@ -724,7 +724,7 @@ function Transcriptor:StopLog(silent)
 					for i = 1, #tbl do
 						if not str then
 							local t = tbl[i] - compareStartTime
-							str = format("%.1f", t/1000)
+							str = format("pull:%.1f", t/1000)
 						else
 							local t = tbl[i] - tbl[i-1]
 							str = format("%s, %.1f", str, t/1000)
