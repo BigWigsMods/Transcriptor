@@ -4,6 +4,8 @@ local logName = nil
 local currentLog = nil
 local logStartTime = nil
 local logging = nil
+local compareSuccess = nil
+local compareStart = nil
 local inEncounter = false
 local tinsert = table.insert
 local format = string.format
@@ -217,6 +219,16 @@ do
 		if badEvents[event] or (sourceName and badPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0) or (sourceName and destName and badPlayerToPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0 and band(destFlags, playerOrPet) ~= 0) then
 			return
 		else
+			if event == "SPELL_CAST_SUCCESS" and (not sourceName or band(sourceFlags, playerOrPet) == 0) then
+				if not compareSuccess then compareSuccess = {} end
+				if not compareSuccess[spellId] then compareSuccess[spellId] = {} end
+				compareSuccess[spellId][#compareSuccess[spellId]+1] = timeStamp
+			end
+			if event == "SPELL_CAST_START" and (not sourceName or band(sourceFlags, playerOrPet) == 0) then
+				if not compareStart then compareStart = {} end
+				if not compareStart[spellId] then compareStart[spellId] = {} end
+				compareStart[spellId][#compareStart[spellId]+1] = timeStamp
+			end
 			return strjoin("#", tostringall(event, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount))
 		end
 	end
@@ -677,10 +689,49 @@ function Transcriptor:StopLog(silent)
 			print(L["Ending Transcript: "]..logName)
 			print(L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."])
 		end
+
+		if compareSuccess or compareStart then
+			currentLog.COMPARISONS = {}
+			if compareSuccess then
+				currentLog.COMPARISONS.SPELL_CAST_SUCCESS = {}
+				for id,tbl in next, compareSuccess do
+					local n = format("%d-%s", id, (GetSpellInfo(id)))
+					local str = ""
+					for i = 1, #tbl do
+						if i == 1 then
+							str = "0" -- fixme
+						else
+							local t = tbl[i] - tbl[i-1]
+							str = format("%s, %.1f", str, t)
+						end
+					end
+					currentLog.COMPARISONS.SPELL_CAST_SUCCESS[n] = str
+				end
+			end
+			if compareStart then
+				currentLog.COMPARISONS.SPELL_CAST_START = {}
+				for id,tbl in next, compareStart do
+					local n = format("%d-%s", id, (GetSpellInfo(id)))
+					local str = ""
+					for i = 1, #tbl do
+						if i == 1 then
+							str = "0" -- fixme
+						else
+							local t = tbl[i] - tbl[i-1]
+							str = format("%s, %.1f", str, t)
+						end
+					end
+					currentLog.COMPARISONS.SPELL_CAST_START[n] = str
+				end
+			end
+		end
+
 		--Clear Log Path
 		logName = nil
 		currentLog = nil
 		logging = nil
+		compareSuccess = nil
+		compareStart = nil
 	end
 end
 
