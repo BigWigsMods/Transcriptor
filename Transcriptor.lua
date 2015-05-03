@@ -698,9 +698,9 @@ function Transcriptor:StopLog(silent)
 		end
 
 		if compareSuccess or compareStart then
-			currentLog.COMPARISONS = {}
+			currentLog.TIMERS = {}
 			if compareSuccess then
-				currentLog.COMPARISONS.SPELL_CAST_SUCCESS = {}
+				currentLog.TIMERS.SPELL_CAST_SUCCESS = {}
 				for id,tbl in next, compareSuccess do
 					local n = format("%d-%s", id, (GetSpellInfo(id)))
 					local str
@@ -713,11 +713,11 @@ function Transcriptor:StopLog(silent)
 							str = format("%s, %.1f", str, t/1000)
 						end
 					end
-					currentLog.COMPARISONS.SPELL_CAST_SUCCESS[n] = str
+					currentLog.TIMERS.SPELL_CAST_SUCCESS[n] = str
 				end
 			end
 			if compareStart then
-				currentLog.COMPARISONS.SPELL_CAST_START = {}
+				currentLog.TIMERS.SPELL_CAST_START = {}
 				for id,tbl in next, compareStart do
 					local n = format("%d-%s", id, (GetSpellInfo(id)))
 					local str
@@ -730,7 +730,7 @@ function Transcriptor:StopLog(silent)
 							str = format("%s, %.1f", str, t/1000)
 						end
 					end
-					currentLog.COMPARISONS.SPELL_CAST_START[n] = str
+					currentLog.TIMERS.SPELL_CAST_START[n] = str
 				end
 			end
 		end
@@ -741,6 +741,7 @@ function Transcriptor:StopLog(silent)
 		logging = nil
 		compareSuccess = nil
 		compareStart = nil
+		compareStartTime = nil
 		logStartTime = nil
 	end
 end
