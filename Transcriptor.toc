@@ -1,4 +1,4 @@
-## Interface: 60100
+## Interface: 60200
 ## Title: Transcriptor
 ## Notes: Logging utility for boss encounters.
 ## Notes-zhCN: 战斗纪录器
