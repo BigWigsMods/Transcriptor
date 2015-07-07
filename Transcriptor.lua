@@ -198,6 +198,9 @@ sh.WORLD_STATE_UI_TIMER_UPDATE = sh.UPDATE_WORLD_STATES
 
 do
 	-- These spells are taken using the spell book dump function Transcriptor.GetSpells()
+	-- Log into WoW and type /script Transcriptor.GetSpells()
+	-- Type /reload
+	-- Search the Transcriptor SV file for "spellList" and copy the list here
 	local badPlayerSpellList = {
 		-- DRUID, updated 6.2.0 LIVE
 		[102401] = "Wild Charge",
