@@ -183,11 +183,17 @@ end
 sh.WORLD_STATE_UI_TIMER_UPDATE = sh.UPDATE_WORLD_STATES
 
 do
-	local badPlayerToPlayerEvents = {
+	local badPlayerSpellList = {
+		
+	}
+	local badPlayerFilteredEvents = {
 		["SPELL_CAST_SUCCESS"] = true,
 		["SPELL_AURA_APPLIED"] = true,
+		["SPELL_AURA_APPLIED_DOSE"] = true,
 		["SPELL_AURA_REFRESH"] = true,
 		["SPELL_AURA_REMOVED"] = true,
+		["SPELL_AURA_REMOVED_DOSE"] = true,
+		["SPELL_CAST_START"] = true,
 	}
 	local badPlayerEvents = {
 		["SPELL_DAMAGE"] = true,
@@ -216,8 +222,12 @@ do
 	}
 	local playerOrPet = 13568 -- COMBATLOG_OBJECT_CONTROL_PLAYER + COMBATLOG_OBJECT_TYPE_PLAYER + COMBATLOG_OBJECT_TYPE_PET + COMBATLOG_OBJECT_TYPE_GUARDIAN
 	local band = bit.band
+	-- Note some things we are trying to avoid filtering:
+	-- BRF/Kagraz - Player damage with no source "SPELL_DAMAGE##nil#Player-GUID#PLAYER#154938#Molten Torrent#"
+	-- HFC/Socrethar - Player cast on vehicle ""
+	-- HFC/Zakuun - Player cast on player ""
 	function sh.COMBAT_LOG_EVENT_UNFILTERED(timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount)
-		if badEvents[event] or (sourceName and badPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0) or (sourceName and destName and badPlayerToPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0 and band(destFlags, playerOrPet) ~= 0) then
+		if badEvents[event] or (sourceName and badPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0) or (sourceName and badPlayerFilteredEvents[event] and badPlayerSpellList[spellId] and band(sourceFlags, playerOrPet) ~= 0) then
 			return
 		else
 			if event == "SPELL_CAST_SUCCESS" and (not sourceName or band(sourceFlags, playerOrPet) == 0) then
