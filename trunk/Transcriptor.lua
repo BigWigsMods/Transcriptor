@@ -1085,7 +1085,7 @@ do
 		["SPELL_ABSORBED"] = true,
 		["SPELL_CAST_FAILED"] = true,
 	}
-	local playerOrPet = 13568 -- COMBATLOG_OBJECT_CONTROL_PLAYER + COMBATLOG_OBJECT_TYPE_PLAYER + COMBATLOG_OBJECT_TYPE_PET + COMBATLOG_OBJECT_TYPE_GUARDIAN
+	local playerOrPet = 13312 -- COMBATLOG_OBJECT_TYPE_PLAYER + COMBATLOG_OBJECT_TYPE_PET + COMBATLOG_OBJECT_TYPE_GUARDIAN
 	local band = bit.band
 	-- Note some things we are trying to avoid filtering:
 	-- BRF/Kagraz - Player damage with no source "SPELL_DAMAGE##nil#Player-GUID#PLAYER#154938#Molten Torrent#"
