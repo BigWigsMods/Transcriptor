@@ -1455,7 +1455,7 @@ local function DBMEventHandler(...)
 	eventHandler(eventFrame, ...)
 end
 
-local logNameFormat = "[%s]@[%s] - %d/%d/%s/%s/%s@%s (r%d) (%s.%s)"
+local logNameFormat = "[%s]@[%s] - %d/%d/%s/%s/%s@%s" .. format(" (r%d) (%s.%s)", revision or 1, wowVersion, buildRevision)
 function Transcriptor:StartLog(silent)
 	if logging then
 		print(L["You are already logging an encounter."])
@@ -1502,7 +1502,7 @@ function Transcriptor:StartLog(silent)
 			diff = tostring(diff)
 		end
 		SetMapToCurrentZone() -- Update map ID
-		logName = format(logNameFormat, date("%Y-%m-%d"), date("%H:%M:%S"), GetCurrentMapAreaID(), select(8, GetInstanceInfo()), GetZoneText() or "?", GetRealZoneText() or "?", GetSubZoneText() or "none", diff, revision or 1, tostring(wowVersion), tostring(buildRevision))
+		logName = format(logNameFormat, date("%Y-%m-%d"), date("%H:%M:%S"), GetCurrentMapAreaID(), select(8, GetInstanceInfo()), GetZoneText() or "?", GetRealZoneText() or "?", GetSubZoneText() or "none", diff)
 
 		if type(TranscriptDB[logName]) ~= "table" then TranscriptDB[logName] = {} end
 		if type(TranscriptDB.ignoredEvents) ~= "table" then TranscriptDB.ignoredEvents = {} end
@@ -1536,6 +1536,7 @@ function Transcriptor:StartLog(silent)
 			print(L["Beginning Transcript: "]..logName)
 			print(L["Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."])
 		end
+		return logName
 	end
 end
 
@@ -1548,6 +1549,7 @@ function Transcriptor:Clear(log)
 end
 function Transcriptor:Get(log) return TranscriptDB[log] end
 function Transcriptor:GetAll() return TranscriptDB end
+function Transcriptor:GetCurrentLogName() return logging and logName end
 function Transcriptor:IsLogging() return logging end
 function Transcriptor:StopLog(silent)
 	if not logging then
@@ -1610,13 +1612,14 @@ function Transcriptor:StopLog(silent)
 		end
 
 		--Clear Log Path
-		logName = nil
 		currentLog = nil
 		logging = nil
 		compareSuccess = nil
 		compareStart = nil
 		compareStartTime = nil
 		logStartTime = nil
+
+		return logName
 	end
 end
 
