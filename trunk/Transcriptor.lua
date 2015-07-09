@@ -10,25 +10,40 @@ local compareSuccess = nil
 local compareStart = nil
 local compareStartTime = nil
 local inEncounter = false
-local tinsert = table.insert
-local format = string.format
-local tostringall = tostringall
-local type = type
-local date = date
-local debugprofilestop = debugprofilestop
-local C_Scenario = C_Scenario
 local wowVersion, buildRevision, _, buildTOC = GetBuildInfo() -- Note that both returns here are strings, not numbers.
 
--- GLOBALS: TranscriptDB BigWigsLoader DBM CLOSE SlashCmdList SLASH_TRANSCRIPTOR1 SLASH_TRANSCRIPTOR2 SLASH_TRANSCRIPTOR3
+local tinsert = table.insert
+local format, strjoin = string.format, string.join
+local tostring, tostringall = tostring, tostringall
+local type, select, next = type, select, next
+local date = date
+local debugprofilestop = debugprofilestop
+local print = print
 
-local origPrint = print
-local function print(msg)
-	return origPrint("|cffffff00" .. msg .. "|r")
-end
-local origUnitName = UnitName
-local function UnitName(name)
-	local n = origUnitName(name)
-	return n or "??"
+local C_Scenario = C_Scenario
+local RegisterAddonMessagePrefix = RegisterAddonMessagePrefix
+local IsEncounterInProgress, IsAltKeyDown, EJ_GetEncounterInfo, EJ_GetSectionInfo = IsEncounterInProgress, IsAltKeyDown, EJ_GetEncounterInfo, EJ_GetSectionInfo
+local UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo = UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo
+local UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification = UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification
+local UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth, UnitHealthMax = UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth, UnitHealthMax
+local UnitLevel, UnitCreatureType, GetNumWorldStateUI, GetWorldStateUIInfo = UnitLevel, UnitCreatureType, GetNumWorldStateUI, GetWorldStateUIInfo
+local GetInstanceInfo, GetCurrentMapAreaID, GetCurrentMapDungeonLevel, GetMapNameByID = GetInstanceInfo, GetCurrentMapAreaID, GetCurrentMapDungeonLevel, GetMapNameByID
+local GetZoneText, GetRealZoneText, GetSubZoneText, SetMapToCurrentZone, GetSpellInfo = GetZoneText, GetRealZoneText, GetSubZoneText, SetMapToCurrentZone, GetSpellInfo
+local GetSpellTabInfo, GetNumSpellTabs, GetSpellBookItemInfo, GetSpellBookItemName = GetSpellTabInfo, GetNumSpellTabs, GetSpellBookItemInfo, GetSpellBookItemName
+
+-- GLOBALS: TranscriptDB BigWigsLoader DBM CLOSE SlashCmdList SLASH_TRANSCRIPTOR1 SLASH_TRANSCRIPTOR2 SLASH_TRANSCRIPTOR3 EasyMenu CloseDropDownMenus
+-- GLOBALS: GetMapID GetBossID GetSectionID
+
+do
+	local origPrint = print
+	function print(msg)
+		return origPrint(format("|cffffff00%s|r", msg))
+	end
+
+	local origUnitName = UnitName
+	function UnitName(name)
+		return origUnitName(name) or "??"
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -1949,7 +1964,7 @@ function Transcriptor:StopLog(silent)
 			BigWigsLoader.SendMessage(eventFrame, "BigWigs_OnPluginDisable", eventFrame)
 		end
 		if DBM and DBM.UnregisterCallback then
-			for i, event in pairs(dbmEvents) do
+			for i, event in next, dbmEvents do
 				DBM:UnregisterCallback(event)
 			end
 		end
@@ -2012,7 +2027,7 @@ end
 function Transcriptor:ClearAll()
 	if not logging then
 		local t2 = {}
-		for k,v in pairs(TranscriptDB.ignoredEvents) do
+		for k, v in next, TranscriptDB.ignoredEvents do
 			t2[k] = v
 		end
 		TranscriptDB = {}
