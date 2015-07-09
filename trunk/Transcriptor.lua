@@ -1143,9 +1143,8 @@ do
 
 		-- AURAs
 		-- Example command for pulling all player->player buffs from a transcript:
-		-- sed -nr -e '/SPELL_AURA.*?#(Player|Pet)-.*#(Player|Pet)-.*#BUFF/!d' \
-		--         -e 's/.*?\[CLEU\] (SPELL_AURA_.*?)#(.*?)#D?E?BUFF.*?", --.*/\1#\2/' \
-		--         -e 's/.*#([0-9]+)#(.*)$/[\1] = "\2",/;p' \
+		-- sed -r -e '/SPELL_AURA.*?#(Player|Pet)-.*#(Player|Pet)-.*#BUFF/!d' \
+		--        -e 's/.*?\[CLEU\] .*#([0-9]+)#([^#]+)#.*", --.*/[\1] = "\2",/' \
 		--     Transcriptor.lua | sort | uniq > output.txt
 		-- Don't add spells without checking them first!
 
@@ -1307,14 +1306,9 @@ do
 		[157698] = "Haunting Spirits",
 		[157913] = "Evanesce",
 		[158300] = "Resolve",
-		[159234] = "Mark of the Thunderlord",
 		[159363] = "Blood Craze",
 		[159407] = "Combo Breaker: Chi Explosion",
 		[159537] = "Glyph of Soothing Mist",
-		[159675] = "Mark of Warsong",
-		[159676] = "Mark of the Frostwolf",
-		[159678] = "Mark of Shadowmoon",
-		[159679] = "Mark of Blackrock",
 		[160002] = "Enhanced Holy Shock",
 		[160200] = "Lone Wolf: Ferocity of the Raptor",
 		[160331] = "Blood Elf Illusion",
@@ -1450,7 +1444,7 @@ do
 		[96312] = "Kalytha's Haunted Locket",
 		[97463] = "Rallying Cry",
 
-		-- SPELL_CAST not caught by spell book (talents and misc stuff)
+		-- Spells not from the spell book (talents and misc stuff)
 		[108853] = "Inferno Blast",
 		[110744] = "Divine Star",
 		[114163] = "Eternal Flame",
@@ -1463,12 +1457,14 @@ do
 		[130654] = "Chi Burst",
 		[132603] = "Shadowfiend",
 		[133] = "Fireball",
+		[145629] = "Anti-Magic Zone",
 		[147489] = "Expel Harm",
 		[147193] = "Shadowy Apparition",
 		[155521] = "Auspicious Spirits",
 		[188046] = "Fey Missile",
 		[3606] = "Searing Bolt",
 		[47750] = "Penance",
+		[51052] = "Anti-Magic Zone",
 		[63619] = "Shadowcrawl",
 		[85384] = "Raging Blow Off-Hand",
 		[90361] = "Spirit Mend",
@@ -1489,6 +1485,15 @@ do
 		[49028] = "Dancing Rune Weapon",
 		[51485] = "Earthgrab Totem",
 		[51533] = "Feral Spirit",
+	}
+	local badSourcelessPlayerSpellList = {
+		[145629] = "Anti-Magic Zone",
+		[159234] = "Mark of the Thunderlord",
+		[159675] = "Mark of Warsong",
+		[159678] = "Mark of Shadowmoon",
+		[159679] = "Mark of Blackrock",
+		[173322] = "Mark of Bleeding Hollow",
+		[81782] = "Power Word: Barrier",
 	}
 	local badPlayerFilteredEvents = {
 		["SPELL_CAST_SUCCESS"] = true,
@@ -1535,7 +1540,8 @@ do
 	function sh.COMBAT_LOG_EVENT_UNFILTERED(timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount)
 		if badEvents[event] or
 		   (sourceName and badPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0) or
-		   (sourceName and badPlayerFilteredEvents[event] and badPlayerSpellList[spellId] and band(sourceFlags, playerOrPet) ~= 0)
+		   (sourceName and badPlayerFilteredEvents[event] and badPlayerSpellList[spellId] and band(sourceFlags, playerOrPet) ~= 0) or
+		   (destName and badPlayerFilteredEvents[event] and badSourcelessPlayerSpellList[spellId] and band(destFlags, playerOrPet) ~= 0)
 		then
 			return
 		else
