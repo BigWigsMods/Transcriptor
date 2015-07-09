@@ -1225,6 +1225,7 @@ do
 		[114214] = "Angelic Bulwark",
 		[114232] = "Sanctified Wrath",
 		[114250] = "Selfless Healer",
+		[114255] = "Surge of Light",
 		[114637] = "Bastion of Glory",
 		[114851] = "Blood Charge",
 		[114868] = "Soul Reaper",
@@ -1448,6 +1449,47 @@ do
 		[94686] = "Supplication",
 		[96312] = "Kalytha's Haunted Locket",
 		[97463] = "Rallying Cry",
+
+		-- SPELL_CAST not caught by spell book (talents and misc stuff)
+		[108853] = "Inferno Blast",
+		[110744] = "Divine Star",
+		[114163] = "Eternal Flame",
+		[119031] = "Gift of the Serpent",
+		[120361] = "Barrage",
+		[120644] = "Halo",
+		[121135] = "Cascade",
+		[121283] = "Chi Sphere",
+		[123259] = "Prayer of Mending",
+		[130654] = "Chi Burst",
+		[132603] = "Shadowfiend",
+		[133] = "Fireball",
+		[147489] = "Expel Harm",
+		[147193] = "Shadowy Apparition",
+		[155521] = "Auspicious Spirits",
+		[188046] = "Fey Missile",
+		[3606] = "Searing Bolt",
+		[47750] = "Penance",
+		[63619] = "Shadowcrawl",
+		[85384] = "Raging Blow Off-Hand",
+		[90361] = "Spirit Mend",
+		[96103] = "Raging Blow",
+
+		-- SPELL_SUMMON
+		[112869] = "Summon Observer",
+		[112926] = "Summon Terrorguard",
+		[118291] = "Fire Elemental Totem",
+		[121818] = "Stampede",
+		[123040] = "Mindbender",
+		[126135] = "Lightwell",
+		[132603] = "Shadowfiend",
+		[152277] = "Ravager",
+		[185185] = "Fel Prison",
+		[188083] = "Fey Moonwing",
+		[2894] = "Fire Elemental Totem",
+		[3599] = "Searing Totem",
+		[49028] = "Dancing Rune Weapon",
+		[51485] = "Earthgrab Totem",
+		[51533] = "Feral Spirit",
 	}
 	local badPlayerFilteredEvents = {
 		["SPELL_CAST_SUCCESS"] = true,
@@ -1457,6 +1499,8 @@ do
 		["SPELL_AURA_REMOVED"] = true,
 		["SPELL_AURA_REMOVED_DOSE"] = true,
 		["SPELL_CAST_START"] = true,
+		["SPELL_CAST_SUCCESS"] = true,
+		["SPELL_SUMMON"] = true,
 	}
 	local badPlayerEvents = {
 		["SPELL_DAMAGE"] = true,
@@ -1492,7 +1536,7 @@ do
 	function sh.COMBAT_LOG_EVENT_UNFILTERED(timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount)
 		if badEvents[event] or
 		   (sourceName and badPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0) or
-		   (badPlayerFilteredEvents[event] and badPlayerSpellList[spellId])
+		   (sourceName and badPlayerFilteredEvents[event] and badPlayerSpellList[spellId] and band(sourceFlags, playerOrPet) ~= 0)
 		then
 			return
 		else
