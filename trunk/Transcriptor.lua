@@ -1492,7 +1492,7 @@ do
 	function sh.COMBAT_LOG_EVENT_UNFILTERED(timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount)
 		if badEvents[event] or
 		   (sourceName and badPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0) or
-		   (sourceName and badPlayerFilteredEvents[event] and badPlayerSpellList[spellId] and band(sourceFlags, playerOrPet) ~= 0)
+		   (badPlayerFilteredEvents[event] and badPlayerSpellList[spellId])
 		then
 			return
 		else
