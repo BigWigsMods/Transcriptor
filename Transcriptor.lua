@@ -1483,7 +1483,6 @@ do
 		[126135] = "Lightwell",
 		[132603] = "Shadowfiend",
 		[152277] = "Ravager",
-		[185185] = "Fel Prison",
 		[188083] = "Fey Moonwing",
 		[2894] = "Fire Elemental Totem",
 		[3599] = "Searing Totem",
