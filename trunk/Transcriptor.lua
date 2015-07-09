@@ -1503,7 +1503,6 @@ do
 		["SPELL_AURA_REMOVED"] = true,
 		["SPELL_AURA_REMOVED_DOSE"] = true,
 		["SPELL_CAST_START"] = true,
-		["SPELL_CAST_SUCCESS"] = true,
 		["SPELL_SUMMON"] = true,
 	}
 	local badPlayerEvents = {
