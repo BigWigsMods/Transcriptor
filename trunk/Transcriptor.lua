@@ -1443,6 +1443,8 @@ do
 		[94686] = "Supplication",
 		[96312] = "Kalytha's Haunted Locket",
 		[97463] = "Rallying Cry",
+		[155777] = "Rejuvenation (Germination)",
+		[96206] = "Glyph of Rejuvenation",
 
 		-- Spells not from the spell book (talents and misc stuff)
 		[108853] = "Inferno Blast",
@@ -1469,6 +1471,7 @@ do
 		[85384] = "Raging Blow Off-Hand",
 		[90361] = "Spirit Mend",
 		[96103] = "Raging Blow",
+		[124916] = "Chaos Wave",
 
 		-- SPELL_SUMMON
 		[112869] = "Summon Observer",
@@ -1485,6 +1488,8 @@ do
 		[49028] = "Dancing Rune Weapon",
 		[51485] = "Earthgrab Totem",
 		[51533] = "Feral Spirit",
+		[166862] = "Inner Demon",
+		[42651] = "Army of the Dead"
 	}
 	local badSourcelessPlayerSpellList = {
 		[145629] = "Anti-Magic Zone",
@@ -1535,7 +1540,7 @@ do
 	-- Note some things we are trying to avoid filtering:
 	-- BRF/Kagraz - Player damage with no source "SPELL_DAMAGE##nil#Player-GUID#PLAYER#154938#Molten Torrent#"
 	-- HFC/Socrethar - Player cast on friendly vehicle "SPELL_CAST_SUCCESS#Player-GUID#PLAYER#Vehicle-0-3151-1448-8853-90296-00001D943C#Soulbound Construct#190466#Incomplete Binding"
-	-- HFC/Zakuun - Player cast on player ""
+	-- HFC/Zakuun - Player boss debuff cast on self "SPELL_AURA_APPLIED#Player-GUID#PLAYER#Player-GUID#PLAYER#189030#Befouled#DEBUFF#"
 	function sh.COMBAT_LOG_EVENT_UNFILTERED(timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount)
 		if badEvents[event] or
 		   (sourceName and badPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0) or
