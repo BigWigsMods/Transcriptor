@@ -1821,7 +1821,7 @@ local function eventHandler(self, event, ...)
 	if sh[event] then
 		line = sh[event](...)
 	else
-		line = strjoin("#", tostringall(event, ...))
+		line = strjoin("#", tostringall(...))
 	end
 	if not line then return end
 	local stop = debugprofilestop() / 1000
@@ -1843,13 +1843,12 @@ local function eventHandler(self, event, ...)
 			if type(currentLog["IsEncounterInProgress()"]) ~= "table" then currentLog["IsEncounterInProgress()"] = {} end
 			tinsert(currentLog["IsEncounterInProgress()"], format("<%.2f %s> false", t, time))
 		end
-
-		return
 	else
-		tinsert(currentLog.total, format("<%.2f %s> [%s] %s", t, time, event, line))
+		local text = format("<%.2f %s> [%s] %s", t, time, event, line)
+		tinsert(currentLog.total, text)
+		if type(currentLog[event]) ~= "table" then currentLog[event] = {} end
+		tinsert(currentLog[event], text)
 	end
-	if type(currentLog[event]) ~= "table" then currentLog[event] = {} end
-	tinsert(currentLog[event], format("<%.2f %s> %s", t, time, line))
 end
 eventFrame:SetScript("OnEvent", eventHandler)
 
