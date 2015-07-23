@@ -1799,7 +1799,7 @@ do
 		[112926] = "Summon Terrorguard",
 		[116011] = "Rune of Power",
 		[117663] = "Fire Elemental Totem",
-		[118291] = "Fire Elemental Totem",
+		[117753] = "Earth Elemental",
 		[121818] = "Stampede",
 		[123040] = "Mindbender",
 		[126135] = "Lightwell",
@@ -1823,6 +1823,7 @@ do
 		[49028] = "Dancing Rune Weapon",
 		[51485] = "Earthgrab Totem",
 		[51533] = "Feral Spirit",
+		[52150] = "Raise Dead",
 	}
 	local badSourcelessPlayerSpellList = {
 		[145629] = "Anti-Magic Zone",
