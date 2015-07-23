@@ -1604,6 +1604,7 @@ do
 		["SPELL_AURA_REMOVED_DOSE"] = true,
 		["SPELL_CAST_START"] = true,
 		["SPELL_SUMMON"] = true,
+		["SPELL_AURA_BROKEN_SPELL"] = true,
 	}
 	local badPlayerEvents = {
 		["SPELL_DAMAGE"] = true,
