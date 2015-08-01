@@ -3,6 +3,7 @@ local Transcriptor = {}
 local revision = tonumber(("$Revision$"):sub(12, -3))
 
 local badPlayerSpellList
+local playerSpellBlacklist
 
 local logName = nil
 local currentLog = nil
@@ -116,7 +117,7 @@ do
 		editBox[i]:SetAutoFocus(false)
 		editBox[i]:SetFontObject(ChatFontNormal)
 		editBox[i]:SetWidth(620)
-		editBox[i]:SetHeight(495)
+		editBox[i]:SetHeight(895)
 		editBox[i]:SetScript("OnEscapePressed", function(f) f:GetParent():GetParent():Hide() f:SetText("") end)
 
 		scrollArea:SetScrollChild(editBox[i])
@@ -129,6 +130,7 @@ do
 	Transcriptor.GetLogSpells = function()
 		if InCombatLockdown() or UnitAffectingCombat("player") then return end
 
+		local total, totalSorted = {}, {}
 		local auraTbl, castTbl, summonTbl = {}, {}, {}
 		local aurasSorted, castsSorted, summonSorted = {}, {}, {}
 		local ignoreList = {
@@ -153,10 +155,11 @@ do
 					id = tonumber(id)
 					if id and not ignoreList[id] and not badPlayerSpellList[id] and not auraTbl[id] then
 						if name == tarName then
-							auraTbl[id] = "|cFF111111".. name .." >> ".. tarName .."|r"
+							auraTbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .." >> ".. tarName:gsub("%-.+", "*") .."|r"
 						else
-							auraTbl[id] = "|cFF555555".. name .." >> ".. tarName .."|r"
+							auraTbl[id] = "|cFF3ADF00".. name:gsub("%-.+", "*") .." >> ".. tarName:gsub("%-.+", "*") .."|r"
 						end
+						total[id] = true
 						aurasSorted[#aurasSorted+1] = id
 					end
 
@@ -165,10 +168,11 @@ do
 					id = tonumber(id)
 					if id and not ignoreList[id] and not badPlayerSpellList[id] and not auraTbl[id] and not castTbl[id] then -- Check previous tables to avoid duplicates
 						if name == tarName then
-							castTbl[id] = "|cFF111111".. name .." >> ".. tarName .."|r"
+							castTbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .." >> ".. tarName:gsub("%-.+", "*") .."|r"
 						else
-							castTbl[id] = "|cFF555555".. name .." >> ".. tarName .."|r"
+							castTbl[id] = "|cFF3ADF00".. name:gsub("%-.+", "*") .." >> ".. tarName:gsub("%-.+", "*") .."|r"
 						end
+						total[id] = true
 						castsSorted[#castsSorted+1] = id
 					end
 
@@ -177,10 +181,11 @@ do
 					id = tonumber(id)
 					if id and not ignoreList[id] and not badPlayerSpellList[id] and not auraTbl[id] and not castTbl[id] and not summonTbl[id] then -- Check previous tables to avoid duplicates
 						if name == tarName then
-							summonTbl[id] = "|cFF111111".. name .." >> ".. tarName .."|r"
+							summonTbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .." >> ".. tarName:gsub("%-.+", "*") .."|r"
 						else
-							summonTbl[id] = "|cFF555555".. name .." >> ".. tarName .."|r"
+							summonTbl[id] = "|cFF3ADF00".. name:gsub("%-.+", "*") .." >> ".. tarName:gsub("%-.+", "*") .."|r"
 						end
+						total[id] = true
 						summonSorted[#summonSorted+1] = id
 					end
 				end
@@ -192,7 +197,7 @@ do
 		for i = 1, #aurasSorted do
 			local id = aurasSorted[i]
 			local name = GetSpellInfo(id)
-			text = format("%s[%d] = true, -- %s %s\n", text, id, name, auraTbl[id])
+			text = format("%s%d || |cFFFFFF00%s|r || %s\n", text, id, name, auraTbl[id])
 		end
 
 		sort(castsSorted)
@@ -200,7 +205,7 @@ do
 		for i = 1, #castsSorted do
 			local id = castsSorted[i]
 			local name = GetSpellInfo(id)
-			text = format("%s[%d] = true, -- %s %s\n", text, id, name, castTbl[id])
+			text = format("%s%d || |cFFFFFF00%s|r || %s\n", text, id, name, castTbl[id])
 		end
 
 		sort(summonSorted)
@@ -208,7 +213,7 @@ do
 		for i = 1, #summonSorted do
 			local id = summonSorted[i]
 			local name = GetSpellInfo(id)
-			text = format("%s[%d] = true, -- %s %s\n", text, id, name, summonTbl[id])
+			text = format("%s%d || |cFFFFFF00%s|r || %s\n", text, id, name, summonTbl[id])
 		end
 
 		-- Display newly found spells for analysis
@@ -218,7 +223,23 @@ do
 		frame[1]:SetPoint("RIGHT", UIParent, "CENTER")
 		frame[1]:Show()
 
+		for k, v in next, playerSpellBlacklist do
+			total[k] = true
+		end
+		for k, v in next, total do
+			totalSorted[#totalSorted+1] = k
+		end
+		sort(totalSorted)
+		text = "playerSpellBlacklist = {\n"
+		for i = 1, #totalSorted do
+			local id = totalSorted[i]
+			local name = GetSpellInfo(id)
+			text = format("%s[%d] = true, -- %s\n", text, id, name)
+		end
+		text = text.. "}"
 		-- Display full blacklist for copying into Transcriptor
+		editBox[2]:SetText(text)
+		editBox[2]:HighlightText(true)
 		frame[2]:ClearAllPoints()
 		frame[2]:SetPoint("LEFT", UIParent, "CENTER")
 		frame[2]:Show()
@@ -1998,6 +2019,9 @@ do
 		[58833] = "Mirror Image",
 		[58834] = "Mirror Image",
 	}
+	playerSpellBlacklist = {
+	
+	}
 	local badSourcelessPlayerSpellList = {
 		[145629] = "Anti-Magic Zone",
 		[156055] = "Oglethorpe's Missile Splitter",
@@ -2055,7 +2079,7 @@ do
 	function sh.COMBAT_LOG_EVENT_UNFILTERED(timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount)
 		if badEvents[event] or
 		   (sourceName and badPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0) or
-		   (sourceName and badPlayerFilteredEvents[event] and badPlayerSpellList[spellId] and band(sourceFlags, playerOrPet) ~= 0) or
+		   (sourceName and badPlayerFilteredEvents[event] and (badPlayerSpellList[spellId] or playerSpellBlacklist[spellId]) and band(sourceFlags, playerOrPet) ~= 0) or
 		   (destName and badPlayerFilteredEvents[event] and badSourcelessPlayerSpellList[spellId] and band(destFlags, playerOrPet) ~= 0)
 		then
 			return
