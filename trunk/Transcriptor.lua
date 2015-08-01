@@ -2,6 +2,8 @@
 local Transcriptor = {}
 local revision = tonumber(("$Revision$"):sub(12, -3))
 
+local badPlayerSpellList
+
 local logName = nil
 local currentLog = nil
 local logStartTime = nil
@@ -87,7 +89,8 @@ function GetSectionID(name)
 	end
 end
 
-Transcriptor.GetSpells = function()
+--/script Transcriptor.GetSpellBookSpells()
+Transcriptor.GetSpellBookSpells = function()
 	local tbl = {}
 	local _, _, offset, numSpells = GetSpellTabInfo(GetNumSpellTabs())
 	for i = 1, offset + numSpells do
@@ -96,7 +99,37 @@ Transcriptor.GetSpells = function()
 			tbl[id] = GetSpellBookItemName(i, "spell")
 		end
 	end
-	TranscriptDB.spellList = tbl
+	TranscriptDB.spellBookList = tbl
+end
+
+--/script Transcriptor.GetLogSpells()
+Transcriptor.GetLogSpells = function()
+	local tbl = {}
+	local ignoreList = {
+		[181488] = true, -- Vision of Death
+		[182008] = true, -- Latent Energy
+		[185656] = true, -- Shadowfel Annihilation
+		[189030] = true, -- Befouled
+		[189031] = true, -- Befouled
+		[189032] = true, -- Befouled
+	}
+	for logName, logTbl in next, TranscriptDB do
+		if type(logTbl) == "table" and logTbl.total then
+			for i=1, #logTbl.total do
+				local text = logTbl.total[i]
+				local name, tarName, id, spellName = text:match("SPELL_AURA_[^#]+#P[le][at][^#]+#([^#]+)#[^#]+#([^#]+)#(%d+)#([^#]+)#")
+				id = tonumber(id)
+				if id and not ignoreList[id] and not badPlayerSpellList[id] and not tbl[id] then
+					tbl[id] = spellName
+					-- Read them all individually and carefully!!!
+					_G.print(name, tarName, id, spellName)
+				end
+			end
+		end
+	end
+	TranscriptDB.logAuraList = tbl
+
+	-- XXX continue this for CAST and SUMMON
 end
 
 --------------------------------------------------------------------------------
@@ -212,11 +245,11 @@ end
 sh.WORLD_STATE_UI_TIMER_UPDATE = sh.UPDATE_WORLD_STATES
 
 do
-	-- These spells are taken using the spell book dump function Transcriptor.GetSpells()
-	-- Log into WoW and type /script Transcriptor.GetSpells()
+	-- These spells are taken using the spell book dump function Transcriptor.GetSpellBookSpells()
+	-- Log into WoW and type /script Transcriptor.GetSpellBookSpells()
 	-- Type /reload
-	-- Search the Transcriptor SV file for "spellList" and copy the list here
-	local badPlayerSpellList = {
+	-- Search the Transcriptor SV file for "spellBookList" and copy the list here
+	badPlayerSpellList = {
 		-- DRUID, updated 6.2.0 LIVE
 		[102401] = "Wild Charge",
 		[22842] = "Frenzied Regeneration",
@@ -2206,7 +2239,8 @@ local init = CreateFrame("Frame")
 init:SetScript("OnEvent", function(self, event, addon)
 	TranscriptDB = TranscriptDB or {}
 	if not TranscriptDB.ignoredEvents then TranscriptDB.ignoredEvents = {} end
-	TranscriptDB.spellList = nil -- Cleanup
+	TranscriptDB.spellBookList = nil -- Cleanup
+	TranscriptDB.logAuraList = nil -- Cleanup
 
 	tinsert(menu, { text = L["|cFFFFD200Transcriptor|r - Disabled Events"], fontObject = "GameTooltipHeader", notCheckable = 1 })
 	insertMenuItems(wowEvents)
