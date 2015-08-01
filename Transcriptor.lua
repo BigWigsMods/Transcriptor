@@ -89,54 +89,128 @@ function GetSectionID(name)
 	end
 end
 
---/script Transcriptor.GetLogSpells()
-Transcriptor.GetLogSpells = function()
-	local auraTbl, castTbl, summonTbl = {}, {}, {}
-	local ignoreList = {
-		[180247] = true, -- Gather Felfire Munitions (Hellfire Assault)
-		[180410] = true, -- Heart Seeker (Kilrogg Deadeye)
-		[180413] = true, -- Heart Seeker (Kilrogg Deadeye)
-		[181488] = true, -- Vision of Death (Kilrogg Deadeye)
-		[182008] = true, -- Latent Energy
-		[185656] = true, -- Shadowfel Annihilation
-		[189030] = true, -- Befouled
-		[189031] = true, -- Befouled
-		[189032] = true, -- Befouled
-	}
-	-- XXX WIP
-	for logName, logTbl in next, TranscriptDB do
-		if type(logTbl) == "table" and logTbl.total then
-			for i=1, #logTbl.total do
-				local text = logTbl.total[i]
+do
+	-- Create UI spell display, copied from BasicChatMods
+	local frame = CreateFrame("Frame", "TranscriptorCopyFrame", UIParent)
+	frame:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+		edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+		tile = true, tileSize = 16, edgeSize = 16,
+		insets = {left = 1, right = 1, top = 1, bottom = 1}}
+	)
+	frame:SetBackdropColor(0,0,0,1)
+	frame:SetWidth(650)
+	frame:SetHeight(900)
+	frame:SetPoint("CENTER", UIParent, "CENTER")
+	frame:Hide()
+	frame:SetFrameStrata("DIALOG")
 
-				-- AURA
-				local name, tarName, id, spellName = text:match("SPELL_AURA_[^#]+#P[le][at][^#]+#([^#]+)#[^#]+#([^#]+)#(%d+)#([^#]+)#")
-				id = tonumber(id)
-				if id and not ignoreList[id] and not badPlayerSpellList[id] and not auraTbl[id] then
-					auraTbl[id] = spellName
-					-- Read them all individually and carefully!!!
-					--_G.print(name, tarName, id, spellName)
-				end
+	local scrollArea = CreateFrame("ScrollFrame", "TranscriptorCopyScroll", frame, "UIPanelScrollFrameTemplate")
+	scrollArea:SetPoint("TOPLEFT", frame, "TOPLEFT", 8, -5)
+	scrollArea:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -30, 5)
 
-				-- CAST
-				name, tarName, id, spellName = text:match("SPELL_CAST_[^#]+#P[le][at][^#]+#([^#]+)#[^#]+#([^#]+)#(%d+)#([^#]+)#")
-				id = tonumber(id)
-				if id and not ignoreList[id] and not badPlayerSpellList[id] and not castTbl[id] then
-					castTbl[id] = spellName
-					-- Read them all individually and carefully!!!
-					--_G.print(name, tarName, id, spellName)
-				end
+	local editBox = CreateFrame("EditBox", "TranscriptorCopyBox", frame)
+	editBox:SetMultiLine(true)
+	editBox:SetMaxLetters(99999)
+	editBox:EnableMouse(true)
+	editBox:SetAutoFocus(false)
+	editBox:SetFontObject(ChatFontNormal)
+	editBox:SetWidth(620)
+	editBox:SetHeight(495)
+	editBox:SetScript("OnEscapePressed", function(f) f:GetParent():GetParent():Hide() f:SetText("") end)
 
-				-- SUMMON
-				name, tarName, id, spellName = text:match("SPELL_SUMMON#P[le][at][^#]+#([^#]+)#[^#]+#([^#]+)#(%d+)#([^#]+)#")
-				id = tonumber(id)
-				if id and not ignoreList[id] and not badPlayerSpellList[id] and not summonTbl[id] then
-					summonTbl[id] = spellName
-					-- Read them all individually and carefully!!!
-					_G.print(name, tarName, id, spellName)
+	scrollArea:SetScrollChild(editBox)
+
+	local close = CreateFrame("Button", "TranscriptorCloseButton", frame, "UIPanelCloseButton")
+	close:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0, 25)
+
+	--/script Transcriptor.GetLogSpells()
+	Transcriptor.GetLogSpells = function()
+		if InCombatLockdown() or UnitAffectingCombat("player") then return end
+
+		local auraTbl, castTbl, summonTbl = {}, {}, {}
+		local aurasSorted, castsSorted, summonSorted = {}, {}, {}
+		local ignoreList = {
+			[180247] = true, -- Gather Felfire Munitions (Hellfire Assault)
+			[180410] = true, -- Heart Seeker (Kilrogg Deadeye)
+			[180413] = true, -- Heart Seeker (Kilrogg Deadeye)
+			[181488] = true, -- Vision of Death (Kilrogg Deadeye)
+			[182008] = true, -- Latent Energy
+			[185656] = true, -- Shadowfel Annihilation
+			[189030] = true, -- Befouled
+			[189031] = true, -- Befouled
+			[189032] = true, -- Befouled
+		}
+		-- XXX WIP
+		for logName, logTbl in next, TranscriptDB do
+			if type(logTbl) == "table" and logTbl.total then
+				for i=1, #logTbl.total do
+					local text = logTbl.total[i]
+
+					-- AURA
+					local name, tarName, id, spellName = text:match("SPELL_AURA_[^#]+#P[le][at][^#]+#([^#]+)#[^#]+#([^#]+)#(%d+)#([^#]+)#")
+					id = tonumber(id)
+					if id and not ignoreList[id] and not badPlayerSpellList[id] and not auraTbl[id] then
+						if name == tarName then
+							auraTbl[id] = "|cFF111111".. name .." >> ".. tarName .."|r"
+						else
+							auraTbl[id] = "|cFF555555".. name .." >> ".. tarName .."|r"
+						end
+						aurasSorted[#aurasSorted+1] = id
+					end
+
+					-- CAST
+					name, tarName, id, spellName = text:match("SPELL_CAST_[^#]+#P[le][at][^#]+#([^#]+)#[^#]+#([^#]+)#(%d+)#([^#]+)#")
+					id = tonumber(id)
+					if id and not ignoreList[id] and not badPlayerSpellList[id] and not auraTbl[id] and not castTbl[id] then -- Check previous tables to avoid duplicates
+						if name == tarName then
+							castTbl[id] = "|cFF111111".. name .." >> ".. tarName .."|r"
+						else
+							castTbl[id] = "|cFF555555".. name .." >> ".. tarName .."|r"
+						end
+						castsSorted[#castsSorted+1] = id
+					end
+
+					-- SUMMON
+					name, tarName, id, spellName = text:match("SPELL_SUMMON#P[le][at][^#]+#([^#]+)#[^#]+#([^#]+)#(%d+)#([^#]+)#")
+					id = tonumber(id)
+					if id and not ignoreList[id] and not badPlayerSpellList[id] and not auraTbl[id] and not castTbl[id] and not summonTbl[id] then -- Check previous tables to avoid duplicates
+						if name == tarName then
+							summonTbl[id] = "|cFF111111".. name .." >> ".. tarName .."|r"
+						else
+							summonTbl[id] = "|cFF555555".. name .." >> ".. tarName .."|r"
+						end
+						summonSorted[#summonSorted+1] = id
+					end
 				end
 			end
 		end
+
+		sort(aurasSorted)
+		local text = "-- AURAS\n"
+		for i = 1, #aurasSorted do
+			local id = aurasSorted[i]
+			local name = GetSpellInfo(id)
+			text = format("%s[%d] = true, -- %s %s\n", text, id, name, auraTbl[id])
+		end
+
+		sort(castsSorted)
+		text = text.. "\n-- CASTS\n"
+		for i = 1, #castsSorted do
+			local id = castsSorted[i]
+			local name = GetSpellInfo(id)
+			text = format("%s[%d] = true, -- %s %s\n", text, id, name, castTbl[id])
+		end
+
+		sort(summonSorted)
+		text = text.. "\n-- SUMMONS\n"
+		for i = 1, #summonSorted do
+			local id = summonSorted[i]
+			local name = GetSpellInfo(id)
+			text = format("%s[%d] = true, -- %s %s\n", text, id, name, summonTbl[id])
+		end
+
+		editBox:SetText(text)
+		frame:Show()
 	end
 end
 
