@@ -89,19 +89,6 @@ function GetSectionID(name)
 	end
 end
 
---/script Transcriptor.GetSpellBookSpells()
-Transcriptor.GetSpellBookSpells = function()
-	local tbl = {}
-	local _, _, offset, numSpells = GetSpellTabInfo(GetNumSpellTabs())
-	for i = 1, offset + numSpells do
-		local spellType, id = GetSpellBookItemInfo(i, "spell")
-		if spellType == "SPELL" and not tbl[id] then
-			tbl[id] = GetSpellBookItemName(i, "spell")
-		end
-	end
-	TranscriptDB.spellBookList = tbl
-end
-
 --/script Transcriptor.GetLogSpells()
 Transcriptor.GetLogSpells = function()
 	local tbl = {}
@@ -127,7 +114,7 @@ Transcriptor.GetLogSpells = function()
 			end
 		end
 	end
-	TranscriptDB.logAuraList = tbl
+	--TranscriptDB.logAuraList = tbl
 
 	-- XXX continue this for CAST and SUMMON
 end
@@ -245,10 +232,7 @@ end
 sh.WORLD_STATE_UI_TIMER_UPDATE = sh.UPDATE_WORLD_STATES
 
 do
-	-- These spells are taken using the spell book dump function Transcriptor.GetSpellBookSpells()
-	-- Log into WoW and type /script Transcriptor.GetSpellBookSpells()
-	-- Type /reload
-	-- Search the Transcriptor SV file for "spellBookList" and copy the list here
+	-- XXX spellbook is being removed
 	badPlayerSpellList = {
 		-- DRUID, updated 6.2.0 LIVE
 		[102401] = "Wild Charge",
@@ -2289,8 +2273,9 @@ local init = CreateFrame("Frame")
 init:SetScript("OnEvent", function(self, event, addon)
 	TranscriptDB = TranscriptDB or {}
 	if not TranscriptDB.ignoredEvents then TranscriptDB.ignoredEvents = {} end
-	TranscriptDB.spellBookList = nil -- Cleanup
-	TranscriptDB.logAuraList = nil -- Cleanup
+	TranscriptDB.spellList = nil -- Cleanup XXX temp
+	TranscriptDB.spellBookList = nil -- Cleanup XXX temp
+	TranscriptDB.logAuraList = nil -- Cleanup XXX temp
 
 	tinsert(menu, { text = L["|cFFFFD200Transcriptor|r - Disabled Events"], fontObject = "GameTooltipHeader", notCheckable = 1 })
 	insertMenuItems(wowEvents)
