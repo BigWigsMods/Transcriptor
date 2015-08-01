@@ -91,32 +91,53 @@ end
 
 --/script Transcriptor.GetLogSpells()
 Transcriptor.GetLogSpells = function()
-	local tbl = {}
+	local auraTbl, castTbl, summonTbl = {}, {}, {}
 	local ignoreList = {
-		[181488] = true, -- Vision of Death
+		[180247] = true, -- Gather Felfire Munitions (Hellfire Assault)
+		[180410] = true, -- Heart Seeker (Kilrogg Deadeye)
+		[180413] = true, -- Heart Seeker (Kilrogg Deadeye)
+		[181488] = true, -- Vision of Death (Kilrogg Deadeye)
 		[182008] = true, -- Latent Energy
 		[185656] = true, -- Shadowfel Annihilation
 		[189030] = true, -- Befouled
 		[189031] = true, -- Befouled
 		[189032] = true, -- Befouled
 	}
+	-- XXX WIP
 	for logName, logTbl in next, TranscriptDB do
 		if type(logTbl) == "table" and logTbl.total then
 			for i=1, #logTbl.total do
 				local text = logTbl.total[i]
+
+				-- AURA
 				local name, tarName, id, spellName = text:match("SPELL_AURA_[^#]+#P[le][at][^#]+#([^#]+)#[^#]+#([^#]+)#(%d+)#([^#]+)#")
 				id = tonumber(id)
-				if id and not ignoreList[id] and not badPlayerSpellList[id] and not tbl[id] then
-					tbl[id] = spellName
+				if id and not ignoreList[id] and not badPlayerSpellList[id] and not auraTbl[id] then
+					auraTbl[id] = spellName
+					-- Read them all individually and carefully!!!
+					--_G.print(name, tarName, id, spellName)
+				end
+
+				-- CAST
+				name, tarName, id, spellName = text:match("SPELL_CAST_[^#]+#P[le][at][^#]+#([^#]+)#[^#]+#([^#]+)#(%d+)#([^#]+)#")
+				id = tonumber(id)
+				if id and not ignoreList[id] and not badPlayerSpellList[id] and not castTbl[id] then
+					castTbl[id] = spellName
+					-- Read them all individually and carefully!!!
+					--_G.print(name, tarName, id, spellName)
+				end
+
+				-- SUMMON
+				name, tarName, id, spellName = text:match("SPELL_SUMMON#P[le][at][^#]+#([^#]+)#[^#]+#([^#]+)#(%d+)#([^#]+)#")
+				id = tonumber(id)
+				if id and not ignoreList[id] and not badPlayerSpellList[id] and not summonTbl[id] then
+					summonTbl[id] = spellName
 					-- Read them all individually and carefully!!!
 					_G.print(name, tarName, id, spellName)
 				end
 			end
 		end
 	end
-	--TranscriptDB.logAuraList = tbl
-
-	-- XXX continue this for CAST and SUMMON
 end
 
 --------------------------------------------------------------------------------
