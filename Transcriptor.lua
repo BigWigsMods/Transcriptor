@@ -91,37 +91,39 @@ end
 
 do
 	-- Create UI spell display, copied from BasicChatMods
-	local frame = CreateFrame("Frame", "TranscriptorCopyFrame", UIParent)
-	frame:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-		edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
-		tile = true, tileSize = 16, edgeSize = 16,
-		insets = {left = 1, right = 1, top = 1, bottom = 1}}
-	)
-	frame:SetBackdropColor(0,0,0,1)
-	frame:SetWidth(650)
-	frame:SetHeight(900)
-	frame:SetPoint("CENTER", UIParent, "CENTER")
-	frame:Hide()
-	frame:SetFrameStrata("DIALOG")
+	local frame, editBox = {}, {}
+	for i = 1, 2 do
+		frame[i] = CreateFrame("Frame", nil, UIParent)
+		frame[i]:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+			edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+			tile = true, tileSize = 16, edgeSize = 16,
+			insets = {left = 1, right = 1, top = 1, bottom = 1}}
+		)
+		frame[i]:SetBackdropColor(0,0,0,1)
+		frame[i]:SetWidth(650)
+		frame[i]:SetHeight(900)
+		frame[i]:Hide()
+		frame[i]:SetFrameStrata("DIALOG")
 
-	local scrollArea = CreateFrame("ScrollFrame", "TranscriptorCopyScroll", frame, "UIPanelScrollFrameTemplate")
-	scrollArea:SetPoint("TOPLEFT", frame, "TOPLEFT", 8, -5)
-	scrollArea:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -30, 5)
+		local scrollArea = CreateFrame("ScrollFrame", "TranscriptorDevScrollArea"..i, frame[i], "UIPanelScrollFrameTemplate")
+		scrollArea:SetPoint("TOPLEFT", frame[i], "TOPLEFT", 8, -5)
+		scrollArea:SetPoint("BOTTOMRIGHT", frame[i], "BOTTOMRIGHT", -30, 5)
 
-	local editBox = CreateFrame("EditBox", "TranscriptorCopyBox", frame)
-	editBox:SetMultiLine(true)
-	editBox:SetMaxLetters(99999)
-	editBox:EnableMouse(true)
-	editBox:SetAutoFocus(false)
-	editBox:SetFontObject(ChatFontNormal)
-	editBox:SetWidth(620)
-	editBox:SetHeight(495)
-	editBox:SetScript("OnEscapePressed", function(f) f:GetParent():GetParent():Hide() f:SetText("") end)
+		editBox[i] = CreateFrame("EditBox", nil, frame[i])
+		editBox[i]:SetMultiLine(true)
+		editBox[i]:SetMaxLetters(99999)
+		editBox[i]:EnableMouse(true)
+		editBox[i]:SetAutoFocus(false)
+		editBox[i]:SetFontObject(ChatFontNormal)
+		editBox[i]:SetWidth(620)
+		editBox[i]:SetHeight(495)
+		editBox[i]:SetScript("OnEscapePressed", function(f) f:GetParent():GetParent():Hide() f:SetText("") end)
 
-	scrollArea:SetScrollChild(editBox)
+		scrollArea:SetScrollChild(editBox[i])
 
-	local close = CreateFrame("Button", "TranscriptorCloseButton", frame, "UIPanelCloseButton")
-	close:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0, 25)
+		local close = CreateFrame("Button", nil, frame[i], "UIPanelCloseButton")
+		close:SetPoint("TOPRIGHT", frame[i], "TOPRIGHT", 0, 25)
+	end
 
 	--/script Transcriptor.GetLogSpells()
 	Transcriptor.GetLogSpells = function()
@@ -209,8 +211,17 @@ do
 			text = format("%s[%d] = true, -- %s %s\n", text, id, name, summonTbl[id])
 		end
 
-		editBox:SetText(text)
-		frame:Show()
+		-- Display newly found spells for analysis
+		editBox[1]:SetText(text)
+		editBox[1]:HighlightText(true)
+		frame[1]:ClearAllPoints()
+		frame[1]:SetPoint("RIGHT", UIParent, "CENTER")
+		frame[1]:Show()
+
+		-- Display full blacklist for copying into Transcriptor
+		frame[2]:ClearAllPoints()
+		frame[2]:SetPoint("LEFT", UIParent, "CENTER")
+		frame[2]:Show()
 	end
 end
 
