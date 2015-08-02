@@ -2008,6 +2008,7 @@ do
 		[156064] = true, -- Greater Draenic Agility Flask
 		[156079] = true, -- Greater Draenic Intellect Flask
 		[156080] = true, -- Greater Draenic Strength Flask
+		[156989] = true, -- Liadrin's Righteousness
 		[156990] = true, -- Maraad's Truth
 		[159238] = true, -- Shattered Bleed
 		[160715] = true, -- Chains of Ice
@@ -2018,7 +2019,9 @@ do
 		[165822] = true, -- Haste
 		[165824] = true, -- Mastery
 		[165830] = true, -- Critical Strike
+		[165832] = true, -- Multistrike
 		[165833] = true, -- Versatility
+		[165889] = true, -- Righteous Determination
 		[166831] = true, -- Blazing Contempt
 		[169667] = true, -- Shield Charge
 		[170176] = true, -- Anguish
