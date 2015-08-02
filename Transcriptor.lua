@@ -119,6 +119,19 @@ do
 		editBox[i]:SetWidth(620)
 		editBox[i]:SetHeight(895)
 		editBox[i]:SetScript("OnEscapePressed", function(f) f:GetParent():GetParent():Hide() f:SetText("") end)
+		if i == 1 then
+			editBox[i]:SetScript("OnHyperlinkLeave", GameTooltip_Hide)
+			editBox[i]:SetScript("OnHyperlinkEnter", function(self, link, text, hyperlinkButton) 
+				if link and link:find("spell", nil, true) then
+					local spellId = link:match("(%d+)")
+					if spellId then
+						GameTooltip:SetOwner(hyperlinkButton, "ANCHOR_RIGHT")
+						GameTooltip:SetSpellByID(spellId)
+					end
+				end
+			end)
+			editBox[i]:SetHyperlinksEnabled(true)
+		end
 
 		scrollArea:SetScrollChild(editBox[i])
 
@@ -218,7 +231,6 @@ do
 
 		-- Display newly found spells for analysis
 		editBox[1]:SetText(text)
-		editBox[1]:HighlightText(true)
 		frame[1]:ClearAllPoints()
 		frame[1]:SetPoint("RIGHT", UIParent, "CENTER")
 		frame[1]:Show()
@@ -239,7 +251,6 @@ do
 		text = text.. "}"
 		-- Display full blacklist for copying into Transcriptor
 		editBox[2]:SetText(text)
-		editBox[2]:HighlightText(true)
 		frame[2]:ClearAllPoints()
 		frame[2]:SetPoint("LEFT", UIParent, "CENTER")
 		frame[2]:Show()
