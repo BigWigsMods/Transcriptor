@@ -139,8 +139,7 @@ do
 		close:SetPoint("TOPRIGHT", frame[i], "TOPRIGHT", 0, 25)
 	end
 
-	--/script Transcriptor.GetLogSpells()
-	Transcriptor.GetLogSpells = function()
+	local function GetLogSpells()
 		if InCombatLockdown() or UnitAffectingCombat("player") then return end
 
 		local total, totalSorted = {}, {}
@@ -152,12 +151,15 @@ do
 			[180413] = true, -- Heart Seeker (Kilrogg Deadeye)
 			[181488] = true, -- Vision of Death (Kilrogg Deadeye)
 			[182008] = true, -- Latent Energy
+			[183963] = true, -- Light of the Naaru (Archimonde)
+			[184450] = true, -- Mark of the Necromancer (Hellfire High Council)
 			[185656] = true, -- Shadowfel Annihilation
+			[187344] = true, -- Phantasmal Cremation (Shadow-Lord Iskar)
+			[187668] = true, -- Mark of Kazzak (Supreme Lord Kazzak)
 			[189030] = true, -- Befouled
 			[189031] = true, -- Befouled
 			[189032] = true, -- Befouled
 		}
-		-- XXX WIP
 		for logName, logTbl in next, TranscriptDB do
 			if type(logTbl) == "table" and logTbl.total then
 				for i=1, #logTbl.total do
@@ -166,7 +168,7 @@ do
 					-- AURA
 					local name, tarName, id, spellName = text:match("SPELL_AURA_[^#]+#P[le][at][^#]+#([^#]+)#[^#]+#([^#]+)#(%d+)#([^#]+)#")
 					id = tonumber(id)
-					if id and not ignoreList[id] and not badPlayerSpellList[id] and not total[id] and #aurasSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
+					if id and not ignoreList[id] and not badPlayerSpellList[id] and not playerSpellBlacklist[id] and not total[id] and #aurasSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
 						if name == tarName then
 							auraTbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .." >> ".. tarName:gsub("%-.+", "*") .."|r"
 						else
@@ -179,7 +181,7 @@ do
 					-- CAST
 					name, tarName, id, spellName = text:match("SPELL_CAST_[^#]+#P[le][at][^#]+#([^#]+)#[^#]+#([^#]+)#(%d+)#([^#]+)#")
 					id = tonumber(id)
-					if id and not ignoreList[id] and not badPlayerSpellList[id] and not total[id] and #castsSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
+					if id and not ignoreList[id] and not badPlayerSpellList[id] and not playerSpellBlacklist[id] and not total[id] and #castsSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
 						if name == tarName then
 							castTbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .." >> ".. tarName:gsub("%-.+", "*") .."|r"
 						else
@@ -192,7 +194,7 @@ do
 					-- SUMMON
 					name, tarName, id, spellName = text:match("SPELL_SUMMON#P[le][at][^#]+#([^#]+)#[^#]+#([^#]+)#(%d+)#([^#]+)#")
 					id = tonumber(id)
-					if id and not ignoreList[id] and not badPlayerSpellList[id] and not total[id] and #summonSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
+					if id and not ignoreList[id] and not badPlayerSpellList[id] and not playerSpellBlacklist[id] and not total[id] and #summonSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
 						if name == tarName then
 							summonTbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .." >> ".. tarName:gsub("%-.+", "*") .."|r"
 						else
@@ -255,6 +257,8 @@ do
 		frame[2]:SetPoint("LEFT", UIParent, "CENTER")
 		frame[2]:Show()
 	end
+	SlashCmdList["GETSPELLS"] = GetLogSpells
+	SLASH_GETSPELLS1 = "/getspells"
 end
 
 --------------------------------------------------------------------------------
@@ -372,127 +376,6 @@ sh.WORLD_STATE_UI_TIMER_UPDATE = sh.UPDATE_WORLD_STATES
 do
 	-- XXX spellbook is being removed
 	badPlayerSpellList = {
-		-- DRUID, updated 6.2.0 LIVE
-		[102401] = "Wild Charge",
-		[22842] = "Frenzied Regeneration",
-		[1079] = "Rip",
-		[119467] = "Battle Pet Training",
-		[90265] = "Master Riding",
-		[774] = "Rejuvenation",
-		[6795] = "Growl",
-		[131231] = "Path of the Scarlet Blade",
-		[106839] = "Skull Bash",
-		[113043] = "Omen of Clarity",
-		[165374] = "Naturalist",
-		[2908] = "Soothe",
-		[48500] = "Living Seed",
-		[131232] = "Path of the Necromancer",
-		[157283] = "Enhanced Tooth and Claw",
-		[2782] = "Remove Corruption",
-		[5215] = "Prowl",
-		[783] = "Travel Form",
-		[175682] = "Typhoon",
-		[16864] = "Omen of Clarity",
-		[68978] = "Flayer",
-		[175683] = "Mighty Bash",
-		[157284] = "Empowered Berserk",
-		[157286] = "Enhanced Faerie Fire",
-		[33745] = "Lacerate",
-		[6807] = "Maul",
-		[18562] = "Swiftmend",
-		[2912] = "Starfire",
-		[5221] = "Shred",
-		[115913] = "Wisdom of the Four Winds",
-		[90267] = "Flight Master's License",
-		[768] = "Cat Form",
-		[79742] = "Languages",
-		[8936] = "Regrowth",
-		[165962] = "Flight Form",
-		[88423] = "Nature's Cure",
-		[106952] = "Berserk",
-		[145205] = "Wild Mushroom",
-		[169605] = "Dragoon",
-		[102342] = "Ironbark",
-		[145518] = "Genesis",
-		[158477] = "Soul of the Forest",
-		[165372] = "Sharpened Claws",
-		[131204] = "Path of the Jade Serpent",
-		[80313] = "Pulverize",
-		[125439] = "Revive Battle Pets",
-		[48438] = "Wild Growth",
-		[17007] = "Leader of the Pack",
-		[5217] = "Tiger's Fury",
-		[106785] = "Swipe",
-		[83950] = "The Quick and the Dead",
-		[131205] = "Path of the Stout Brew",
-		[5487] = "Bear Form",
-		[78674] = "Starsurge",
-		[68996] = "Two Forms",
-		[132158] = "Nature's Swiftness",
-		[33917] = "Mangle",
-		[54197] = "Cold Weather Flying",
-		[93399] = "Shooting Stars",
-		[76275] = "Armor Skills",
-		[87840] = "Running Wild",
-		[106898] = "Stampeding Roar",
-		[179333] = "Nature's Bounty",
-		[770] = "Faerie Fire",
-		[165386] = "Lunar Guidance",
-		[5176] = "Wrath",
-		[33786] = "Cyclone",
-		[1850] = "Dash",
-		[78633] = "Mount Up",
-		[127663] = "Astral Communion",
-		[79577] = "Eclipse",
-		[33605] = "Astral Showers",
-		[18960] = "Teleport: Moonglade",
-		[52610] = "Savage Roar",
-		[48505] = "Starfall",
-		[20484] = "Rebirth",
-		[16914] = "Hurricane",
-		[83958] = "Mobile Banking",
-		[76300] = "Weapon Skills",
-		[112071] = "Celestial Alignment",
-		[102351] = "Cenarion Ward",
-		[83944] = "Hasty Hearth",
-		[339] = "Entangling Roots",
-		[5185] = "Healing Touch",
-		[131225] = "Path of the Setting Sun",
-		[135288] = "Tooth and Claw",
-		[157292] = "Empowered Bear Form",
-		[165387] = "Survival of the Fittest",
-		[158298] = "Resolve",
-		[50769] = "Revive",
-		[159286] = "Primal Fury",
-		[740] = "Tranquility",
-		[33763] = "Lifebloom",
-		[106832] = "Thrash",
-		[88747] = "Wild Mushroom",
-		[8921] = "Moonfire",
-		[61336] = "Survival Instincts",
-		[1822] = "Rake",
-		[124974] = "Nature's Vigil",
-		[68975] = "Viciousness",
-		[131206] = "Path of the Shado-Pan",
-		[131222] = "Path of the Mogu King",
-		[83968] = "Mass Resurrection",
-		[161691] = "Garrison Ability",
-		[22812] = "Barkskin",
-		[78675] = "Solar Beam",
-		[16974] = "Predatory Swiftness",
-		[1126] = "Mark of the Wild",
-		[131228] = "Path of the Black Ox",
-		[22568] = "Ferocious Bite",
-		[22570] = "Maim",
-		[24858] = "Moonkin Form",
-		[159232] = "Ursa Major",
-		[83951] = "Guild Mail",
-		[62606] = "Savage Defense",
-		[68976] = "Aberration",
-		[131229] = "Path of the Scarlet Mitre",
-		[68992] = "Darkflight",
-		[6603] = "Auto Attack",
-
 		-- WARRIOR, updated 6.2.0 LIVE
 		[3411] = "Intervene",
 		[118038] = "Die by the Sword",
@@ -2031,7 +1914,101 @@ do
 		[58834] = "Mirror Image",
 	}
 	playerSpellBlacklist = {
-	
+		[2818] = true, -- Deadly Poison
+		[3409] = true, -- Crippling Poison
+		[5211] = true, -- Mighty Bash
+		[6789] = true, -- Mortal Coil
+		[15571] = true, -- Dazed
+		[16591] = true, -- Noggenfogger Elixir
+		[16593] = true, -- Noggenfogger Elixir
+		[16739] = true, -- Orb of Deception
+		[17735] = true, -- Suffering
+		[31803] = true, -- Censure
+		[33649] = true, -- Rage of the Unraveller
+		[51714] = true, -- Razorice
+		[58180] = true, -- Infected Wounds
+		[59544] = true, -- Gift of the Naaru
+		[60229] = true, -- Strength
+		[60234] = true, -- Intellect
+		[63058] = true, -- Glyph of Barkskin
+		[64695] = true, -- Earthgrab
+		[75531] = true, -- Gnomeregan Pride
+		[77505] = true, -- Earthquake
+		[77764] = true, -- Stampeding Roar
+		[80396] = true, -- Illusion
+		[84721] = true, -- Frozen Orb
+		[90628] = true, -- Guild Battle Standard
+		[91797] = true, -- Monstrous Blow
+		[91807] = true, -- Shambling Rush
+		[102558] = true, -- Incarnation: Son of Ursoc
+		[111685] = true, -- Summon Infernal
+		[114108] = true, -- Soul of the Forest
+		[114916] = true, -- Execution Sentence
+		[115196] = true, -- Debilitating Poison
+		[115236] = true, -- Void Shield
+		[115317] = true, -- Raging Wind
+		[115687] = true, -- Jab
+		[115698] = true, -- Jab
+		[116095] = true, -- Disable
+		[118253] = true, -- Serpent Sting
+		[122233] = true, -- Crimson Tempest
+		[122998] = true, -- Arcane Language
+		[126554] = true, -- Agile
+		[126582] = true, -- Unwavering Might
+		[127230] = true, -- Visions of Insanity
+		[133630] = true, -- Exquisite Proficiency
+		[135601] = true, -- Tooth and Claw
+		[136494] = true, -- Word of Glory
+		[145152] = true, -- Bloodtalons
+		[145162] = true, -- Dream of Cenarius
+		[152116] = true, -- Saving Grace
+		[152150] = true, -- Death from Above
+		[155274] = true, -- Saving Grace
+		[155722] = true, -- Rake
+		[156064] = true, -- Greater Draenic Agility Flask
+		[156079] = true, -- Greater Draenic Intellect Flask
+		[156080] = true, -- Greater Draenic Strength Flask
+		[156990] = true, -- Maraad's Truth
+		[159238] = true, -- Shattered Bleed
+		[160715] = true, -- Chains of Ice
+		[161767] = true, -- Guardian Orb
+		[162075] = true, -- Artillery Strike
+		[165485] = true, -- Mastery
+		[165822] = true, -- Haste
+		[165824] = true, -- Mastery
+		[165830] = true, -- Critical Strike
+		[166831] = true, -- Blazing Contempt
+		[169667] = true, -- Shield Charge
+		[170176] = true, -- Anguish
+		[171130] = true, -- Penance
+		[171745] = true, -- Claws of Shirvallah
+		[173983] = true, -- Nagrand Wolf Guardian
+		[175790] = true, -- Draenic Swiftness Potion
+		[176151] = true, -- Whispers of Insanity
+		[176876] = true, -- Vision of the Cyclops
+		[176974] = true, -- Mote of the Mountain
+		[176980] = true, -- Heart of the Fury
+		[177103] = true, -- Cracks!
+		[178776] = true, -- Rune of Power
+		[178857] = true, -- Contender
+		[178858] = true, -- Contender
+		[180745] = true, -- Well Fed
+		[180748] = true, -- Well Fed
+		[180749] = true, -- Well Fed
+		[180750] = true, -- Well Fed
+		[182059] = true, -- Surge of Conquest
+		[182067] = true, -- Surge of Dominance
+		[182073] = true, -- Rapid Adaptation
+		[182226] = true, -- Bladebone Hook
+		[184073] = true, -- Mark of Doom
+		[185229] = true, -- Flamelicked
+		[188117] = true, -- Tyrande Whisperwind
+		[188217] = true, -- Jaina Proudmoore
+		[188280] = true, -- Sylvanas Windrunner
+		[188289] = true, -- Prince Arthas Menethil
+		[189325] = true, -- King of the Jungle
+		[190632] = true, -- Trailblazer
+		[190640] = true, -- Saberstalkers Standard
 	}
 	local badSourcelessPlayerSpellList = {
 		[145629] = "Anti-Magic Zone",
