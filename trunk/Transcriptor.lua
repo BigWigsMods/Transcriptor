@@ -121,11 +121,11 @@ do
 		editBox[i]:SetScript("OnEscapePressed", function(f) f:GetParent():GetParent():Hide() f:SetText("") end)
 		if i == 1 then
 			editBox[i]:SetScript("OnHyperlinkLeave", GameTooltip_Hide)
-			editBox[i]:SetScript("OnHyperlinkEnter", function(self, link, text, hyperlinkButton) 
+			editBox[i]:SetScript("OnHyperlinkEnter", function(self, link, text) 
 				if link and link:find("spell", nil, true) then
 					local spellId = link:match("(%d+)")
 					if spellId then
-						GameTooltip:SetOwner(hyperlinkButton, "ANCHOR_RIGHT")
+						GameTooltip:SetOwner(frame[i], "ANCHOR_LEFT", 0, -500)
 						GameTooltip:SetSpellByID(spellId)
 					end
 				end
@@ -166,7 +166,7 @@ do
 					-- AURA
 					local name, tarName, id, spellName = text:match("SPELL_AURA_[^#]+#P[le][at][^#]+#([^#]+)#[^#]+#([^#]+)#(%d+)#([^#]+)#")
 					id = tonumber(id)
-					if id and not ignoreList[id] and not badPlayerSpellList[id] and not total[id] then -- Check total to avoid duplicates
+					if id and not ignoreList[id] and not badPlayerSpellList[id] and not total[id] and #aurasSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
 						if name == tarName then
 							auraTbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .." >> ".. tarName:gsub("%-.+", "*") .."|r"
 						else
@@ -179,7 +179,7 @@ do
 					-- CAST
 					name, tarName, id, spellName = text:match("SPELL_CAST_[^#]+#P[le][at][^#]+#([^#]+)#[^#]+#([^#]+)#(%d+)#([^#]+)#")
 					id = tonumber(id)
-					if id and not ignoreList[id] and not badPlayerSpellList[id] and not total[id] then -- Check total to avoid duplicates
+					if id and not ignoreList[id] and not badPlayerSpellList[id] and not total[id] and #castsSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
 						if name == tarName then
 							castTbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .." >> ".. tarName:gsub("%-.+", "*") .."|r"
 						else
@@ -192,7 +192,7 @@ do
 					-- SUMMON
 					name, tarName, id, spellName = text:match("SPELL_SUMMON#P[le][at][^#]+#([^#]+)#[^#]+#([^#]+)#(%d+)#([^#]+)#")
 					id = tonumber(id)
-					if id and not ignoreList[id] and not badPlayerSpellList[id] and not total[id] then -- Check total to avoid duplicates
+					if id and not ignoreList[id] and not badPlayerSpellList[id] and not total[id] and #summonSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
 						if name == tarName then
 							summonTbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .." >> ".. tarName:gsub("%-.+", "*") .."|r"
 						else
@@ -210,7 +210,7 @@ do
 		for i = 1, #aurasSorted do
 			local id = aurasSorted[i]
 			local name = GetSpellInfo(id)
-			text = format("%s|Hspell:%d|h%d|h || |cFFFFFF00|Hspell:%d|h%s|h|r || %s\n", text, id, id, id, name, auraTbl[id])
+			text = format("%s%d || |cFFFFFF00|Hspell:%d|h%s|h|r || %s\n", text, id, id, name, auraTbl[id])
 		end
 
 		sort(castsSorted)
@@ -218,7 +218,7 @@ do
 		for i = 1, #castsSorted do
 			local id = castsSorted[i]
 			local name = GetSpellInfo(id)
-			text = format("%s|Hspell:%d|h%d|h || |cFFFFFF00|Hspell:%d|h%s|h|r || %s\n", text, id, id, id, name, castTbl[id])
+			text = format("%s%d || |cFFFFFF00|Hspell:%d|h%s|h|r || %s\n", text, id, id, name, castTbl[id])
 		end
 
 		sort(summonSorted)
@@ -226,7 +226,7 @@ do
 		for i = 1, #summonSorted do
 			local id = summonSorted[i]
 			local name = GetSpellInfo(id)
-			text = format("%s|Hspell:%d|h%d|h || |cFFFFFF00|Hspell:%d|h%s|h|r || %s\n", text, id, id, id, name, summonTbl[id])
+			text = format("%s%d || |cFFFFFF00|Hspell:%d|h%s|h|r || %s\n", text, id, id, name, summonTbl[id])
 		end
 
 		-- Display newly found spells for analysis
