@@ -148,6 +148,7 @@ do
 			[180247] = true, -- Gather Felfire Munitions (Hellfire Assault)
 			[180410] = true, -- Heart Seeker (Kilrogg Deadeye)
 			[180413] = true, -- Heart Seeker (Kilrogg Deadeye)
+			[181102] = true, -- Mark Eruption (Mannoroth)
 			[181488] = true, -- Vision of Death (Kilrogg Deadeye)
 			[182008] = true, -- Latent Energy
 			[183963] = true, -- Light of the Naaru (Archimonde)
