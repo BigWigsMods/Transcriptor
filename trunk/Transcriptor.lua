@@ -161,6 +161,8 @@ do
 			[189030] = true, -- Befouled
 			[189031] = true, -- Befouled
 			[189032] = true, -- Befouled
+			[189559] = true, -- Carrion Swarm (Korvos, Hellfire Citadel trash)
+			[189565] = true, -- Torpor (Korvos, Hellfire Citadel trash)
 			[190466] = true, -- Incomplete Binding (Socrethar the Eternal)
 		}
 		for logName, logTbl in next, TranscriptDB do
@@ -169,39 +171,42 @@ do
 					local text = logTbl.total[i]
 
 					-- AURA
-					local name, tarName, id, spellName = text:match("SPELL_AURA_[^#]+#P[le][at][^#]+#([^#]+)#[^#]+#([^#]+)#(%d+)#([^#]+)#")
+					local name, destGUID, tarName, id, spellName = text:match("SPELL_AURA_[^#]+#P[le][at][^#]+#([^#]+)#([^#]+)#([^#]+)#(%d+)#([^#]+)#")
 					id = tonumber(id)
+					local trim = destGUID and destGUID:find("^P[le][at]")
 					if id and not ignoreList[id] and not badPlayerSpellList[id] and not playerSpellBlacklist[id] and not total[id] and #aurasSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
 						if name == tarName then
-							auraTbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .." >> ".. tarName:gsub("%-.+", "*") .."|r"
+							auraTbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .." >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."|r"
 						else
-							auraTbl[id] = "|cFF3ADF00".. name:gsub("%-.+", "*") .." >> ".. tarName:gsub("%-.+", "*") .."|r"
+							auraTbl[id] = "|cFF3ADF00".. name:gsub("%-.+", "*") .." >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."|r"
 						end
 						total[id] = true
 						aurasSorted[#aurasSorted+1] = id
 					end
 
 					-- CAST
-					name, tarName, id, spellName = text:match("SPELL_CAST_[^#]+#P[le][at][^#]+#([^#]+)#[^#]+#([^#]+)#(%d+)#([^#]+)#")
+					name, destGUID, tarName, id, spellName = text:match("SPELL_CAST_[^#]+#P[le][at][^#]+#([^#]+)#([^#]+)#([^#]+)#(%d+)#([^#]+)#")
 					id = tonumber(id)
+					local trim = destGUID and destGUID:find("^P[le][at]")
 					if id and not ignoreList[id] and not badPlayerSpellList[id] and not playerSpellBlacklist[id] and not total[id] and #castsSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
 						if name == tarName then
-							castTbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .." >> ".. tarName:gsub("%-.+", "*") .."|r"
+							castTbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .." >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."|r"
 						else
-							castTbl[id] = "|cFF3ADF00".. name:gsub("%-.+", "*") .." >> ".. tarName:gsub("%-.+", "*") .."|r"
+							castTbl[id] = "|cFF3ADF00".. name:gsub("%-.+", "*") .." >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."|r"
 						end
 						total[id] = true
 						castsSorted[#castsSorted+1] = id
 					end
 
 					-- SUMMON
-					name, tarName, id, spellName = text:match("SPELL_SUMMON#P[le][at][^#]+#([^#]+)#[^#]+#([^#]+)#(%d+)#([^#]+)#")
+					name, destGUID, tarName, id, spellName = text:match("SPELL_SUMMON#P[le][at][^#]+#([^#]+)#([^#]+)#([^#]+)#(%d+)#([^#]+)#")
 					id = tonumber(id)
+					local trim = destGUID and destGUID:find("^P[le][at]")
 					if id and not ignoreList[id] and not badPlayerSpellList[id] and not playerSpellBlacklist[id] and not total[id] and #summonSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
 						if name == tarName then
-							summonTbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .." >> ".. tarName:gsub("%-.+", "*") .."|r"
+							summonTbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .." >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."|r"
 						else
-							summonTbl[id] = "|cFF3ADF00".. name:gsub("%-.+", "*") .." >> ".. tarName:gsub("%-.+", "*") .."|r"
+							summonTbl[id] = "|cFF3ADF00".. name:gsub("%-.+", "*") .." >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."|r"
 						end
 						total[id] = true
 						summonSorted[#summonSorted+1] = id
@@ -1114,17 +1119,21 @@ do
 	playerSpellBlacklist = {
 		[10] = true, -- Blizzard
 		[17] = true, -- Power Word: Shield
+		[53] = true, -- Backstab
 		[66] = true, -- Invisibility
 		[71] = true, -- Defensive Stance
 		[78] = true, -- Heroic Strike
 		[100] = true, -- Charge
 		[116] = true, -- Frostbolt
+		[120] = true, -- Cone of Cold
+		[122] = true, -- Frost Nova
 		[136] = true, -- Mend Pet
 		[172] = true, -- Corruption
 		[348] = true, -- Immolate
 		[355] = true, -- Taunt
 		[370] = true, -- Purge
 		[403] = true, -- Lightning Bolt
+		[408] = true, -- Kidney Shot
 		[421] = true, -- Chain Lightning
 		[469] = true, -- Commanding Shout
 		[475] = true, -- Remove Curse
@@ -1146,6 +1155,7 @@ do
 		[770] = true, -- Faerie Fire
 		[772] = true, -- Rend
 		[774] = true, -- Rejuvenation
+		[853] = true, -- Hammer of Justice
 		[871] = true, -- Shield Wall
 		[879] = true, -- Exorcism
 		[883] = true, -- Call Pet 1
@@ -1166,6 +1176,7 @@ do
 		[1776] = true, -- Gouge
 		[1784] = true, -- Stealth
 		[1822] = true, -- Rake
+		[1833] = true, -- Cheap Shot
 		[1850] = true, -- Dash
 		[1943] = true, -- Rupture
 		[1953] = true, -- Blink
@@ -1174,18 +1185,21 @@ do
 		[2061] = true, -- Flash Heal
 		[2062] = true, -- Earth Elemental Totem
 		[2098] = true, -- Eviscerate
+		[2120] = true, -- Flamestrike
 		[2139] = true, -- Counterspell
 		[2457] = true, -- Battle Stance
 		[2484] = true, -- Earthbind Totem
 		[2649] = true, -- Growl
 		[2812] = true, -- Denounce
 		[2818] = true, -- Deadly Poison
+		[2823] = true, -- Deadly Poison
 		[2912] = true, -- Starfire
 		[2944] = true, -- Devouring Plague
 		[2948] = true, -- Scorch
 		[2983] = true, -- Sprint
 		[3044] = true, -- Arcane Shot
 		[3045] = true, -- Rapid Fire
+		[3110] = true, -- Firebolt
 		[3408] = true, -- Crippling Poison
 		[3409] = true, -- Crippling Poison
 		[3411] = true, -- Intervene
@@ -1201,6 +1215,7 @@ do
 		[5215] = true, -- Prowl
 		[5217] = true, -- Tiger's Fury
 		[5221] = true, -- Shred
+		[5225] = true, -- Track Humanoids
 		[5277] = true, -- Evasion
 		[5308] = true, -- Execute
 		[5394] = true, -- Healing Stream Totem
@@ -1217,6 +1232,7 @@ do
 		[6940] = true, -- Hand of Sacrifice
 		[7001] = true, -- Lightwell Renew
 		[7321] = true, -- Chilled
+		[7870] = true, -- Lesser Invisibility
 		[8004] = true, -- Healing Surge
 		[8042] = true, -- Earth Shock
 		[8092] = true, -- Mind Blast
@@ -1274,13 +1290,17 @@ do
 		[20736] = true, -- Distracting Shot
 		[21562] = true, -- Power Word: Fortitude
 		[22568] = true, -- Ferocious Bite
+		[22703] = true, -- Infernal Awakening
 		[22812] = true, -- Barkskin
 		[23161] = true, -- Dreadsteed
 		[23881] = true, -- Bloodthirst
 		[23920] = true, -- Spell Reflection
 		[23922] = true, -- Shield Slam
 		[24275] = true, -- Hammer of Wrath
+		[24394] = true, -- Intimidation
 		[24858] = true, -- Moonkin Form
+		[26679] = true, -- Deadly Throw
+		[27243] = true, -- Seed of Corruption
 		[28880] = true, -- Gift of the Naaru
 		[29722] = true, -- Incinerate
 		[30108] = true, -- Unstable Affliction
@@ -1318,12 +1338,14 @@ do
 		[44425] = true, -- Arcane Barrage
 		[44572] = true, -- Deep Freeze
 		[44614] = true, -- Frostfire Bolt
+		[45334] = true, -- Immobilized
 		[45438] = true, -- Ice Block
 		[45462] = true, -- Plague Strike
 		[45477] = true, -- Icy Touch
 		[45524] = true, -- Chains of Ice
 		[47528] = true, -- Mind Freeze
 		[47541] = true, -- Death Coil
+		[47585] = true, -- Dispersion
 		[47960] = true, -- Hand of Gul'dan
 		[48018] = true, -- Demonic Circle: Summon
 		[48020] = true, -- Demonic Circle: Teleport
@@ -1338,9 +1360,12 @@ do
 		[49576] = true, -- Death Grip
 		[49998] = true, -- Death Strike
 		[50435] = true, -- Chilblains
+		[50769] = true, -- Revive
 		[51271] = true, -- Pillar of Frost
+		[51490] = true, -- Thunderstorm
 		[51505] = true, -- Lava Burst
 		[51690] = true, -- Killing Spree
+		[51713] = true, -- Shadow Dance
 		[51714] = true, -- Razorice
 		[52127] = true, -- Water Shield
 		[52610] = true, -- Savage Roar
@@ -1355,6 +1380,7 @@ do
 		[54680] = true, -- Monstrous Bite
 		[54861] = true, -- Nitro Boosts
 		[55090] = true, -- Scourge Strike
+		[56222] = true, -- Dark Command
 		[56641] = true, -- Steady Shot
 		[57330] = true, -- Horn of Winter
 		[57755] = true, -- Heroic Throw
@@ -1374,6 +1400,7 @@ do
 		[61295] = true, -- Riptide
 		[61316] = true, -- Dalaran Brilliance
 		[61336] = true, -- Survival Instincts
+		[61685] = true, -- Charge
 		[62124] = true, -- Reckoning
 		[62305] = true, -- Master's Call
 		[63058] = true, -- Glyph of Barkskin
@@ -1388,6 +1415,7 @@ do
 		[73685] = true, -- Unleash Life
 		[74434] = true, -- Soulburn
 		[75531] = true, -- Gnomeregan Pride
+		[77130] = true, -- Purify Spirit
 		[77472] = true, -- Healing Wave
 		[77505] = true, -- Earthquake
 		[77575] = true, -- Outbreak
@@ -1441,6 +1469,7 @@ do
 		[102342] = true, -- Ironbark
 		[102351] = true, -- Cenarion Ward
 		[102558] = true, -- Incarnation: Son of Ursoc
+		[102693] = true, -- Force of Nature
 		[103103] = true, -- Drain Soul
 		[103958] = true, -- Metamorphosis
 		[103964] = true, -- Touch of Chaos
@@ -1455,6 +1484,7 @@ do
 		[107428] = true, -- Rising Sun Kick
 		[108269] = true, -- Capacitor Totem
 		[108280] = true, -- Healing Tide Totem
+		[108287] = true, -- Totemic Projection
 		[108293] = true, -- Heart of the Wild
 		[108508] = true, -- Mannoroth's Fury
 		[108683] = true, -- Fire and Brimstone
@@ -1466,6 +1496,8 @@ do
 		[112048] = true, -- Shield Barrier
 		[112071] = true, -- Celestial Alignment
 		[112870] = true, -- Summon Wrathguard
+		[112922] = true, -- Summon Abyssal
+		[112947] = true, -- Nerve Strike
 		[112948] = true, -- Frost Bomb
 		[113656] = true, -- Fists of Fury
 		[113742] = true, -- Swiftblade's Cunning
@@ -1489,6 +1521,7 @@ do
 		[115176] = true, -- Zen Meditation
 		[115196] = true, -- Debilitating Poison
 		[115236] = true, -- Void Shield
+		[115268] = true, -- Mesmerize
 		[115294] = true, -- Mana Tea
 		[115295] = true, -- Guard
 		[115308] = true, -- Elusive Brew
@@ -1498,6 +1531,7 @@ do
 		[115625] = true, -- Mortal Cleave
 		[115687] = true, -- Jab
 		[115698] = true, -- Jab
+		[115748] = true, -- Bladedance
 		[115921] = true, -- Legacy of the Emperor
 		[116095] = true, -- Disable
 		[116189] = true, -- Provoke
@@ -1513,6 +1547,8 @@ do
 		[118253] = true, -- Serpent Sting
 		[119072] = true, -- Holy Wrath
 		[120679] = true, -- Dire Beast
+		[120761] = true, -- Glaive Toss
+		[121414] = true, -- Glaive Toss
 		[122233] = true, -- Crimson Tempest
 		[122355] = true, -- Molten Core
 		[122998] = true, -- Arcane Language
@@ -1550,6 +1586,7 @@ do
 		[154436] = true, -- Stance of the Spirited Crane
 		[154796] = true, -- Touch of Elune - Day
 		[154797] = true, -- Touch of Elune - Night
+		[154953] = true, -- Internal Bleeding
 		[155158] = true, -- Meteor Burn
 		[155274] = true, -- Saving Grace
 		[155522] = true, -- Power of the Grave
@@ -1558,6 +1595,7 @@ do
 		[156070] = true, -- Draenic Intellect Flask
 		[156079] = true, -- Greater Draenic Intellect Flask
 		[156080] = true, -- Greater Draenic Strength Flask
+		[156291] = true, -- Gladiator Stance
 		[156321] = true, -- Shield Charge
 		[156779] = true, -- Neural Silencer
 		[156989] = true, -- Liadrin's Righteousness
@@ -1571,11 +1609,16 @@ do
 		[159546] = true, -- Glyph of Zen Focus
 		[160039] = true, -- Keen Senses
 		[160198] = true, -- Lone Wolf: Grace of the Cat
+		[160199] = true, -- Lone Wolf: Fortitude of the Bear
 		[160205] = true, -- Lone Wolf: Wisdom of the Serpent
 		[160206] = true, -- Lone Wolf: Power of the Primates
 		[160715] = true, -- Chains of Ice
+		[160726] = true, -- Well Fed
+		[160832] = true, -- Well Fed
 		[160889] = true, -- Well Fed
 		[160897] = true, -- Well Fed
+		[160900] = true, -- Well Fed
+		[161414] = true, -- Blingtron 5000
 		[161676] = true, -- Call to Arms
 		[161678] = true, -- Call to Arms
 		[161679] = true, -- Call to Arms
@@ -1583,6 +1626,7 @@ do
 		[161930] = true, -- Call to Arms
 		[161931] = true, -- Call to Arms
 		[162075] = true, -- Artillery Strike
+		[162359] = true, -- Genesis
 		[162537] = true, -- Poisoned Ammo
 		[162543] = true, -- Poisoned Ammo
 		[162913] = true, -- Visions of the Future
@@ -1606,12 +1650,14 @@ do
 		[166057] = true, -- Biting Cold
 		[166361] = true, -- Pride
 		[166592] = true, -- Vindicator's Armor Polish Kit
+		[166638] = true, -- Gushing Wound
 		[166831] = true, -- Blazing Contempt
 		[166928] = true, -- Blood Pact
 		[167105] = true, -- Colossus Smash
 		[167135] = true, -- Bestial Wrath
 		[167188] = true, -- Inspiring Presence
 		[167205] = true, -- Focus of the Elements
+		[167608] = true, -- Mechashredder Custom Ride
 		[167703] = true, -- Harmony of the Elements
 		[168407] = true, -- Robo-Rooster
 		[168655] = true, -- Sticky Grenade
@@ -1634,6 +1680,7 @@ do
 		[173958] = true, -- Pirate Costume
 		[173959] = true, -- Pirate Costume
 		[173983] = true, -- Nagrand Wolf Guardian
+		[174018] = true, -- Pale Vision Potion
 		[174926] = true, -- Shield Barrier
 		[175753] = true, -- Mr. Pinchies
 		[175790] = true, -- Draenic Swiftness Potion
@@ -1666,6 +1713,7 @@ do
 		[180748] = true, -- Well Fed
 		[180749] = true, -- Well Fed
 		[180750] = true, -- Well Fed
+		[181201] = true, -- Gladiator's Distinction
 		[182059] = true, -- Surge of Conquest
 		[182062] = true, -- Surge of Victory
 		[182067] = true, -- Surge of Dominance
