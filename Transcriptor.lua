@@ -150,8 +150,9 @@ do
 			[180413] = true, -- Heart Seeker (Kilrogg Deadeye)
 			[181102] = true, -- Mark Eruption (Mannoroth)
 			[181488] = true, -- Vision of Death (Kilrogg Deadeye)
-			[182008] = true, -- Latent Energy
+			[182008] = true, -- Latent Energy (Fel Lord Zakuun)
 			[182038] = true, -- Shattered Defenses (Socrethar the Eternal)
+			[182218] = true, -- Felblaze Residue (Socrethar the Eternal)
 			[183963] = true, -- Light of the Naaru (Archimonde)
 			[184450] = true, -- Mark of the Necromancer (Hellfire High Council)
 			[185014] = true, -- Focused Chaos (Archimonde)
@@ -159,9 +160,9 @@ do
 			[186123] = true, -- Wrought Chaos (Archimonde)
 			[187344] = true, -- Phantasmal Cremation (Shadow-Lord Iskar)
 			[187668] = true, -- Mark of Kazzak (Supreme Lord Kazzak)
-			[189030] = true, -- Befouled
-			[189031] = true, -- Befouled
-			[189032] = true, -- Befouled
+			[189030] = true, -- Befouled (Fel Lord Zakuun)
+			[189031] = true, -- Befouled (Fel Lord Zakuun)
+			[189032] = true, -- Befouled (Fel Lord Zakuun)
 			[189559] = true, -- Carrion Swarm (Korvos, Hellfire Citadel trash)
 			[189565] = true, -- Torpor (Korvos, Hellfire Citadel trash)
 			[190466] = true, -- Incomplete Binding (Socrethar the Eternal)
@@ -1151,6 +1152,7 @@ do
 		[686] = true, -- Shadow Bolt
 		[689] = true, -- Drain Life
 		[691] = true, -- Summon Felhunter
+		[697] = true, -- Summon Voidwalker
 		[703] = true, -- Garrote
 		[724] = true, -- Lightwell
 		[740] = true, -- Tranquility
@@ -1265,6 +1267,7 @@ do
 		[12975] = true, -- Last Stand
 		[13750] = true, -- Adrenaline Rush
 		[13877] = true, -- Blade Flurry
+		[14183] = true, -- Premeditation
 		[15286] = true, -- Vampiric Embrace
 		[15473] = true, -- Shadowform
 		[15487] = true, -- Silence
@@ -1420,6 +1423,7 @@ do
 		[61316] = true, -- Dalaran Brilliance
 		[61336] = true, -- Survival Instincts
 		[61685] = true, -- Charge
+		[61999] = true, -- Raise Ally
 		[62124] = true, -- Reckoning
 		[62305] = true, -- Master's Call
 		[63058] = true, -- Glyph of Barkskin
@@ -1429,6 +1433,7 @@ do
 		[64695] = true, -- Earthgrab
 		[68992] = true, -- Darkflight
 		[72968] = true, -- Precious's Ribbon
+		[73325] = true, -- Leap of Faith
 		[73326] = true, -- Tabard of the Lightbringer
 		[73510] = true, -- Mind Spike
 		[73651] = true, -- Recuperate
@@ -1464,6 +1469,7 @@ do
 		[85288] = true, -- Raging Blow
 		[85673] = true, -- Word of Glory
 		[85948] = true, -- Festering Strike
+		[86121] = true, -- Soul Swap
 		[86659] = true, -- Guardian of Ancient Kings
 		[87194] = true, -- Glyph of Mind Blast
 		[87840] = true, -- Running Wild
@@ -1479,6 +1485,7 @@ do
 		[91021] = true, -- Find Weakness
 		[91760] = true, -- Endure the Transformation
 		[91797] = true, -- Monstrous Blow
+		[91800] = true, -- Gnaw
 		[91807] = true, -- Shambling Rush
 		[96231] = true, -- Rebuke
 		[96268] = true, -- Death's Advance
