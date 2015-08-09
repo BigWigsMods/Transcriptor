@@ -4,6 +4,7 @@ local revision = tonumber(("$Revision$"):sub(12, -3))
 
 local badPlayerSpellList
 local playerSpellBlacklist
+local badSourcelessPlayerSpellList
 
 local logName = nil
 local currentLog = nil
@@ -93,7 +94,7 @@ end
 do
 	-- Create UI spell display, copied from BasicChatMods
 	local frame, editBox = {}, {}
-	for i = 1, 2 do
+	for i = 1, 4 do
 		frame[i] = CreateFrame("Frame", nil, UIParent)
 		frame[i]:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
 			edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
@@ -102,7 +103,7 @@ do
 		)
 		frame[i]:SetBackdropColor(0,0,0,1)
 		frame[i]:SetWidth(650)
-		frame[i]:SetHeight(900)
+		frame[i]:SetHeight(450)
 		frame[i]:Hide()
 		frame[i]:SetFrameStrata("DIALOG")
 
@@ -116,9 +117,9 @@ do
 		editBox[i]:SetAutoFocus(false)
 		editBox[i]:SetFontObject(ChatFontNormal)
 		editBox[i]:SetWidth(620)
-		editBox[i]:SetHeight(895)
+		editBox[i]:SetHeight(450)
 		editBox[i]:SetScript("OnEscapePressed", function(f) f:GetParent():GetParent():Hide() f:SetText("") end)
-		if i == 1 then
+		if i % 2 ~= 0 then
 			editBox[i]:SetScript("OnHyperlinkLeave", GameTooltip_Hide)
 			editBox[i]:SetScript("OnHyperlinkEnter", function(self, link, text) 
 				if link and link:find("spell", nil, true) then
@@ -154,7 +155,7 @@ do
 			[182038] = true, -- Shattered Defenses (Socrethar the Eternal)
 			[182218] = true, -- Felblaze Residue (Socrethar the Eternal)
 			[183963] = true, -- Light of the Naaru (Archimonde)
-			[184450] = true, -- Mark of the Necromancer (Hellfire High Council)
+			[184450] = true, -- Mark of the Necromancer (Dia Darkwhisper - Hellfire High Council)
 			[185014] = true, -- Focused Chaos (Archimonde)
 			[185656] = true, -- Shadowfel Annihilation
 			[186123] = true, -- Wrought Chaos (Archimonde)
@@ -244,7 +245,7 @@ do
 		-- Display newly found spells for analysis
 		editBox[1]:SetText(text)
 		frame[1]:ClearAllPoints()
-		frame[1]:SetPoint("RIGHT", UIParent, "CENTER")
+		frame[1]:SetPoint("BOTTOMRIGHT", UIParent, "CENTER")
 		frame[1]:Show()
 
 		for k, v in next, playerSpellBlacklist do
@@ -263,8 +264,128 @@ do
 		-- Display full blacklist for copying into Transcriptor
 		editBox[2]:SetText(text)
 		frame[2]:ClearAllPoints()
-		frame[2]:SetPoint("LEFT", UIParent, "CENTER")
+		frame[2]:SetPoint("BOTTOMLEFT", UIParent, "CENTER")
 		frame[2]:Show()
+
+		---------------------------------------------------------------------------------
+		-- SOURCELESS
+		---------------------------------------------------------------------------------
+
+		total, totalSorted = {}, {}
+		auraTbl, castTbl, summonTbl = {}, {}, {}
+		aurasSorted, castsSorted, summonSorted = {}, {}, {}
+		ignoreList = {
+			[179202] = true, -- Eye of Anzu (Shadow-Lord Iskar)
+			[179908] = true, -- Shared Fate (Gorefiend)
+			[180079] = true, -- Felfire Munitions (Hellfire Assault)
+			[180164] = true, -- Touch of Harm (Tyrant Velhari)
+			[180270] = true, -- Shadow Globule (Kormrok)
+			[180575] = true, -- Fel Flames (Kilrogg Deadeye)
+			[181295] = true, -- Digest (Gorefiend)
+			[181653] = true, -- Fel Crystals (Fel Lord Zakuun)
+			[182159] = true, -- Fel Corruption (Kilrogg Deadeye)
+			[182600] = true, -- Fel Fire (Shadow-Lord Iskar)
+			[182879] = true, -- Doomfire Fixate (Archimonde)
+			[183586] = true, -- Doomfire (Archimonde)
+			[184396] = true, -- Fel Corruption (Kilrogg Deadeye)
+			[184398] = true, -- Fel Corruption (Kilrogg Deadeye)
+			[184652] = true, -- Reap (Dia Darkwhisper - Hellfire High Council)
+			[185065] = true, -- Mark of the Necromancer (Dia Darkwhisper - Hellfire High Council)
+			[185066] = true, -- Mark of the Necromancer (Dia Darkwhisper - Hellfire High Council)
+			[185239] = true, -- Radiance of Anzu (Shadow-Lord Iskar)
+			[185242] = true, -- Blitz (Iron Reaver)
+			[186046] = true, -- Solar Chakram (Shadow-Lord Iskar)
+			[186952] = true, -- Nether Banish (Archimonde)
+			[187255] = true, -- Nether Storm (Archimonde)
+			[188520] = true, -- Fel Sludge (Supreme Lord Kazzak, pools close by)
+			[188852] = true, -- Blood Splatter (Kilrogg Deadeye)
+			[189891] = true, -- Nether Tear (Archimonde)
+			[190341] = true, -- Nether Corruption (Archimonde)
+		}
+		for logName, logTbl in next, TranscriptDB do
+			if type(logTbl) == "table" and logTbl.total then
+				for i=1, #logTbl.total do
+					local text = logTbl.total[i]
+
+					-- AURA
+					local name, destGUID, tarName, id, spellName = text:match("SPELL_AURA_[AR][^#]+##([^#]+)#(P[le][at][^#]+)#([^#]+)#(%d+)#([^#]+)#") -- For sourceless we use SPELL_AURA_[AR] to filter _BROKEN which usually originates from NPCs
+					id = tonumber(id)
+					if name == "nil" and id and not ignoreList[id] and not badSourcelessPlayerSpellList[id] and not total[id] and #aurasSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
+						auraTbl[id] = tarName:gsub("%-.+", "*")
+						total[id] = true
+						aurasSorted[#aurasSorted+1] = id
+					end
+
+					-- CAST
+					name, destGUID, tarName, id, spellName = text:match("SPELL_CAST_[^#]+##([^#]+)#(P[le][at][^#]+)#([^#]+)#(%d+)#([^#]+)#")
+					id = tonumber(id)
+					if name == "nil" and id and not ignoreList[id] and not badSourcelessPlayerSpellList[id] and not total[id] and #castsSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
+						castTbl[id] = tarName:gsub("%-.+", "*")
+						total[id] = true
+						castsSorted[#castsSorted+1] = id
+					end
+
+					-- SUMMON
+					name, destGUID, tarName, id, spellName = text:match("SPELL_SUMMON##([^#]+)#(P[le][at][^#]+)#([^#]+)#(%d+)#([^#]+)#")
+					id = tonumber(id)
+					if name == "nil" and id and not ignoreList[id] and not badSourcelessPlayerSpellList[id] and not total[id] and #summonSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
+						summonTbl[id] = tarName:gsub("%-.+", "*")
+						total[id] = true
+						summonSorted[#summonSorted+1] = id
+					end
+				end
+			end
+		end
+
+		sort(aurasSorted)
+		local text = "-- AURAS\n"
+		for i = 1, #aurasSorted do
+			local id = aurasSorted[i]
+			local name = GetSpellInfo(id)
+			text = format("%s%d || |cFFFFFF00|Hspell:%d|h%s|h|r || %s\n", text, id, id, name, auraTbl[id])
+		end
+
+		sort(castsSorted)
+		text = text.. "\n-- CASTS\n"
+		for i = 1, #castsSorted do
+			local id = castsSorted[i]
+			local name = GetSpellInfo(id)
+			text = format("%s%d || |cFFFFFF00|Hspell:%d|h%s|h|r || %s\n", text, id, id, name, castTbl[id])
+		end
+
+		sort(summonSorted)
+		text = text.. "\n-- SUMMONS\n"
+		for i = 1, #summonSorted do
+			local id = summonSorted[i]
+			local name = GetSpellInfo(id)
+			text = format("%s%d || |cFFFFFF00|Hspell:%d|h%s|h|r || %s\n", text, id, id, name, summonTbl[id])
+		end
+
+		-- Display newly found spells for analysis
+		editBox[3]:SetText(text)
+		frame[3]:ClearAllPoints()
+		frame[3]:SetPoint("TOPRIGHT", UIParent, "CENTER")
+		frame[3]:Show()
+
+		for k, v in next, badSourcelessPlayerSpellList do
+			total[k] = true
+		end
+		for k, v in next, total do
+			totalSorted[#totalSorted+1] = k
+		end
+		sort(totalSorted)
+		text = ""
+		for i = 1, #totalSorted do
+			local id = totalSorted[i]
+			local name = GetSpellInfo(id)
+			text = format("%s[%d] = true, -- %s\n", text, id, name)
+		end
+
+		-- Display full blacklist for copying into Transcriptor
+		editBox[4]:SetText(text)
+		frame[4]:ClearAllPoints()
+		frame[4]:SetPoint("TOPLEFT", UIParent, "CENTER")
+		frame[4]:Show()
 	end
 	SlashCmdList["GETSPELLS"] = GetLogSpells
 	SLASH_GETSPELLS1 = "/getspells"
@@ -1367,6 +1488,7 @@ do
 		[47528] = true, -- Mind Freeze
 		[47541] = true, -- Death Coil
 		[47585] = true, -- Dispersion
+		[47788] = true, -- Guardian Spirit
 		[47960] = true, -- Hand of Gul'dan
 		[48018] = true, -- Demonic Circle: Summon
 		[48020] = true, -- Demonic Circle: Teleport
@@ -1472,6 +1594,8 @@ do
 		[80313] = true, -- Pulverize
 		[80353] = true, -- Time Warp
 		[80396] = true, -- Illusion
+		[81206] = true, -- Chakra: Sanctuary
+		[81208] = true, -- Chakra: Serenity
 		[81292] = true, -- Glyph of Mind Spike
 		[81700] = true, -- Archangel
 		[82326] = true, -- Holy Light
@@ -1598,6 +1722,7 @@ do
 		[115921] = true, -- Legacy of the Emperor
 		[116095] = true, -- Disable
 		[116189] = true, -- Provoke
+		[116330] = true, -- Dizzying Haze
 		[116680] = true, -- Thunder Focus Tea
 		[116694] = true, -- Surging Mist
 		[116705] = true, -- Spear Hand Strike
@@ -1612,6 +1737,7 @@ do
 		[120086] = true, -- Fists of Fury
 		[120679] = true, -- Dire Beast
 		[120761] = true, -- Glaive Toss
+		[121253] = true, -- Keg Smash
 		[121414] = true, -- Glaive Toss
 		[122233] = true, -- Crimson Tempest
 		[122355] = true, -- Molten Core
@@ -1834,17 +1960,19 @@ do
 		[190641] = true, -- Order of the Awakened Standard
 		[190653] = true, -- Ceremonial Karabor Guise
 	}
-	local badSourcelessPlayerSpellList = {
-		[145629] = "Anti-Magic Zone",
-		[156055] = "Oglethorpe's Missile Splitter",
-		[156060] = "Megawatt Filament",
-		[159234] = "Mark of the Thunderlord",
-		[159675] = "Mark of Warsong",
-		[159678] = "Mark of Shadowmoon",
-		[159679] = "Mark of Blackrock",
-		[173288] = "Hemet's Heartseeker",
-		[173322] = "Mark of Bleeding Hollow",
-		[81782] = "Power Word: Barrier",
+	badSourcelessPlayerSpellList = {
+		[81782] = true, -- Power Word: Barrier
+		[145629] = true, -- Anti-Magic Zone
+		[156055] = true, -- Oglethorpe's Missile Splitter
+		[156060] = true, -- Megawatt Filament
+		[157384] = true, -- Eye of the Storm
+		[159234] = true, -- Mark of the Thunderlord
+		[159675] = true, -- Mark of Warsong
+		[159676] = true, -- Mark of the Frostwolf
+		[159678] = true, -- Mark of Shadowmoon
+		[159679] = true, -- Mark of Blackrock
+		[173288] = true, -- Hemet's Heartseeker
+		[173322] = true, -- Mark of Bleeding Hollow
 	}
 	local badPlayerFilteredEvents = {
 		["SPELL_CAST_SUCCESS"] = true,
@@ -1892,7 +2020,7 @@ do
 		if badEvents[event] or
 		   (sourceName and badPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0) or
 		   (sourceName and badPlayerFilteredEvents[event] and (badPlayerSpellList[spellId] or playerSpellBlacklist[spellId]) and band(sourceFlags, playerOrPet) ~= 0) or
-		   (destName and badPlayerFilteredEvents[event] and badSourcelessPlayerSpellList[spellId] and band(destFlags, playerOrPet) ~= 0)
+		   (not sourceName and destName and badPlayerFilteredEvents[event] and badSourcelessPlayerSpellList[spellId] and band(destFlags, playerOrPet) ~= 0)
 		then
 			return
 		else
