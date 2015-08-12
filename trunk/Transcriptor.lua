@@ -1289,6 +1289,7 @@ do
 		[974] = true, -- Earth Shield
 		[980] = true, -- Agony
 		[1022] = true, -- Hand of Protection
+		[1038] = true, -- Hand of Salvation
 		[1044] = true, -- Hand of Freedom
 		[1064] = true, -- Chain Heal
 		[1079] = true, -- Rip
@@ -1419,6 +1420,7 @@ do
 		[19750] = true, -- Flash of Light
 		[19801] = true, -- Tranquilizing Shot
 		[20154] = true, -- Seal of Righteousness
+		[20164] = true, -- Seal of Justice
 		[20165] = true, -- Seal of Insight
 		[20217] = true, -- Blessing of Kings
 		[20243] = true, -- Devastate
@@ -1508,6 +1510,7 @@ do
 		[49206] = true, -- Summon Gargoyle
 		[49222] = true, -- Bone Shield
 		[49576] = true, -- Death Grip
+		[49966] = true, -- Smack
 		[49998] = true, -- Death Strike
 		[50256] = true, -- Invigorating Roar
 		[50259] = true, -- Dazed
@@ -1534,6 +1537,7 @@ do
 		[54216] = true, -- Master's Call
 		[54680] = true, -- Monstrous Bite
 		[54861] = true, -- Nitro Boosts
+		[55001] = true, -- Parachute
 		[55090] = true, -- Scourge Strike
 		[55233] = true, -- Vampiric Blood
 		[55711] = true, -- Weakened Heart
@@ -1572,6 +1576,7 @@ do
 		[66906] = true, -- Argent Charger
 		[68992] = true, -- Darkflight
 		[72968] = true, -- Precious's Ribbon
+		[73320] = true, -- Frostborn Illusion
 		[73325] = true, -- Leap of Faith
 		[73326] = true, -- Tabard of the Lightbringer
 		[73510] = true, -- Mind Spike
@@ -1640,9 +1645,12 @@ do
 		[100780] = true, -- Jab
 		[100784] = true, -- Blackout Kick
 		[100787] = true, -- Tiger Palm
+		[101186] = true, -- Leyara's Locket
 		[101546] = true, -- Spinning Crane Kick
+		[101643] = true, -- Transcendence
 		[102342] = true, -- Ironbark
 		[102351] = true, -- Cenarion Ward
+		[102355] = true, -- Faerie Swarm
 		[102558] = true, -- Incarnation: Son of Ursoc
 		[102693] = true, -- Force of Nature
 		[103103] = true, -- Drain Soul
@@ -1657,6 +1665,7 @@ do
 		[106839] = true, -- Skull Bash
 		[106898] = true, -- Stampeding Roar
 		[107428] = true, -- Rising Sun Kick
+		[108194] = true, -- Asphyxiate
 		[108196] = true, -- Death Siphon
 		[108211] = true, -- Leeching Poison
 		[108269] = true, -- Capacitor Totem
@@ -1669,7 +1678,9 @@ do
 		[108683] = true, -- Fire and Brimstone
 		[108843] = true, -- Blazing Speed
 		[109773] = true, -- Dark Intent
+		[109964] = true, -- Spirit Shell
 		[110300] = true, -- Burden of Guilt
+		[110914] = true, -- Dark Bargain
 		[111240] = true, -- Dispatch
 		[111685] = true, -- Summon Infernal
 		[111758] = true, -- Levitate
@@ -1694,6 +1705,7 @@ do
 		[114239] = true, -- Phantasm
 		[114635] = true, -- Ember Tap
 		[114866] = true, -- Soul Reaper
+		[114908] = true, -- Spirit Shell
 		[114916] = true, -- Execution Sentence
 		[114925] = true, -- Demonic Calling
 		[115018] = true, -- Desecrated Ground
@@ -1730,6 +1742,7 @@ do
 		[116849] = true, -- Life Cocoon
 		[116858] = true, -- Chaos Bolt
 		[117952] = true, -- Crackling Jade Lightning
+		[117993] = true, -- Chi Torpedo
 		[118009] = true, -- Desecrated Ground
 		[118038] = true, -- Die by the Sword
 		[118253] = true, -- Serpent Sting
@@ -1737,12 +1750,15 @@ do
 		[120086] = true, -- Fists of Fury
 		[120679] = true, -- Dire Beast
 		[120761] = true, -- Glaive Toss
+		[121093] = true, -- Gift of the Naaru
 		[121253] = true, -- Keg Smash
 		[121414] = true, -- Glaive Toss
 		[122233] = true, -- Crimson Tempest
 		[122355] = true, -- Molten Core
 		[122998] = true, -- Arcane Language
+		[123725] = true, -- Breath of Fire
 		[124036] = true, -- Anglers Fishing Raft
+		[124040] = true, -- Chi Torpedo
 		[124218] = true, -- Well Fed
 		[124682] = true, -- Enveloping Mist
 		[124974] = true, -- Nature's Vigil
@@ -1775,6 +1791,7 @@ do
 		[147362] = true, -- Counter Shot
 		[147405] = true, -- Elixir of Wandering Spirits
 		[147407] = true, -- Elixir of Wandering Spirits
+		[148039] = true, -- Sacred Shield
 		[152116] = true, -- Saving Grace
 		[152150] = true, -- Death from Above
 		[152262] = true, -- Seraphim
@@ -1786,6 +1803,7 @@ do
 		[155274] = true, -- Saving Grace
 		[155522] = true, -- Power of the Grave
 		[155722] = true, -- Rake
+		[155835] = true, -- Bristling Fur
 		[156064] = true, -- Greater Draenic Agility Flask
 		[156070] = true, -- Draenic Intellect Flask
 		[156079] = true, -- Greater Draenic Intellect Flask
@@ -1804,6 +1822,7 @@ do
 		[159546] = true, -- Glyph of Zen Focus
 		[159988] = true, -- Bark of the Wild
 		[160039] = true, -- Keen Senses
+		[160074] = true, -- Speed of the Swarm
 		[160198] = true, -- Lone Wolf: Grace of the Cat
 		[160199] = true, -- Lone Wolf: Fortitude of the Bear
 		[160205] = true, -- Lone Wolf: Wisdom of the Serpent
@@ -1832,6 +1851,7 @@ do
 		[162546] = true, -- Frozen Ammo
 		[162913] = true, -- Visions of the Future
 		[163201] = true, -- Execute
+		[163272] = true, -- Chi Sphere
 		[163505] = true, -- Rake
 		[164221] = true, -- Champion's Honor
 		[164223] = true, -- Y'kish's Y'llusion
@@ -1874,6 +1894,7 @@ do
 		[170364] = true, -- Dire Beast
 		[170397] = true, -- Rapid Adaptation
 		[170856] = true, -- Nature's Grasp
+		[170950] = true, -- Haunted
 		[170996] = true, -- Debilitate
 		[171023] = true, -- Blaze Magic
 		[171103] = true, -- Black Fire
@@ -1891,6 +1912,7 @@ do
 		[173959] = true, -- Pirate Costume
 		[173983] = true, -- Nagrand Wolf Guardian
 		[174018] = true, -- Pale Vision Potion
+		[174524] = true, -- Awesome!
 		[174708] = true, -- Avatar of Terokk
 		[174926] = true, -- Shield Barrier
 		[175733] = true, -- Paladin Protector
