@@ -150,6 +150,7 @@ do
 		local auraTbl, castTbl, summonTbl = {}, {}, {}
 		local aurasSorted, castsSorted, summonSorted = {}, {}, {}
 		local ignoreList = {
+			[39565] = true, -- Stand State (Iron Cannoneer in Frostfire Ridge, some kind of long lasting debuff)
 			[180247] = true, -- Gather Felfire Munitions (Hellfire Assault)
 			[180410] = true, -- Heart Seeker (Kilrogg Deadeye)
 			[180413] = true, -- Heart Seeker (Kilrogg Deadeye)
