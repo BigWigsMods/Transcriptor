@@ -151,6 +151,7 @@ do
 		local aurasSorted, castsSorted, summonSorted = {}, {}, {}
 		local ignoreList = {
 			[39565] = true, -- Stand State (Iron Cannoneer in Frostfire Ridge, some kind of long lasting debuff)
+			[163322] = true, -- Flamethrower (Brackenspore)
 			[180247] = true, -- Gather Felfire Munitions (Hellfire Assault)
 			[180410] = true, -- Heart Seeker (Kilrogg Deadeye)
 			[180413] = true, -- Heart Seeker (Kilrogg Deadeye)
@@ -307,6 +308,7 @@ do
 			[187255] = true, -- Nether Storm (Archimonde)
 			[188520] = true, -- Fel Sludge (Supreme Lord Kazzak, pools close by)
 			[188852] = true, -- Blood Splatter (Kilrogg Deadeye)
+			[189276] = true, -- Unleashed Energy (Fel Lord Zakuun)
 			[189891] = true, -- Nether Tear (Archimonde)
 			[190341] = true, -- Nether Corruption (Archimonde)
 		}
