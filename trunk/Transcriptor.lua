@@ -307,6 +307,7 @@ do
 			[186952] = true, -- Nether Banish (Archimonde)
 			[187255] = true, -- Nether Storm (Archimonde)
 			[188520] = true, -- Fel Sludge (Supreme Lord Kazzak, pools close by)
+			[188796] = true, -- Fel Corruption (Archimonde)
 			[188852] = true, -- Blood Splatter (Kilrogg Deadeye)
 			[189276] = true, -- Unleashed Energy (Fel Lord Zakuun)
 			[189891] = true, -- Nether Tear (Archimonde)
