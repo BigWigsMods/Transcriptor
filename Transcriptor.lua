@@ -163,6 +163,7 @@ do
 			[183963] = true, -- Light of the Naaru (Archimonde)
 			[184450] = true, -- Mark of the Necromancer (Dia Darkwhisper - Hellfire High Council)
 			[185014] = true, -- Focused Chaos (Archimonde)
+			[185577] = true, -- Undying Salvation (Kilrogg Deadeye)
 			[185656] = true, -- Shadowfel Annihilation
 			[186123] = true, -- Wrought Chaos (Archimonde)
 			[187344] = true, -- Phantasmal Cremation (Shadow-Lord Iskar)
