@@ -15,7 +15,7 @@ env:
 before_install: luarocks install --local luacheck
 
 before_script: /home/travis/.luarocks/bin/luacheck . --no-color -qo "011"
-script: curl -s https://raw.githubusercontent.com/nebularg/curseforge-packager/master/release.sh | bash -s -- -p transcriptor
+script: curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash -s -- -p transcriptor
 
 before_deploy:
   - export PACKAGER_ARCHIVE=$(ls -1 .release/*.zip | grep -v nolib)
