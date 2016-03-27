@@ -1,2 +1,5 @@
 package-as: Transcriptor
 
+ignore:
+  - .travis.yml
+  - README.md
