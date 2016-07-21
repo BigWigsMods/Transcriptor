@@ -256,7 +256,9 @@ do
 		frame[1]:Show()
 
 		for k, v in next, playerSpellBlacklist do
-			total[k] = true
+			if GetSpellInfo(k) then -- Filter out removed spells when a new patch hits
+				total[k] = true
+			end
 		end
 		for k, v in next, total do
 			totalSorted[#totalSorted+1] = k
