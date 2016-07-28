@@ -953,7 +953,7 @@ function Transcriptor:StartLog(silent)
 
 		compareStartTime = debugprofilestop()
 		logStartTime = compareStartTime / 1000
-		local _, _, diff = GetInstanceInfo()
+		local _, _, diff, _, _, _, _, instanceId = GetInstanceInfo()
 		if diff == 1 then
 			diff = "5M"
 		elseif diff == 2 then
@@ -989,7 +989,7 @@ function Transcriptor:StartLog(silent)
 		else
 			diff = tostring(diff)
 		end
-		logName = format(logNameFormat, date("%Y-%m-%d"), date("%H:%M:%S"), GetPlayerMapAreaID("player"), select(8, GetInstanceInfo()), GetZoneText() or "?", GetRealZoneText() or "?", GetSubZoneText() or "none", diff)
+		logName = format(logNameFormat, date("%Y-%m-%d"), date("%H:%M:%S"), GetPlayerMapAreaID("player") or 0, instanceId or 0, GetZoneText() or "?", GetRealZoneText() or "?", GetSubZoneText() or "none", diff)
 
 		if type(TranscriptDB[logName]) ~= "table" then TranscriptDB[logName] = {} end
 		if type(TranscriptDB.ignoredEvents) ~= "table" then TranscriptDB.ignoredEvents = {} end
