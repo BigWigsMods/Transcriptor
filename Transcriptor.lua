@@ -35,7 +35,7 @@ local UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo = 
 local UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification = UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification
 local UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth, UnitHealthMax = UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth, UnitHealthMax
 local UnitLevel, UnitCreatureType, GetNumWorldStateUI, GetWorldStateUIInfo = UnitLevel, UnitCreatureType, GetNumWorldStateUI, GetWorldStateUIInfo
-local GetInstanceInfo, GetPlayerMapAreaID, GetCurrentMapDungeonLevel, GetMapNameByID = GetInstanceInfo, GetPlayerMapAreaID, GetCurrentMapDungeonLevel, GetMapNameByID
+local GetInstanceInfo, GetCurrentMapAreaID, GetCurrentMapDungeonLevel, GetMapNameByID = GetInstanceInfo, GetCurrentMapAreaID, GetCurrentMapDungeonLevel, GetMapNameByID
 local GetZoneText, GetRealZoneText, GetSubZoneText, SetMapToCurrentZone, GetSpellInfo = GetZoneText, GetRealZoneText, GetSubZoneText, SetMapToCurrentZone, GetSpellInfo
 local GetSpellTabInfo, GetNumSpellTabs, GetSpellBookItemInfo, GetSpellBookItemName = GetSpellTabInfo, GetNumSpellTabs, GetSpellBookItemInfo, GetSpellBookItemName
 
@@ -735,7 +735,7 @@ sh.ZONE_CHANGED_NEW_AREA = sh.ZONE_CHANGED
 
 function sh.CINEMATIC_START(...)
 	SetMapToCurrentZone()
-	local areaId = GetPlayerMapAreaID("player") or 0
+	local areaId = GetCurrentMapAreaID() or 0
 	local areaLevel = GetCurrentMapDungeonLevel() or 0
 	local id = ("%d:%d"):format(areaId, areaLevel)
 	return strjoin("#", "Fake ID:", id, "Real Args:", tostringall(...))
@@ -989,7 +989,8 @@ function Transcriptor:StartLog(silent)
 		else
 			diff = tostring(diff)
 		end
-		logName = format(logNameFormat, date("%Y-%m-%d"), date("%H:%M:%S"), GetPlayerMapAreaID("player") or 0, instanceId or 0, GetZoneText() or "?", GetRealZoneText() or "?", GetSubZoneText() or "none", diff)
+		SetMapToCurrentZone() -- Update map ID
+		logName = format(logNameFormat, date("%Y-%m-%d"), date("%H:%M:%S"), GetCurrentMapAreaID() or 0, instanceId or 0, GetZoneText() or "?", GetRealZoneText() or "?", GetSubZoneText() or "none", diff)
 
 		if type(TranscriptDB[logName]) ~= "table" then TranscriptDB[logName] = {} end
 		if type(TranscriptDB.ignoredEvents) ~= "table" then TranscriptDB.ignoredEvents = {} end
