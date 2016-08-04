@@ -1,6 +1,9 @@
 
 local Transcriptor = {}
-local revision = tonumber(("$Revision$"):sub(12, -3))
+local version = "@project-version@"
+if version:find("@", nil, true) then
+	version = "repo"
+end
 
 local playerSpellBlacklist
 local badSourcelessPlayerSpellList
@@ -943,7 +946,7 @@ local function DBMEventHandler(...)
 	eventHandler(eventFrame, ...)
 end
 
-local logNameFormat = "[%s]@[%s] - %d/%d/%s/%s/%s@%s" .. format(" (r%d) (%s.%s)", revision or 1, wowVersion, buildRevision)
+local logNameFormat = "[%s]@[%s] - %d/%d/%s/%s/%s@%s" .. format(" (%s) (%s.%s)", version, wowVersion, buildRevision)
 function Transcriptor:StartLog(silent)
 	if logging then
 		print(L["You are already logging an encounter."])
