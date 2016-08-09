@@ -19,6 +19,7 @@ local logStartTime = nil
 local logging = nil
 local compareSuccess = nil
 local compareStart = nil
+local compareAuraApplied = nil
 local compareStartTime = nil
 local inEncounter = false
 local wowVersion, buildRevision, _, buildTOC = GetBuildInfo() -- Note that both returns here are strings, not numbers.
@@ -595,6 +596,11 @@ do
 				if not compareStart[spellId] then compareStart[spellId] = {} end
 				compareStart[spellId][#compareStart[spellId]+1] = debugprofilestop()
 			end
+			if event == "SPELL_AURA_APPLIED" and (not sourceName or band(sourceFlags, playerOrPet) == 0) then
+				if not compareAuraApplied then compareAuraApplied = {} end
+				if not compareAuraApplied[spellId] then compareAuraApplied[spellId] = {} end
+				compareAuraApplied[spellId][#compareAuraApplied[spellId]+1] = debugprofilestop()
+			end
 			return strjoin("#", tostringall(event, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount))
 		end
 	end
@@ -904,9 +910,6 @@ local init = CreateFrame("Frame")
 init:SetScript("OnEvent", function(self, event, addon)
 	TranscriptDB = TranscriptDB or {}
 	if not TranscriptDB.ignoredEvents then TranscriptDB.ignoredEvents = {} end
-	TranscriptDB.spellList = nil -- Cleanup XXX temp
-	TranscriptDB.spellBookList = nil -- Cleanup XXX temp
-	TranscriptDB.logAuraList = nil -- Cleanup XXX temp
 
 	tinsert(menu, { text = L["|cFFFFD200Transcriptor|r - Disabled Events"], fontObject = "GameTooltipHeader", notCheckable = 1 })
 	insertMenuItems(wowEvents)
@@ -1064,7 +1067,7 @@ function Transcriptor:StopLog(silent)
 			print(L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."])
 		end
 
-		if compareSuccess or compareStart then
+		if compareSuccess or compareStart or compareAuraApplied then
 			currentLog.TIMERS = {}
 			if compareSuccess then
 				currentLog.TIMERS.SPELL_CAST_SUCCESS = {}
@@ -1100,6 +1103,23 @@ function Transcriptor:StopLog(silent)
 					currentLog.TIMERS.SPELL_CAST_START[n] = str
 				end
 			end
+			if compareAuraApplied then
+				currentLog.TIMERS.SPELL_AURA_APPLIED = {}
+				for id,tbl in next, compareAuraApplied do
+					local n = format("%d-%s", id, (GetSpellInfo(id)))
+					local str
+					for i = 1, #tbl do
+						if not str then
+							local t = tbl[i] - compareStartTime
+							str = format("pull:%.1f", t/1000)
+						else
+							local t = tbl[i] - tbl[i-1]
+							str = format("%s, %.1f", str, t/1000)
+						end
+					end
+					currentLog.TIMERS.SPELL_AURA_APPLIED[n] = str
+				end
+			end
 		end
 
 		--Clear Log Path
@@ -1107,6 +1127,7 @@ function Transcriptor:StopLog(silent)
 		logging = nil
 		compareSuccess = nil
 		compareStart = nil
+		compareAuraApplied = nil
 		compareStartTime = nil
 		logStartTime = nil
 
