@@ -535,6 +535,7 @@ do
 		[159679] = true, -- Mark of Blackrock
 		[173288] = true, -- Hemet's Heartseeker
 		[173322] = true, -- Mark of Bleeding Hollow
+		[183767] = true, -- Doom Shroom
 	}
 	local badPlayerFilteredEvents = {
 		["SPELL_CAST_SUCCESS"] = true,
