@@ -610,7 +610,7 @@ end
 function sh.PLAYER_REGEN_DISABLED() return " ++ > Regen Disabled : Entering combat! ++ > " end
 function sh.PLAYER_REGEN_ENABLED() return " -- < Regen Enabled : Leaving combat! -- < " end
 function sh.UNIT_SPELLCAST_STOP(unit, ...)
-	if ((unit == "target" or unit == "focus") and not UnitInRaid(unit) and not UnitInParty(unit)) or unit:find("boss", nil, true) or unit:find("arena", nil, true) then
+	if ((unit == "target" or unit == "focus" or unit:find("nameplate", nil, true)) and not UnitInRaid(unit) and not UnitInParty(unit) and not UnitIsUnit("player", unit)) or unit:find("boss", nil, true) or unit:find("arena", nil, true) then
 		return format("%s(%s) [[%s]]", UnitName(unit), UnitName(unit.."target"), strjoin(":", tostringall(unit, ...)))
 	end
 end
@@ -618,7 +618,7 @@ sh.UNIT_SPELLCAST_CHANNEL_STOP = sh.UNIT_SPELLCAST_STOP
 sh.UNIT_SPELLCAST_INTERRUPTED = sh.UNIT_SPELLCAST_STOP
 sh.UNIT_SPELLCAST_SUCCEEDED = sh.UNIT_SPELLCAST_STOP
 function sh.UNIT_SPELLCAST_START(unit, ...)
-	if ((unit == "target" or unit == "focus") and not UnitInRaid(unit) and not UnitInParty(unit)) or unit:find("boss", nil, true) or unit:find("arena", nil, true) then
+	if ((unit == "target" or unit == "focus" or unit:find("nameplate", nil, true)) and not UnitInRaid(unit) and not UnitInParty(unit) and not UnitIsUnit("player", unit)) or unit:find("boss", nil, true) or unit:find("arena", nil, true) then
 		local _, _, _, icon, startTime, endTime = UnitCastingInfo(unit)
 		local time = ((endTime or 0) - (startTime or 0)) / 1000
 		icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
@@ -626,7 +626,7 @@ function sh.UNIT_SPELLCAST_START(unit, ...)
 	end
 end
 function sh.UNIT_SPELLCAST_CHANNEL_START(unit, ...)
-	if ((unit == "target" or unit == "focus") and not UnitInRaid(unit) and not UnitInParty(unit)) or unit:find("boss", nil, true) or unit:find("arena", nil, true) then
+	if ((unit == "target" or unit == "focus" or unit:find("nameplate", nil, true)) and not UnitInRaid(unit) and not UnitInParty(unit) and not UnitIsUnit("player", unit)) or unit:find("boss", nil, true) or unit:find("arena", nil, true) then
 		local _, _, _, icon, startTime, endTime = UnitChannelInfo(unit)
 		local time = ((endTime or 0) - (startTime or 0)) / 1000
 		icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
