@@ -762,46 +762,10 @@ function sh.ENCOUNTER_START(...)
 	return strjoin("#", "ENCOUNTER_START", ...)
 end
 
-local function eventHandler(self, event, ...)
-	if TranscriptDB.ignoredEvents[event] then return end
-	local line
-	if sh[event] then
-		line = sh[event](...)
-	else
-		line = strjoin("#", tostringall(...))
-	end
-	if not line then return end
-	local stop = debugprofilestop() / 1000
-	local t = stop - logStartTime
-	local time = date("%H:%M:%S")
-	-- We only have CLEU in the total log, it's way too much information to log twice.
-	if event == "COMBAT_LOG_EVENT_UNFILTERED" then
-		tinsert(currentLog.total, format("<%.2f %s> [CLEU] %s", t, time, line))
-
-		-- Throw this in here rather than polling it.
-		if not inEncounter and IsEncounterInProgress() then
-			inEncounter = true
-			tinsert(currentLog.total, format("<%.2f %s> [IsEncounterInProgress()] true", t, time))
-			if type(currentLog["IsEncounterInProgress()"]) ~= "table" then currentLog["IsEncounterInProgress()"] = {} end
-			tinsert(currentLog["IsEncounterInProgress()"], format("<%.2f %s> true", t, time))
-		elseif inEncounter and not IsEncounterInProgress() then
-			inEncounter = false
-			tinsert(currentLog.total, format("<%.2f %s> [IsEncounterInProgress()] false", t, time))
-			if type(currentLog["IsEncounterInProgress()"]) ~= "table" then currentLog["IsEncounterInProgress()"] = {} end
-			tinsert(currentLog["IsEncounterInProgress()"], format("<%.2f %s> false", t, time))
-		end
-	else
-		local text = format("<%.2f %s> [%s] %s", t, time, event, line)
-		tinsert(currentLog.total, text)
-		if type(currentLog[event]) ~= "table" then currentLog[event] = {} end
-		tinsert(currentLog[event], text)
-	end
-end
-eventFrame:SetScript("OnEvent", eventHandler)
-
 local wowEvents = {
 	-- Raids
 	"CHAT_MSG_ADDON",
+	"CHAT_MSG_RAID_WARNING",
 	"COMBAT_LOG_EVENT_UNFILTERED",
 	"PLAYER_REGEN_DISABLED",
 	"PLAYER_REGEN_ENABLED",
@@ -809,7 +773,6 @@ local wowEvents = {
 	"CHAT_MSG_MONSTER_SAY",
 	"CHAT_MSG_MONSTER_WHISPER",
 	"CHAT_MSG_MONSTER_YELL",
-	"CHAT_MSG_RAID_WARNING",
 	"CHAT_MSG_RAID_BOSS_EMOTE",
 	"RAID_BOSS_EMOTE",
 	"RAID_BOSS_WHISPER",
@@ -844,6 +807,38 @@ local wowEvents = {
 	"CHAT_MSG_BG_SYSTEM_NEUTRAL",
 	"ARENA_OPPONENT_UPDATE",
 }
+local eventCategories = {
+	PLAYER_REGEN_DISABLED = "COMBAT",
+	PLAYER_REGEN_ENABLED = "COMBAT",
+	ENCOUNTER_START = "COMBAT",
+	ENCOUNTER_END = "COMBAT",
+	BOSS_KILL = "COMBAT",
+	CHAT_MSG_MONSTER_EMOTE = "MONSTER",
+	CHAT_MSG_MONSTER_SAY = "MONSTER",
+	CHAT_MSG_MONSTER_WHISPER = "MONSTER",
+	CHAT_MSG_MONSTER_YELL = "MONSTER",
+	CHAT_MSG_RAID_BOSS_EMOTE = "MONSTER",
+	RAID_BOSS_EMOTE = "MONSTER",
+	RAID_BOSS_WHISPER = "MONSTER",
+	UNIT_SPELLCAST_START = "UNIT_SPELLCAST",
+	UNIT_SPELLCAST_STOP = "UNIT_SPELLCAST",
+	UNIT_SPELLCAST_SUCCEEDED = "UNIT_SPELLCAST",
+	UNIT_SPELLCAST_INTERRUPTED = "UNIT_SPELLCAST",
+	UNIT_SPELLCAST_CHANNEL_START = "UNIT_SPELLCAST",
+	UNIT_SPELLCAST_CHANNEL_STOP = "UNIT_SPELLCAST",
+	ZONE_CHANGED = "ZONE_CHANGED",
+	ZONE_CHANGED_INDOORS = "ZONE_CHANGED",
+	ZONE_CHANGED_NEW_AREA = "ZONE_CHANGED",
+	SCENARIO_UPDATE = "SCENARIO",
+	SCENARIO_CRITERIA_UPDATE = "SCENARIO",
+	PLAY_MOVIE = "MOVIE",
+	CINEMATIC_START = "MOVIE",
+	START_TIMER = "PVP",
+	CHAT_MSG_BG_SYSTEM_HORDE = "PVP",
+	CHAT_MSG_BG_SYSTEM_ALLIANCE = "PVP",
+	CHAT_MSG_BG_SYSTEM_NEUTRAL = "PVP",
+	ARENA_OPPONENT_UPDATE = "PVP",
+}
 local bwEvents = {
 	"BigWigs_Message",
 	"BigWigs_StartBar",
@@ -854,6 +849,44 @@ local dbmEvents = {
 	"DBM_TimerStart",
 	"DBM_TimerStop",
 }
+
+local function eventHandler(self, event, ...)
+	if TranscriptDB.ignoredEvents[event] then return end
+	local line
+	if sh[event] then
+		line = sh[event](...)
+	else
+		line = strjoin("#", tostringall(...))
+	end
+	if not line then return end
+	local stop = debugprofilestop() / 1000
+	local t = stop - logStartTime
+	local time = date("%H:%M:%S")
+	-- We only have CLEU in the total log, it's way too much information to log twice.
+	if event == "COMBAT_LOG_EVENT_UNFILTERED" then
+		tinsert(currentLog.total, format("<%.2f %s> [CLEU] %s", t, time, line))
+
+		-- Throw this in here rather than polling it.
+		if not inEncounter and IsEncounterInProgress() then
+			inEncounter = true
+			tinsert(currentLog.total, format("<%.2f %s> [IsEncounterInProgress()] true", t, time))
+			if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
+			tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterInProgress()] true", t, time))
+		elseif inEncounter and not IsEncounterInProgress() then
+			inEncounter = false
+			tinsert(currentLog.total, format("<%.2f %s> [IsEncounterInProgress()] false", t, time))
+			if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
+			tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterInProgress()] false", t, time))
+		end
+	else
+		local text = format("<%.2f %s> [%s] %s", t, time, event, line)
+		tinsert(currentLog.total, text)
+		local cat = eventCategories[event] or event
+		if type(currentLog[cat]) ~= "table" then currentLog[cat] = {} end
+		tinsert(currentLog[cat], text)
+	end
+end
+eventFrame:SetScript("OnEvent", eventHandler)
 
 --------------------------------------------------------------------------------
 -- Addon
