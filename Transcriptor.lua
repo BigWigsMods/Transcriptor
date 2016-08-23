@@ -950,88 +950,74 @@ local function DBMEventHandler(...)
 	eventHandler(eventFrame, ...)
 end
 
-local logNameFormat = "[%s]@[%s] - %d/%d/%s/%s/%s@%s" .. format(" (%s) (%s.%s)", version, wowVersion, buildRevision)
-function Transcriptor:StartLog(silent)
-	if logging then
-		print(L["You are already logging an encounter."])
-	else
-		ldb.text = L["|cffFF0000Recording|r"]
-		ldb.icon = "Interface\\AddOns\\Transcriptor\\icon_on"
-
-		compareStartTime = debugprofilestop()
-		logStartTime = compareStartTime / 1000
-		local _, _, diff, _, _, _, _, instanceId = GetInstanceInfo()
-		if diff == 1 then
-			diff = "5M"
-		elseif diff == 2 then
-			diff = "HC5M"
-		elseif diff == 3 then
-			diff = "10M"
-		elseif diff == 4 then
-			diff = "25M"
-		elseif diff == 5 then
-			diff = "HC10M"
-		elseif diff == 6 then
-			diff = "HC25M"
-		elseif diff == 7 then
-			diff = "LFR25M"
-		elseif diff == 8 then
-			diff = "CM5M"
-		elseif diff == 14 then
-			diff = "Normal"
-		elseif diff == 15 then
-			diff = "Heroic"
-		elseif diff == 16 then
-			diff = "Mythic"
-		elseif diff == 17 then
-			diff = "LFR"
-		elseif diff == 18 then
-			diff = "Event40M"
-		elseif diff == 19 then
-			diff = "Event5M"
-		elseif diff == 23 then
-			diff = "Mythic5M"
-		elseif diff == 24 then
-			diff = "TW5M"
+do
+	local difficultyTbl = {
+		[1] = "5M",
+		[2] = "HC5M",
+		[3] = "10M",
+		[4] = "25M",
+		[5] = "HC10M",
+		[6] = "HC25M",
+		[7] = "LFR25M",
+		[8] = "CM5M",
+		[14] = "Normal",
+		[15] = "Heroic",
+		[16] = "Mythic",
+		[17] = "LFR",
+		[18] = "Event40M",
+		[19] = "Event5M",
+		[23] = "Mythic5M",
+		[24] = "TW5M",
+	}
+	local logNameFormat = "[%s]@[%s] - %d/%d/%s/%s/%s@%s" .. format(" (%s) (%s.%s)", version, wowVersion, buildRevision)
+	function Transcriptor:StartLog(silent)
+		if logging then
+			print(L["You are already logging an encounter."])
 		else
-			diff = tostring(diff)
-		end
-		SetMapToCurrentZone() -- Update map ID
-		logName = format(logNameFormat, date("%Y-%m-%d"), date("%H:%M:%S"), GetCurrentMapAreaID() or 0, instanceId or 0, GetZoneText() or "?", GetRealZoneText() or "?", GetSubZoneText() or "none", diff)
+			ldb.text = L["|cffFF0000Recording|r"]
+			ldb.icon = "Interface\\AddOns\\Transcriptor\\icon_on"
 
-		if type(TranscriptDB[logName]) ~= "table" then TranscriptDB[logName] = {} end
-		if type(TranscriptDB.ignoredEvents) ~= "table" then TranscriptDB.ignoredEvents = {} end
-		currentLog = TranscriptDB[logName]
+			compareStartTime = debugprofilestop()
+			logStartTime = compareStartTime / 1000
+			local _, _, diff, _, _, _, _, instanceId = GetInstanceInfo()
+			local diffText = difficultyTbl[diff] or tostring(diff)
+			SetMapToCurrentZone() -- Update map ID
+			logName = format(logNameFormat, date("%Y-%m-%d"), date("%H:%M:%S"), GetCurrentMapAreaID() or 0, instanceId or 0, GetZoneText() or "?", GetRealZoneText() or "?", GetSubZoneText() or "none", diffText)
 
-		if type(currentLog.total) ~= "table" then currentLog.total = {} end
-		--Register Events to be Tracked
-		for i, event in next, wowEvents do
-			if not TranscriptDB.ignoredEvents[event] then
-				eventFrame:RegisterEvent(event)
-			end
-		end
-		if BigWigsLoader then
-			for i, event in next, bwEvents do
+			if type(TranscriptDB[logName]) ~= "table" then TranscriptDB[logName] = {} end
+			if type(TranscriptDB.ignoredEvents) ~= "table" then TranscriptDB.ignoredEvents = {} end
+			currentLog = TranscriptDB[logName]
+
+			if type(currentLog.total) ~= "table" then currentLog.total = {} end
+			--Register Events to be Tracked
+			for i, event in next, wowEvents do
 				if not TranscriptDB.ignoredEvents[event] then
-					BigWigsLoader.RegisterMessage(eventFrame, event, BWEventHandler)
+					eventFrame:RegisterEvent(event)
 				end
 			end
-		end
-		if DBM then
-			for i, event in next, dbmEvents do
-				if not TranscriptDB.ignoredEvents[event] then
-					DBM:RegisterCallback(event, DBMEventHandler)
+			if BigWigsLoader then
+				for i, event in next, bwEvents do
+					if not TranscriptDB.ignoredEvents[event] then
+						BigWigsLoader.RegisterMessage(eventFrame, event, BWEventHandler)
+					end
 				end
 			end
-		end
-		logging = 1
+			if DBM then
+				for i, event in next, dbmEvents do
+					if not TranscriptDB.ignoredEvents[event] then
+						DBM:RegisterCallback(event, DBMEventHandler)
+					end
+				end
+			end
+			logging = 1
 
-		--Notify Log Start
-		if not silent then
-			print(L["Beginning Transcript: "]..logName)
-			print(L["Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."])
+			--Notify Log Start
+			if not silent then
+				print(L["Beginning Transcript: "]..logName)
+				print(L["Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."])
+			end
+			return logName
 		end
-		return logName
 	end
 end
 
