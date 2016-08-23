@@ -883,6 +883,7 @@ local function eventHandler(self, event, ...)
 	else
 		local text = format("<%.2f %s> [%s] %s", t, time, event, line)
 		tinsert(currentLog.total, text)
+		if event == "WORLD_STATE_UI_TIMER_UPDATE" then return end -- Only in total table
 		local cat = eventCategories[event] or event
 		if type(currentLog[cat]) ~= "table" then currentLog[cat] = {} end
 		tinsert(currentLog[cat], text)
