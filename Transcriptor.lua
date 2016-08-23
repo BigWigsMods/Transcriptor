@@ -607,30 +607,62 @@ do
 	end
 end
 
-function sh.PLAYER_REGEN_DISABLED() return "+Entering combat!" end
-function sh.PLAYER_REGEN_ENABLED() return "-Leaving combat!" end
-function sh.UNIT_SPELLCAST_STOP(unit, ...)
-	if ((unit == "target" or unit == "focus" or unit:find("nameplate", nil, true)) and not UnitInRaid(unit) and not UnitInParty(unit) and not UnitIsUnit("player", unit)) or unit:find("boss", nil, true) or unit:find("arena", nil, true) then
-		return format("%s(%s) [[%s]]", UnitName(unit), UnitName(unit.."target"), strjoin(":", tostringall(unit, ...)))
-	end
+function sh.PLAYER_REGEN_DISABLED()
+	return "+Entering combat!"
 end
-sh.UNIT_SPELLCAST_CHANNEL_STOP = sh.UNIT_SPELLCAST_STOP
-sh.UNIT_SPELLCAST_INTERRUPTED = sh.UNIT_SPELLCAST_STOP
-sh.UNIT_SPELLCAST_SUCCEEDED = sh.UNIT_SPELLCAST_STOP
-function sh.UNIT_SPELLCAST_START(unit, ...)
-	if ((unit == "target" or unit == "focus" or unit:find("nameplate", nil, true)) and not UnitInRaid(unit) and not UnitInParty(unit) and not UnitIsUnit("player", unit)) or unit:find("boss", nil, true) or unit:find("arena", nil, true) then
-		local _, _, _, icon, startTime, endTime = UnitCastingInfo(unit)
-		local time = ((endTime or 0) - (startTime or 0)) / 1000
-		icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
-		return format("%s(%s) - %s - %ssec [[%s]]", UnitName(unit), UnitName(unit.."target"), icon, time, strjoin(":", tostringall(unit, ...)))
-	end
+function sh.PLAYER_REGEN_ENABLED()
+	return "-Leaving combat!"
 end
-function sh.UNIT_SPELLCAST_CHANNEL_START(unit, ...)
-	if ((unit == "target" or unit == "focus" or unit:find("nameplate", nil, true)) and not UnitInRaid(unit) and not UnitInParty(unit) and not UnitIsUnit("player", unit)) or unit:find("boss", nil, true) or unit:find("arena", nil, true) then
-		local _, _, _, icon, startTime, endTime = UnitChannelInfo(unit)
-		local time = ((endTime or 0) - (startTime or 0)) / 1000
-		icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
-		return format("%s(%s) - %s - %ssec [[%s]]", UnitName(unit), UnitName(unit.."target"), icon, time, strjoin(":", tostringall(unit, ...)))
+
+do
+	local UnitIsUnit = UnitIsUnit
+	local wantedUnits = {
+		target = true, focus = true,
+		nameplate1 = true, nameplate2 = true, nameplate3 = true, nameplate4 = true, nameplate5 = true, nameplate6 = true, nameplate7 = true, nameplate8 = true, nameplate9 = true, nameplate10 = true,
+		nameplate11 = true, nameplate12 = true, nameplate13 = true, nameplate14 = true, nameplate15 = true, nameplate16 = true, nameplate17 = true, nameplate18 = true, nameplate19 = true, nameplate20 = true,
+		nameplate21 = true, nameplate22 = true, nameplate23 = true, nameplate24 = true, nameplate25 = true, nameplate26 = true, nameplate27 = true, nameplate28 = true, nameplate29 = true, nameplate30 = true,
+		nameplate31 = true, nameplate32 = true, nameplate33 = true, nameplate34 = true, nameplate35 = true, nameplate36 = true, nameplate37 = true, nameplate38 = true, nameplate39 = true, nameplate40 = true,
+	}
+	local bossUnits = {
+		boss1 = true, boss2 = true, boss3 = true, boss4 = true, boss5 = true,
+		arena1 = true, arena2 = true, arena3 = true, arena4 = true, arena5 = true,
+	}
+	local function safeUnit(unit)
+		if bossUnits[unit] then -- Accept any boss unit
+			return true
+		elseif wantedUnits[unit] and not UnitIsUnit("player", unit) and not UnitInRaid(unit) and not UnitInParty(unit) then
+			for k in next, bossUnits do
+				if UnitIsUnit(unit, k) then -- Reject if the unit is also a boss unit
+					return false
+				end
+			end
+			return true
+		end
+	end
+
+	function sh.UNIT_SPELLCAST_STOP(unit, ...)
+		if safeUnit(unit) then
+			return format("%s(%s) [[%s]]", UnitName(unit), UnitName(unit.."target"), strjoin(":", tostringall(unit, ...)))
+		end
+	end
+	sh.UNIT_SPELLCAST_CHANNEL_STOP = sh.UNIT_SPELLCAST_STOP
+	sh.UNIT_SPELLCAST_INTERRUPTED = sh.UNIT_SPELLCAST_STOP
+	sh.UNIT_SPELLCAST_SUCCEEDED = sh.UNIT_SPELLCAST_STOP
+	function sh.UNIT_SPELLCAST_START(unit, ...)
+		if safeUnit(unit) then
+			local _, _, _, icon, startTime, endTime = UnitCastingInfo(unit)
+			local time = ((endTime or 0) - (startTime or 0)) / 1000
+			icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
+			return format("%s(%s) - %s - %ssec [[%s]]", UnitName(unit), UnitName(unit.."target"), icon, time, strjoin(":", tostringall(unit, ...)))
+		end
+	end
+	function sh.UNIT_SPELLCAST_CHANNEL_START(unit, ...)
+		if safeUnit(unit) then
+			local _, _, _, icon, startTime, endTime = UnitChannelInfo(unit)
+			local time = ((endTime or 0) - (startTime or 0)) / 1000
+			icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
+			return format("%s(%s) - %s - %ssec [[%s]]", UnitName(unit), UnitName(unit.."target"), icon, time, strjoin(":", tostringall(unit, ...)))
+		end
 	end
 end
 
