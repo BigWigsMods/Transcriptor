@@ -607,8 +607,8 @@ do
 	end
 end
 
-function sh.PLAYER_REGEN_DISABLED() return " ++ > Regen Disabled : Entering combat! ++ > " end
-function sh.PLAYER_REGEN_ENABLED() return " -- < Regen Enabled : Leaving combat! -- < " end
+function sh.PLAYER_REGEN_DISABLED() return "+Entering combat!" end
+function sh.PLAYER_REGEN_ENABLED() return "-Leaving combat!" end
 function sh.UNIT_SPELLCAST_STOP(unit, ...)
 	if ((unit == "target" or unit == "focus" or unit:find("nameplate", nil, true)) and not UnitInRaid(unit) and not UnitInParty(unit) and not UnitIsUnit("player", unit)) or unit:find("boss", nil, true) or unit:find("arena", nil, true) then
 		return format("%s(%s) [[%s]]", UnitName(unit), UnitName(unit.."target"), strjoin(":", tostringall(unit, ...)))
