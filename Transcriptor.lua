@@ -872,6 +872,9 @@ local eventCategories = {
 	CHAT_MSG_BG_SYSTEM_ALLIANCE = "PVP",
 	CHAT_MSG_BG_SYSTEM_NEUTRAL = "PVP",
 	ARENA_OPPONENT_UPDATE = "PVP",
+	BigWigs_Message = "BigWigs",
+	BigWigs_StartBar = "BigWigs",
+	BigWigs_Debug = "BigWigs",
 }
 local bwEvents = {
 	"BigWigs_Message",
