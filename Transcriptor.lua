@@ -1023,22 +1023,22 @@ end
 
 do
 	local difficultyTbl = {
-		[1] = "5M",
-		[2] = "HC5M",
-		[3] = "10M",
-		[4] = "25M",
-		[5] = "HC10M",
-		[6] = "HC25M",
-		[7] = "LFR25M",
-		[8] = "CM5M",
+		[1] = "5Normal",
+		[2] = "5Heroic",
+		[3] = "10Normal",
+		[4] = "25Normal",
+		[5] = "10Heroic",
+		[6] = "25Heroic",
+		[7] = "25LFR",
+		[8] = "5Challenge",
 		[14] = "Normal",
 		[15] = "Heroic",
 		[16] = "Mythic",
 		[17] = "LFR",
-		[18] = "Event40M",
-		[19] = "Event5M",
-		[23] = "Mythic5M",
-		[24] = "TW5M",
+		[18] = "40Event",
+		[19] = "5Event",
+		[23] = "5Mythic",
+		[24] = "5Timewalking",
 	}
 	local logNameFormat = "[%s]@[%s] - %d/%d/%s/%s/%s@%s" .. format(" (%s) (%s.%s)", version, wowVersion, buildRevision)
 	function Transcriptor:StartLog(silent)
