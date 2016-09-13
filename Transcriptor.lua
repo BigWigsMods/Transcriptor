@@ -18,6 +18,7 @@ local currentLog = nil
 local logStartTime = nil
 local logging = nil
 local compareSuccess = nil
+local compareUnitSuccess = nil
 local compareStart = nil
 local compareAuraApplied = nil
 local compareStartTime = nil
@@ -178,6 +179,11 @@ do
 			[189559] = true, -- Carrion Swarm (Korvos, Hellfire Citadel trash)
 			[189565] = true, -- Torpor (Korvos, Hellfire Citadel trash)
 			[190466] = true, -- Incomplete Binding (Socrethar the Eternal)
+			[197996] = true, -- Branded (Odyn)
+			[193743] = true, -- Aegis of Aggramar (Odyn)
+			[193765] = true, -- Aegis of Aggramar (Odyn)
+			[193783] = true, -- Aegis of Aggramar (Odyn)
+			[202160] = true, -- Odyn's Blessing (Odyn)
 		}
 		for logName, logTbl in next, TranscriptDB do
 			if type(logTbl) == "table" and logTbl.total then
@@ -647,7 +653,16 @@ do
 	end
 	sh.UNIT_SPELLCAST_CHANNEL_STOP = sh.UNIT_SPELLCAST_STOP
 	sh.UNIT_SPELLCAST_INTERRUPTED = sh.UNIT_SPELLCAST_STOP
-	sh.UNIT_SPELLCAST_SUCCEEDED = sh.UNIT_SPELLCAST_STOP
+
+	function sh.UNIT_SPELLCAST_SUCCEEDED(unit, ...)
+		if safeUnit(unit) then
+			local _, _, _, spellId = ...
+			if not compareUnitSuccess then compareUnitSuccess = {} end
+			if not compareUnitSuccess[spellId] then compareUnitSuccess[spellId] = {} end
+			compareUnitSuccess[spellId][#compareUnitSuccess[spellId]+1] = debugprofilestop()
+			return format("%s(%s) [[%s]]", UnitName(unit), UnitName(unit.."target"), strjoin(":", tostringall(unit, ...)))
+		end
+	end
 	function sh.UNIT_SPELLCAST_START(unit, ...)
 		if safeUnit(unit) then
 			local _, _, _, icon, startTime, endTime = UnitCastingInfo(unit)
@@ -1178,12 +1193,32 @@ function Transcriptor:StopLog(silent)
 					currentLog.TIMERS.SPELL_AURA_APPLIED[n] = str
 				end
 			end
+			if compareUnitSuccess then
+				currentLog.TIMERS.UNIT_SPELLCAST_SUCCEEDED = {}
+				for id,tbl in next, compareUnitSuccess do
+					if not compareSuccess or not compareSuccess[id] then
+						local n = format("%d-%s", id, (GetSpellInfo(id)))
+						local str
+						for i = 1, #tbl do
+							if not str then
+								local t = tbl[i] - compareStartTime
+								str = format("pull:%.1f", t/1000)
+							else
+								local t = tbl[i] - tbl[i-1]
+								str = format("%s, %.1f", str, t/1000)
+							end
+						end
+						currentLog.TIMERS.UNIT_SPELLCAST_SUCCEEDED[n] = str
+					end
+				end
+			end
 		end
 
 		--Clear Log Path
 		currentLog = nil
 		logging = nil
 		compareSuccess = nil
+		compareUnitSuccess = nil
 		compareStart = nil
 		compareAuraApplied = nil
 		compareStartTime = nil
