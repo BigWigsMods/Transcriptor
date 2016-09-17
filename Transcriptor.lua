@@ -191,7 +191,7 @@ do
 					local text = logTbl.total[i]
 
 					-- AURA
-					local name, destGUID, tarName, id, spellName = text:match("SPELL_AURA_[^#]+#P[le][at][^#]+#([^#]+)#([^#]+)#([^#]+)#(%d+)#([^#]+)#")
+					local name, destGUID, tarName, id, spellName = text:match("SPELL_AURA_[^#]+#P[le][at][^#]+#([^#]+)#([^#]*)#([^#]+)#(%d+)#([^#]+)#")
 					id = tonumber(id)
 					local trim = destGUID and destGUID:find("^P[le][at]")
 					if id and not ignoreList[id] and not playerSpellBlacklist[id] and not total[id] and #aurasSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
@@ -205,7 +205,7 @@ do
 					end
 
 					-- CAST
-					name, destGUID, tarName, id, spellName = text:match("SPELL_CAST_[^#]+#P[le][at][^#]+#([^#]+)#([^#]+)#([^#]+)#(%d+)#([^#]+)#")
+					name, destGUID, tarName, id, spellName = text:match("SPELL_CAST_[^#]+#P[le][at][^#]+#([^#]+)#([^#]*)#([^#]+)#(%d+)#([^#]+)#")
 					id = tonumber(id)
 					local trim = destGUID and destGUID:find("^P[le][at]")
 					if id and not ignoreList[id] and not playerSpellBlacklist[id] and not total[id] and #castsSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
@@ -219,7 +219,7 @@ do
 					end
 
 					-- SUMMON
-					name, destGUID, tarName, id, spellName = text:match("SPELL_SUMMON#P[le][at][^#]+#([^#]+)#([^#]+)#([^#]+)#(%d+)#([^#]+)#")
+					name, destGUID, tarName, id, spellName = text:match("SPELL_SUMMON#P[le][at][^#]+#([^#]+)#([^#]*)#([^#]+)#(%d+)#([^#]+)#")
 					id = tonumber(id)
 					local trim = destGUID and destGUID:find("^P[le][at]")
 					if id and not ignoreList[id] and not playerSpellBlacklist[id] and not total[id] and #summonSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
