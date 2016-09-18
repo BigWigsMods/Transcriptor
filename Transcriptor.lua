@@ -184,6 +184,8 @@ do
 			[193765] = true, -- Aegis of Aggramar (Odyn)
 			[193783] = true, -- Aegis of Aggramar (Odyn)
 			[202160] = true, -- Odyn's Blessing (Odyn)
+			[213395] = true, -- Deepening Shadows (Cordana Felsong)
+			[204481] = true, -- Elune's Light (Cordana Felsong)
 		}
 		for logName, logTbl in next, TranscriptDB do
 			if type(logTbl) == "table" and logTbl.total then
