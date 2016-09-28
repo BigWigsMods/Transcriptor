@@ -186,6 +186,8 @@ do
 			[202160] = true, -- Odyn's Blessing (Odyn)
 			[213395] = true, -- Deepening Shadows (Cordana Felsong)
 			[204481] = true, -- Elune's Light (Cordana Felsong)
+			[215300] = true, -- Web of Pain (Elerethe Renferal)
+			[215307] = true, -- Web of Pain (Elerethe Renferal)
 		}
 		for logName, logTbl in next, TranscriptDB do
 			if type(logTbl) == "table" and logTbl.total then
