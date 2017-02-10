@@ -671,16 +671,24 @@ do
 		if safeUnit(unit) then
 			local _, _, _, icon, startTime, endTime = UnitCastingInfo(unit)
 			local time = ((endTime or 0) - (startTime or 0)) / 1000
-			icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
-			return format("%s(%s) - %s - %ssec [[%s]]", UnitName(unit), UnitName(unit.."target"), icon, time, strjoin(":", tostringall(unit, ...)))
+			if type(icon) == "number" then -- XXX 7.2 compat
+				return format("%s(%s) - %d - %ssec [[%s]]", UnitName(unit), UnitName(unit.."target"), icon or 0, time, strjoin(":", tostringall(unit, ...)))
+			else
+				icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
+				return format("%s(%s) - %s - %ssec [[%s]]", UnitName(unit), UnitName(unit.."target"), icon, time, strjoin(":", tostringall(unit, ...)))
+			end
 		end
 	end
 	function sh.UNIT_SPELLCAST_CHANNEL_START(unit, ...)
 		if safeUnit(unit) then
 			local _, _, _, icon, startTime, endTime = UnitChannelInfo(unit)
 			local time = ((endTime or 0) - (startTime or 0)) / 1000
-			icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
-			return format("%s(%s) - %s - %ssec [[%s]]", UnitName(unit), UnitName(unit.."target"), icon, time, strjoin(":", tostringall(unit, ...)))
+			if type(icon) == "number" then -- XXX 7.2 compat
+				return format("%s(%s) - %s - %ssec [[%s]]", UnitName(unit), UnitName(unit.."target"), icon or 0, time, strjoin(":", tostringall(unit, ...)))
+			else
+				icon = icon and icon:gsub(".*\\([^\\]+)$", "%1") or "no icon"
+				return format("%s(%s) - %s - %ssec [[%s]]", UnitName(unit), UnitName(unit.."target"), icon, time, strjoin(":", tostringall(unit, ...)))
+			end
 		end
 	end
 end
