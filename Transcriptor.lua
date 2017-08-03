@@ -22,7 +22,7 @@ local compareUnitSuccess = nil
 local compareStart = nil
 local compareAuraApplied = nil
 local compareStartTime = nil
-local inEncounter = false
+local inEncounter, blockingRelease = false, false
 local wowVersion, buildRevision, _, buildTOC = GetBuildInfo() -- Note that both returns here are strings, not numbers.
 
 local tinsert = table.insert
@@ -35,7 +35,7 @@ local print = print
 
 local C_Scenario = C_Scenario
 local RegisterAddonMessagePrefix = RegisterAddonMessagePrefix
-local IsEncounterInProgress, IsAltKeyDown, EJ_GetEncounterInfo, EJ_GetSectionInfo = IsEncounterInProgress, IsAltKeyDown, EJ_GetEncounterInfo, EJ_GetSectionInfo
+local IsEncounterInProgress, IsEncounterSuppressingRelease, IsAltKeyDown, EJ_GetEncounterInfo, EJ_GetSectionInfo = IsEncounterInProgress, IsEncounterSuppressingRelease, IsAltKeyDown, EJ_GetEncounterInfo, EJ_GetSectionInfo
 local UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo = UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo
 local UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification = UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification
 local UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth, UnitHealthMax = UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth, UnitHealthMax
@@ -844,6 +844,31 @@ local dbmEvents = {
 }
 
 local function eventHandler(self, event, ...)
+	-- Throw this in here rather than polling it.
+	if not inEncounter and IsEncounterInProgress() then
+		inEncounter = true
+		tinsert(currentLog.total, format("<%.2f %s> [IsEncounterInProgress()] true", t, time))
+		if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
+		tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterInProgress()] true", t, time))
+	elseif inEncounter and not IsEncounterInProgress() then
+		inEncounter = false
+		tinsert(currentLog.total, format("<%.2f %s> [IsEncounterInProgress()] false", t, time))
+		if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
+		tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterInProgress()] false", t, time))
+	end
+	if not blockingRelease and IsEncounterSuppressingRelease() then
+		blockingRelease = true
+		tinsert(currentLog.total, format("<%.2f %s> [IsEncounterSuppressingRelease()] true", t, time))
+		if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
+		tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterSuppressingRelease()] true", t, time))
+	elseif blockingRelease and not IsEncounterSuppressingRelease() then
+		blockingRelease = false
+		tinsert(currentLog.total, format("<%.2f %s> [IsEncounterSuppressingRelease()] false", t, time))
+		if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
+		tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterSuppressingRelease()] false", t, time))
+	end
+	--
+
 	if TranscriptDB.ignoredEvents[event] then return end
 	local line
 	if sh[event] then
@@ -858,19 +883,6 @@ local function eventHandler(self, event, ...)
 	-- We only have CLEU in the total log, it's way too much information to log twice.
 	if event == "COMBAT_LOG_EVENT_UNFILTERED" then
 		tinsert(currentLog.total, format("<%.2f %s> [CLEU] %s", t, time, line))
-
-		-- Throw this in here rather than polling it.
-		if not inEncounter and IsEncounterInProgress() then
-			inEncounter = true
-			tinsert(currentLog.total, format("<%.2f %s> [IsEncounterInProgress()] true", t, time))
-			if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
-			tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterInProgress()] true", t, time))
-		elseif inEncounter and not IsEncounterInProgress() then
-			inEncounter = false
-			tinsert(currentLog.total, format("<%.2f %s> [IsEncounterInProgress()] false", t, time))
-			if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
-			tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterInProgress()] false", t, time))
-		end
 	else
 		local text = format("<%.2f %s> [%s] %s", t, time, event, line)
 		tinsert(currentLog.total, text)
