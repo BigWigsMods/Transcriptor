@@ -155,39 +155,6 @@ do
 		local auraTbl, castTbl, summonTbl = {}, {}, {}
 		local aurasSorted, castsSorted, summonSorted = {}, {}, {}
 		local ignoreList = {
-			[39565] = true, -- Stand State (Iron Cannoneer in Frostfire Ridge, some kind of long lasting debuff)
-			[163322] = true, -- Flamethrower (Brackenspore)
-			[180247] = true, -- Gather Felfire Munitions (Hellfire Assault)
-			[180410] = true, -- Heart Seeker (Kilrogg Deadeye)
-			[180413] = true, -- Heart Seeker (Kilrogg Deadeye)
-			[181102] = true, -- Mark Eruption (Mannoroth)
-			[181488] = true, -- Vision of Death (Kilrogg Deadeye)
-			[182008] = true, -- Latent Energy (Fel Lord Zakuun)
-			[182038] = true, -- Shattered Defenses (Socrethar the Eternal)
-			[182218] = true, -- Felblaze Residue (Socrethar the Eternal)
-			[183963] = true, -- Light of the Naaru (Archimonde)
-			[184450] = true, -- Mark of the Necromancer (Dia Darkwhisper - Hellfire High Council)
-			[185014] = true, -- Focused Chaos (Archimonde)
-			[185577] = true, -- Undying Salvation (Kilrogg Deadeye)
-			[185656] = true, -- Shadowfel Annihilation
-			[186123] = true, -- Wrought Chaos (Archimonde)
-			[187344] = true, -- Phantasmal Cremation (Shadow-Lord Iskar)
-			[187668] = true, -- Mark of Kazzak (Supreme Lord Kazzak)
-			[189030] = true, -- Befouled (Fel Lord Zakuun)
-			[189031] = true, -- Befouled (Fel Lord Zakuun)
-			[189032] = true, -- Befouled (Fel Lord Zakuun)
-			[189559] = true, -- Carrion Swarm (Korvos, Hellfire Citadel trash)
-			[189565] = true, -- Torpor (Korvos, Hellfire Citadel trash)
-			[190466] = true, -- Incomplete Binding (Socrethar the Eternal)
-			[197996] = true, -- Branded (Odyn)
-			[193743] = true, -- Aegis of Aggramar (Odyn)
-			[193765] = true, -- Aegis of Aggramar (Odyn)
-			[193783] = true, -- Aegis of Aggramar (Odyn)
-			[202160] = true, -- Odyn's Blessing (Odyn)
-			[213395] = true, -- Deepening Shadows (Cordana Felsong)
-			[204481] = true, -- Elune's Light (Cordana Felsong)
-			[215300] = true, -- Web of Pain (Elerethe Renferal)
-			[215307] = true, -- Web of Pain (Elerethe Renferal)
 		}
 		for logName, logTbl in next, TranscriptDB do
 			if type(logTbl) == "table" and logTbl.total then
@@ -299,36 +266,6 @@ do
 		auraTbl, castTbl, summonTbl = {}, {}, {}
 		aurasSorted, castsSorted, summonSorted = {}, {}, {}
 		ignoreList = {
-			[179202] = true, -- Eye of Anzu (Shadow-Lord Iskar)
-			[179908] = true, -- Shared Fate (Gorefiend)
-			[180079] = true, -- Felfire Munitions (Hellfire Assault)
-			[180164] = true, -- Touch of Harm (Tyrant Velhari)
-			[180270] = true, -- Shadow Globule (Kormrok)
-			[180575] = true, -- Fel Flames (Kilrogg Deadeye)
-			[181295] = true, -- Digest (Gorefiend)
-			[181653] = true, -- Fel Crystals (Fel Lord Zakuun)
-			[182159] = true, -- Fel Corruption (Kilrogg Deadeye)
-			[182171] = true, -- Blood of Mannoroth (Mannoroth)
-			[182600] = true, -- Fel Fire (Shadow-Lord Iskar)
-			[182879] = true, -- Doomfire Fixate (Archimonde)
-			[183586] = true, -- Doomfire (Archimonde)
-			[184396] = true, -- Fel Corruption (Kilrogg Deadeye)
-			[184398] = true, -- Fel Corruption (Kilrogg Deadeye)
-			[184652] = true, -- Reap (Dia Darkwhisper - Hellfire High Council)
-			[185065] = true, -- Mark of the Necromancer (Dia Darkwhisper - Hellfire High Council)
-			[185066] = true, -- Mark of the Necromancer (Dia Darkwhisper - Hellfire High Council)
-			[185239] = true, -- Radiance of Anzu (Shadow-Lord Iskar)
-			[185242] = true, -- Blitz (Iron Reaver)
-			[186046] = true, -- Solar Chakram (Shadow-Lord Iskar)
-			[186770] = true, -- Pool of Souls (Gorefiend)
-			[186952] = true, -- Nether Banish (Archimonde)
-			[187255] = true, -- Nether Storm (Archimonde)
-			[188520] = true, -- Fel Sludge (Supreme Lord Kazzak, pools close by)
-			[188796] = true, -- Fel Corruption (Archimonde)
-			[188852] = true, -- Blood Splatter (Kilrogg Deadeye)
-			[189276] = true, -- Unleashed Energy (Fel Lord Zakuun)
-			[189891] = true, -- Nether Tear (Archimonde)
-			[190341] = true, -- Nether Corruption (Archimonde)
 		}
 		for logName, logTbl in next, TranscriptDB do
 			if type(logTbl) == "table" and logTbl.total then
