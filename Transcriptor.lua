@@ -518,7 +518,8 @@ do
 		["SPELL_AURA_REMOVED_DOSE"] = true,
 		["SPELL_CAST_START"] = true,
 		["SPELL_SUMMON"] = true,
-		["SPELL_AURA_BROKEN_SPELL"] = true,
+		--"<87.10 17:55:03> [CLEU] SPELL_AURA_BROKEN_SPELL#Creature-0-3771-1676-28425-118022-000004A6B5#Infernal Chaosbringer#Player-XXX#XXX#115191#Stealth#242906#Immolation Aura", -- [148]
+		--["SPELL_AURA_BROKEN_SPELL"] = true,
 	}
 	local badPlayerEvents = {
 		["SPELL_DAMAGE"] = true,
@@ -546,16 +547,17 @@ do
 		["SPELL_CAST_FAILED"] = true,
 	}
 	local notFlaggedAsGuardian = {
-		[193473] = 98167, -- Void Tendril used spell 193473 in our blacklist but isn't marked as a guardian. Creature-0-3103-1676-16407-98167-00000418B8
-		[201633] = 100943, -- Earthen Shield Totem used spell 201633 in our blacklist but isn't marked as a guardian. Creature-0-3103-1676-16407-100943-000004195D
-		[55078] = 27893, -- Rune Weapon used spell 55078 in our blacklist but isn't marked as a guardian. Creature-0-3029-1712-4217-27893-000004989D
+		--[193473] = 98167, -- Void Tendril used spell 193473 in our blacklist but isn't marked as a guardian. Creature-0-3103-1676-16407-98167-00000418B8
+		--[201633] = 100943, -- Earthen Shield Totem used spell 201633 in our blacklist but isn't marked as a guardian. Creature-0-3103-1676-16407-100943-000004195D
+		--[55078] = 27893, -- Rune Weapon used spell 55078 in our blacklist but isn't marked as a guardian. Creature-0-3029-1712-4217-27893-000004989D
 	}
 	local function MobId(guid)
 		if not guid then return 1 end
 		local _, _, _, _, _, id = strsplit("-", guid)
 		return tonumber(id) or 1
 	end
-	local playerOrPet = 13312 -- COMBATLOG_OBJECT_TYPE_PLAYER + COMBATLOG_OBJECT_TYPE_PET + COMBATLOG_OBJECT_TYPE_GUARDIAN
+	local playerOrPet = 5120 -- COMBATLOG_OBJECT_TYPE_PLAYER + COMBATLOG_OBJECT_TYPE_PET
+	local playerOrPetOrGuardian = 13312 -- COMBATLOG_OBJECT_TYPE_PLAYER + COMBATLOG_OBJECT_TYPE_PET + COMBATLOG_OBJECT_TYPE_GUARDIAN
 	local band = bit.band
 	-- Note some things we are trying to avoid filtering:
 	-- BRF/Kagraz - Player damage with no source "SPELL_DAMAGE##nil#Player-GUID#PLAYER#154938#Molten Torrent#"
@@ -563,28 +565,27 @@ do
 	-- HFC/Zakuun - Player boss debuff cast on self "SPELL_AURA_APPLIED#Player-GUID#PLAYER#Player-GUID#PLAYER#189030#Befouled#DEBUFF#"
 	function sh.COMBAT_LOG_EVENT_UNFILTERED(timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount)
 		if badEvents[event] or (notFlaggedAsGuardian[spellId] and notFlaggedAsGuardian[spellId] == MobId(sourceGUID)) or
-		   (sourceName and badPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0) or
-		   (sourceName and badPlayerFilteredEvents[event] and playerSpellBlacklist[spellId] and band(sourceFlags, playerOrPet) ~= 0) or
-		   (not sourceName and destName and badPlayerFilteredEvents[event] and badSourcelessPlayerSpellList[spellId] and band(destFlags, playerOrPet) ~= 0)
+		   (sourceName and badPlayerEvents[event] and band(sourceFlags, playerOrPetOrGuardian) ~= 0) or
+		   (sourceName and badPlayerFilteredEvents[event] and playerSpellBlacklist[spellId] and band(sourceFlags, playerOrPetOrGuardian) ~= 0) or
+		   (not sourceName and destName and badPlayerFilteredEvents[event] and badSourcelessPlayerSpellList[spellId] and band(destFlags, playerOrPetOrGuardian) ~= 0)
 		then
 			return
 		else
-			-- The Paraxis used spell 1784 in our blacklist but isn't marked as a guardian. Creature-0-3029-1712-4217-124445-0000048A9D
-			if (sourceName and badPlayerFilteredEvents[event] and playerSpellBlacklist[spellId] and band(sourceFlags, playerOrPet) == 0 and spellId ~= 1784) then -- 1784 = Stealth
-				print("Transcriptor:", sourceName, "used spell", spellId, "in our blacklist but isn't marked as a guardian.", sourceGUID)
+			if (sourceName and badPlayerFilteredEvents[event] and playerSpellBlacklist[spellId] and band(sourceFlags, playerOrPetOrGuardian) == 0) then
+				--print("Transcriptor:", sourceName..":"..MobId(sourceGUID), "used spell", spellName..":"..spellId, "in event", event, "but isn't marked as a guardian.")
 			end
 
-			if event == "SPELL_CAST_SUCCESS" and (not sourceName or band(sourceFlags, playerOrPet) == 0) then
+			if event == "SPELL_CAST_SUCCESS" and (not sourceName or band(sourceFlags, playerOrPetOrGuardian) == 0) then
 				if not compareSuccess then compareSuccess = {} end
 				if not compareSuccess[spellId] then compareSuccess[spellId] = {} end
 				compareSuccess[spellId][#compareSuccess[spellId]+1] = debugprofilestop()
 			end
-			if event == "SPELL_CAST_START" and (not sourceName or band(sourceFlags, playerOrPet) == 0) then
+			if event == "SPELL_CAST_START" and (not sourceName or band(sourceFlags, playerOrPetOrGuardian) == 0) then
 				if not compareStart then compareStart = {} end
 				if not compareStart[spellId] then compareStart[spellId] = {} end
 				compareStart[spellId][#compareStart[spellId]+1] = debugprofilestop()
 			end
-			if event == "SPELL_AURA_APPLIED" and (not sourceName or band(sourceFlags, playerOrPet) == 0) then
+			if event == "SPELL_AURA_APPLIED" and (not sourceName or band(sourceFlags, playerOrPetOrGuardian) == 0) then
 				if not compareAuraApplied then compareAuraApplied = {} end
 				if not compareAuraApplied[spellId] then compareAuraApplied[spellId] = {} end
 				compareAuraApplied[spellId][#compareAuraApplied[spellId]+1] = debugprofilestop()
