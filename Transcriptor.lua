@@ -49,8 +49,8 @@ local GetSpellTabInfo, GetNumSpellTabs, GetSpellBookItemInfo, GetSpellBookItemNa
 
 do
 	local origPrint = print
-	function print(msg)
-		return origPrint(format("|cffffff00%s|r", msg))
+	function print(msg, ...)
+		return origPrint(format("|cffffff00%s|r", msg), ...)
 	end
 
 	local origUnitName = UnitName
@@ -159,6 +159,7 @@ do
 			[234995] = true, -- Lunar Suffusion (Sisters)
 			[234996] = true, -- Umbra Suffusion (Sisters)
 			[236726] = true, -- Lunar Barrage (Sisters)
+			[235732] = true, -- Spiritual Barrier (Desolate Host)
 		}
 		for logName, logTbl in next, TranscriptDB do
 			if type(logTbl) == "table" and logTbl.total then
@@ -277,6 +278,15 @@ do
 			[240706] = true, -- Arcane Ward
 			[241032] = true, -- Desolation of the Moon
 			[241169] = true, -- Umbra Destruction
+			[236011] = true, -- Tormented Cries
+			[236241] = true, -- Soul Rot
+			[236459] = true, -- Soulbind
+			[235534] = true, -- Creator's Grace
+			[235538] = true, -- Demon's Vigor
+			[236420] = true, -- Aegwynn's Ward
+			[240209] = true, -- Unstable Soul
+			[240249] = true, -- Molten Fel
+			[243267] = true, -- Velen's Light
 		}
 		for logName, logTbl in next, TranscriptDB do
 			if type(logTbl) == "table" and logTbl.total then
@@ -535,6 +545,10 @@ do
 		["SPELL_ABSORBED"] = true,
 		["SPELL_CAST_FAILED"] = true,
 	}
+	local notFlaggedAsGuardian = {
+		[193473] = true, -- Void Tendril used spell 193473 in our blacklist but isn't marked as a guardian. Creature-0-3103-1676-16407-98167-00000418B8
+		[201633] = true, -- Earthen Shield Totem used spell 201633 in our blacklist but isn't marked as a guardian. Creature-0-3103-1676-16407-100943-000004195D
+	}
 	local playerOrPet = 13312 -- COMBATLOG_OBJECT_TYPE_PLAYER + COMBATLOG_OBJECT_TYPE_PET + COMBATLOG_OBJECT_TYPE_GUARDIAN
 	local band = bit.band
 	-- Note some things we are trying to avoid filtering:
@@ -542,12 +556,14 @@ do
 	-- HFC/Socrethar - Player cast on friendly vehicle "SPELL_CAST_SUCCESS#Player-GUID#PLAYER#Vehicle-0-3151-1448-8853-90296-00001D943C#Soulbound Construct#190466#Incomplete Binding"
 	-- HFC/Zakuun - Player boss debuff cast on self "SPELL_AURA_APPLIED#Player-GUID#PLAYER#Player-GUID#PLAYER#189030#Befouled#DEBUFF#"
 	function sh.COMBAT_LOG_EVENT_UNFILTERED(timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount)
-		if badEvents[event] or spellId == 120694 or -- Dire Beast, Creature applies buff to player
+		if badEvents[event] or notFlaggedAsGuardian[spellId] or
 		   (sourceName and badPlayerEvents[event] and band(sourceFlags, playerOrPet) ~= 0) or
 		   (sourceName and badPlayerFilteredEvents[event] and playerSpellBlacklist[spellId] and band(sourceFlags, playerOrPet) ~= 0) or
 		   (not sourceName and destName and badPlayerFilteredEvents[event] and badSourcelessPlayerSpellList[spellId] and band(destFlags, playerOrPet) ~= 0)
 		then
 			return
+		elseif (sourceName and badPlayerFilteredEvents[event] and playerSpellBlacklist[spellId] and band(sourceFlags, playerOrPet) == 0) then
+			print("Transcriptor:", sourceName, "used spell", spellId, "in our blacklist but isn't marked as a guardian.", sourceGUID)
 		else
 			if event == "SPELL_CAST_SUCCESS" and (not sourceName or band(sourceFlags, playerOrPet) == 0) then
 				if not compareSuccess then compareSuccess = {} end
