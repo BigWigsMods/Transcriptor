@@ -149,12 +149,16 @@ do
 	end
 
 	local function GetLogSpells()
-		if InCombatLockdown() or UnitAffectingCombat("player") then return end
+		if InCombatLockdown() or UnitAffectingCombat("player") or IsFalling() then return end
 
 		local total, totalSorted = {}, {}
 		local auraTbl, castTbl, summonTbl = {}, {}, {}
 		local aurasSorted, castsSorted, summonSorted = {}, {}, {}
 		local ignoreList = {
+			[233430] = true, -- Unbearable Torment (Demonic Inquisition)
+			[234995] = true, -- Lunar Suffusion (Sisters)
+			[234996] = true, -- Umbra Suffusion (Sisters)
+			[236726] = true, -- Lunar Barrage (Sisters)
 		}
 		for logName, logTbl in next, TranscriptDB do
 			if type(logTbl) == "table" and logTbl.total then
@@ -266,6 +270,13 @@ do
 		auraTbl, castTbl, summonTbl = {}, {}, {}
 		aurasSorted, castsSorted, summonSorted = {}, {}, {}
 		ignoreList = {
+			[236283] = true, -- Belac's Prisoner
+			[236516] = true, -- Twilight Volley
+			[236519] = true, -- Moon Burn
+			[237351] = true, -- Lunar Barrage
+			[240706] = true, -- Arcane Ward
+			[241032] = true, -- Desolation of the Moon
+			[241169] = true, -- Umbra Destruction
 		}
 		for logName, logTbl in next, TranscriptDB do
 			if type(logTbl) == "table" and logTbl.total then
@@ -452,6 +463,7 @@ end
 --
 
 local eventFrame = CreateFrame("Frame")
+eventFrame:Hide()
 
 local sh = {}
 function sh.UPDATE_WORLD_STATES()
@@ -485,6 +497,7 @@ do
 		[173288] = true, -- Hemet's Heartseeker
 		[173322] = true, -- Mark of Bleeding Hollow
 		[183767] = true, -- Doom Shroom
+		[222278] = true, -- Grim Resolve
 	}
 	local badPlayerFilteredEvents = {
 		["SPELL_CAST_SUCCESS"] = true,
@@ -844,31 +857,6 @@ local dbmEvents = {
 }
 
 local function eventHandler(self, event, ...)
-	-- Throw this in here rather than polling it.
-	if not inEncounter and IsEncounterInProgress() then
-		inEncounter = true
-		tinsert(currentLog.total, format("<%.2f %s> [IsEncounterInProgress()] true", t, time))
-		if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
-		tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterInProgress()] true", t, time))
-	elseif inEncounter and not IsEncounterInProgress() then
-		inEncounter = false
-		tinsert(currentLog.total, format("<%.2f %s> [IsEncounterInProgress()] false", t, time))
-		if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
-		tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterInProgress()] false", t, time))
-	end
-	if not blockingRelease and IsEncounterSuppressingRelease() then
-		blockingRelease = true
-		tinsert(currentLog.total, format("<%.2f %s> [IsEncounterSuppressingRelease()] true", t, time))
-		if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
-		tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterSuppressingRelease()] true", t, time))
-	elseif blockingRelease and not IsEncounterSuppressingRelease() then
-		blockingRelease = false
-		tinsert(currentLog.total, format("<%.2f %s> [IsEncounterSuppressingRelease()] false", t, time))
-		if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
-		tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterSuppressingRelease()] false", t, time))
-	end
-	--
-
 	if TranscriptDB.ignoredEvents[event] then return end
 	local line
 	if sh[event] then
@@ -893,6 +881,42 @@ local function eventHandler(self, event, ...)
 	end
 end
 eventFrame:SetScript("OnEvent", eventHandler)
+eventFrame:SetScript("OnUpdate", function()
+	if not inEncounter and IsEncounterInProgress() then
+		inEncounter = true
+		local stop = debugprofilestop() / 1000
+		local t = stop - logStartTime
+		local time = date("%H:%M:%S")
+		tinsert(currentLog.total, format("<%.2f %s> [IsEncounterInProgress()] true", t, time))
+		if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
+		tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterInProgress()] true", t, time))
+	elseif inEncounter and not IsEncounterInProgress() then
+		inEncounter = false
+		local stop = debugprofilestop() / 1000
+		local t = stop - logStartTime
+		local time = date("%H:%M:%S")
+		tinsert(currentLog.total, format("<%.2f %s> [IsEncounterInProgress()] false", t, time))
+		if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
+		tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterInProgress()] false", t, time))
+	end
+	if not blockingRelease and IsEncounterSuppressingRelease() then
+		blockingRelease = true
+		local stop = debugprofilestop() / 1000
+		local t = stop - logStartTime
+		local time = date("%H:%M:%S")
+		tinsert(currentLog.total, format("<%.2f %s> [IsEncounterSuppressingRelease()] true", t, time))
+		if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
+		tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterSuppressingRelease()] true", t, time))
+	elseif blockingRelease and not IsEncounterSuppressingRelease() then
+		blockingRelease = false
+		local stop = debugprofilestop() / 1000
+		local t = stop - logStartTime
+		local time = date("%H:%M:%S")
+		tinsert(currentLog.total, format("<%.2f %s> [IsEncounterSuppressingRelease()] false", t, time))
+		if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
+		tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterSuppressingRelease()] false", t, time))
+	end
+end)
 
 --------------------------------------------------------------------------------
 -- Addon
@@ -1029,6 +1053,7 @@ do
 
 			if type(currentLog.total) ~= "table" then currentLog.total = {} end
 			--Register Events to be Tracked
+			eventFrame:Show()
 			for i, event in next, wowEvents do
 				if not TranscriptDB.ignoredEvents[event] then
 					eventFrame:RegisterEvent(event)
@@ -1078,6 +1103,7 @@ function Transcriptor:StopLog(silent)
 		ldb.text = L["|cff696969Idle|r"]
 		ldb.icon = "Interface\\AddOns\\Transcriptor\\icon_off"
 		--Clear Events
+		eventFrame:Hide()
 		eventFrame:UnregisterAllEvents()
 		if BigWigsLoader then
 			BigWigsLoader.SendMessage(eventFrame, "BigWigs_OnPluginDisable", eventFrame)
