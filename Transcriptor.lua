@@ -155,6 +155,7 @@ do
 		local auraTbl, castTbl, summonTbl = {}, {}, {}
 		local aurasSorted, castsSorted, summonSorted = {}, {}, {}
 		local ignoreList = {
+			[234264] = true, -- Melted Armor (Goroth)
 			[233430] = true, -- Unbearable Torment (Demonic Inquisition)
 			[234995] = true, -- Lunar Suffusion (Sisters)
 			[234996] = true, -- Umbra Suffusion (Sisters)
@@ -287,6 +288,12 @@ do
 			[240209] = true, -- Unstable Soul
 			[240249] = true, -- Molten Fel
 			[243267] = true, -- Velen's Light
+			[231768] = true, -- Drenching Waters
+			[231770] = true, -- Drenched
+			[232732] = true, -- Slicing Tornado
+			[232913] = true, -- Befouling Ink
+			[234621] = true, -- Devouring Maw 
+			[236329] = true, -- Star Burn
 		}
 		for logName, logTbl in next, TranscriptDB do
 			if type(logTbl) == "table" and logTbl.total then
