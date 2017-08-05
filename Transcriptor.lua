@@ -294,6 +294,7 @@ do
 			[232913] = true, -- Befouling Ink
 			[234621] = true, -- Devouring Maw 
 			[236329] = true, -- Star Burn
+			[243294] = true, -- Fel Slicer
 		}
 		for logName, logTbl in next, TranscriptDB do
 			if type(logTbl) == "table" and logTbl.total then
@@ -526,6 +527,7 @@ do
 		["SPELL_CAST_START"] = true,
 		["SPELL_SUMMON"] = true,
 		--"<87.10 17:55:03> [CLEU] SPELL_AURA_BROKEN_SPELL#Creature-0-3771-1676-28425-118022-000004A6B5#Infernal Chaosbringer#Player-XXX#XXX#115191#Stealth#242906#Immolation Aura", -- [148]
+		--"<498.56 22:02:38> [CLEU] SPELL_AURA_BROKEN_SPELL#Creature-0-3895-1676-10786-106551-00008631CC-TSGuardian#Hati#Creature-0-3895-1676-10786-120697-000086306F#Worshiper of Elune#206961#Tremble Before Me#118459#Beast Cleave", -- [8039]
 		--["SPELL_AURA_BROKEN_SPELL"] = true,
 	}
 	local badPlayerEvents = {
@@ -558,39 +560,39 @@ do
 		local _, _, _, _, _, id = strsplit("-", guid)
 		return tonumber(id) or 1
 	end
-	local guardian = 8192 -- COMBATLOG_OBJECT_TYPE_GUARDIAN
-	local playerOrPetOrGuardian = 13312 -- COMBATLOG_OBJECT_TYPE_PLAYER + COMBATLOG_OBJECT_TYPE_PET + COMBATLOG_OBJECT_TYPE_GUARDIAN
+	local mineOrPartyOrRaid = 7 -- COMBATLOG_OBJECT_AFFILIATION_MINE + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_RAID
 	local band = bit.band
 	-- Note some things we are trying to avoid filtering:
 	-- BRF/Kagraz - Player damage with no source "SPELL_DAMAGE##nil#Player-GUID#PLAYER#154938#Molten Torrent#"
 	-- HFC/Socrethar - Player cast on friendly vehicle "SPELL_CAST_SUCCESS#Player-GUID#PLAYER#Vehicle-0-3151-1448-8853-90296-00001D943C#Soulbound Construct#190466#Incomplete Binding"
 	-- HFC/Zakuun - Player boss debuff cast on self "SPELL_AURA_APPLIED#Player-GUID#PLAYER#Player-GUID#PLAYER#189030#Befouled#DEBUFF#"
+	-- ToS/Sisters - Boss pet marked as guardian "SPELL_CAST_SUCCESS#Creature-0-3895-1676-10786-119205-0000063360#Moontalon##nil#236697#Deathly Screech"
 	function sh.COMBAT_LOG_EVENT_UNFILTERED(timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount)
 		if badEvents[event] or
-		   (sourceName and badPlayerEvents[event] and band(sourceFlags, playerOrPetOrGuardian) ~= 0) or
-		   (sourceName and badPlayerFilteredEvents[event] and playerSpellBlacklist[spellId] and band(sourceFlags, playerOrPetOrGuardian) ~= 0) or
-		   (not sourceName and destName and badPlayerFilteredEvents[event] and badSourcelessPlayerSpellList[spellId] and band(destFlags, playerOrPetOrGuardian) ~= 0)
+		   (sourceName and badPlayerEvents[event] and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or
+		   (sourceName and badPlayerFilteredEvents[event] and playerSpellBlacklist[spellId] and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or
+		   (not sourceName and destName and badPlayerFilteredEvents[event] and badSourcelessPlayerSpellList[spellId] and band(destFlags, mineOrPartyOrRaid) ~= 0)
 		then
 			return
 		else
-			--if (sourceName and badPlayerFilteredEvents[event] and playerSpellBlacklist[spellId] and band(sourceFlags, playerOrPetOrGuardian) == 0) then
-			--	print("Transcriptor:", sourceName..":"..MobId(sourceGUID), "used spell", spellName..":"..spellId, "in event", event, "but isn't marked as a guardian.")
+			--if (sourceName and badPlayerFilteredEvents[event] and playerSpellBlacklist[spellId] and band(sourceFlags, mineOrPartyOrRaid) == 0) then
+			--	print("Transcriptor:", sourceName..":"..MobId(sourceGUID), "used spell", spellName..":"..spellId, "in event", event, "but isn't in our group.")
 			--end
 
-			if band(sourceFlags, guardian) == guardian then
-				sourceGUID = sourceGUID .. "-TSGuardian"
+			if band(sourceFlags, mineOrPartyOrRaid) == mineOrPartyOrRaid then
+				sourceGUID = sourceGUID .. "-TSGROUP"
 			end
-			if event == "SPELL_CAST_SUCCESS" and (not sourceName or band(sourceFlags, playerOrPetOrGuardian) == 0) then
+			if event == "SPELL_CAST_SUCCESS" and (not sourceName or band(sourceFlags, mineOrPartyOrRaid) == 0) then
 				if not compareSuccess then compareSuccess = {} end
 				if not compareSuccess[spellId] then compareSuccess[spellId] = {} end
 				compareSuccess[spellId][#compareSuccess[spellId]+1] = debugprofilestop()
 			end
-			if event == "SPELL_CAST_START" and (not sourceName or band(sourceFlags, playerOrPetOrGuardian) == 0) then
+			if event == "SPELL_CAST_START" and (not sourceName or band(sourceFlags, mineOrPartyOrRaid) == 0) then
 				if not compareStart then compareStart = {} end
 				if not compareStart[spellId] then compareStart[spellId] = {} end
 				compareStart[spellId][#compareStart[spellId]+1] = debugprofilestop()
 			end
-			if event == "SPELL_AURA_APPLIED" and (not sourceName or band(sourceFlags, playerOrPetOrGuardian) == 0) then
+			if event == "SPELL_AURA_APPLIED" and (not sourceName or band(sourceFlags, mineOrPartyOrRaid) == 0) then
 				if not compareAuraApplied then compareAuraApplied = {} end
 				if not compareAuraApplied[spellId] then compareAuraApplied[spellId] = {} end
 				compareAuraApplied[spellId][#compareAuraApplied[spellId]+1] = debugprofilestop()
