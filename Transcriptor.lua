@@ -553,17 +553,12 @@ do
 		["SPELL_ABSORBED"] = true,
 		["SPELL_CAST_FAILED"] = true,
 	}
-	local notFlaggedAsGuardian = {
-		--[193473] = 98167, -- Void Tendril used spell 193473 in our blacklist but isn't marked as a guardian. Creature-0-3103-1676-16407-98167-00000418B8
-		--[201633] = 100943, -- Earthen Shield Totem used spell 201633 in our blacklist but isn't marked as a guardian. Creature-0-3103-1676-16407-100943-000004195D
-		--[55078] = 27893, -- Rune Weapon used spell 55078 in our blacklist but isn't marked as a guardian. Creature-0-3029-1712-4217-27893-000004989D
-	}
 	local function MobId(guid)
 		if not guid then return 1 end
 		local _, _, _, _, _, id = strsplit("-", guid)
 		return tonumber(id) or 1
 	end
-	local playerOrPet = 5120 -- COMBATLOG_OBJECT_TYPE_PLAYER + COMBATLOG_OBJECT_TYPE_PET
+	local guardian = 8192 -- COMBATLOG_OBJECT_TYPE_GUARDIAN
 	local playerOrPetOrGuardian = 13312 -- COMBATLOG_OBJECT_TYPE_PLAYER + COMBATLOG_OBJECT_TYPE_PET + COMBATLOG_OBJECT_TYPE_GUARDIAN
 	local band = bit.band
 	-- Note some things we are trying to avoid filtering:
@@ -571,17 +566,20 @@ do
 	-- HFC/Socrethar - Player cast on friendly vehicle "SPELL_CAST_SUCCESS#Player-GUID#PLAYER#Vehicle-0-3151-1448-8853-90296-00001D943C#Soulbound Construct#190466#Incomplete Binding"
 	-- HFC/Zakuun - Player boss debuff cast on self "SPELL_AURA_APPLIED#Player-GUID#PLAYER#Player-GUID#PLAYER#189030#Befouled#DEBUFF#"
 	function sh.COMBAT_LOG_EVENT_UNFILTERED(timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount)
-		if badEvents[event] or (notFlaggedAsGuardian[spellId] and notFlaggedAsGuardian[spellId] == MobId(sourceGUID)) or
+		if badEvents[event] or
 		   (sourceName and badPlayerEvents[event] and band(sourceFlags, playerOrPetOrGuardian) ~= 0) or
 		   (sourceName and badPlayerFilteredEvents[event] and playerSpellBlacklist[spellId] and band(sourceFlags, playerOrPetOrGuardian) ~= 0) or
 		   (not sourceName and destName and badPlayerFilteredEvents[event] and badSourcelessPlayerSpellList[spellId] and band(destFlags, playerOrPetOrGuardian) ~= 0)
 		then
 			return
 		else
-			if (sourceName and badPlayerFilteredEvents[event] and playerSpellBlacklist[spellId] and band(sourceFlags, playerOrPetOrGuardian) == 0) then
-				--print("Transcriptor:", sourceName..":"..MobId(sourceGUID), "used spell", spellName..":"..spellId, "in event", event, "but isn't marked as a guardian.")
-			end
+			--if (sourceName and badPlayerFilteredEvents[event] and playerSpellBlacklist[spellId] and band(sourceFlags, playerOrPetOrGuardian) == 0) then
+			--	print("Transcriptor:", sourceName..":"..MobId(sourceGUID), "used spell", spellName..":"..spellId, "in event", event, "but isn't marked as a guardian.")
+			--end
 
+			if band(sourceFlags, guardian) == guardian then
+				sourceGUID = sourceGUID .. "-TSGuardian"
+			end
 			if event == "SPELL_CAST_SUCCESS" and (not sourceName or band(sourceFlags, playerOrPetOrGuardian) == 0) then
 				if not compareSuccess then compareSuccess = {} end
 				if not compareSuccess[spellId] then compareSuccess[spellId] = {} end
