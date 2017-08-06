@@ -170,6 +170,9 @@ do
 			[234996] = true, -- Umbra Suffusion (Sisters)
 			[236726] = true, -- Lunar Barrage (Sisters)
 			[235732] = true, -- Spiritual Barrier (Desolate Host)
+			[235117] = true, -- Unstable Soul (Maiden of Vigilance)
+			[238028] = true, -- Light Remanence (Maiden of Vigilance)
+			[238408] = true, -- Fel Remanence (Maiden of Vigilance)
 		}
 		for logName, logTbl in next, TranscriptDB do
 			if type(logTbl) == "table" and logTbl.total then
@@ -177,7 +180,7 @@ do
 					local text = logTbl.total[i]
 
 					-- AURA
-					local name, destGUID, tarName, id, spellName = text:match("SPELL_AURA_[^#]+#P[le][at][^#]+#([^#]+)#([^#]*)#([^#]+)#(%d+)#([^#]+)#")
+					local name, destGUID, tarName, id, spellName = text:match("SPELL_AURA_[AR][^#]+#P[le][at][^#]+#([^#]+)#([^#]*)#([^#]+)#(%d+)#([^#]+)#") -- SPELL_AURA_[AR] to filter _BROKEN
 					id = tonumber(id)
 					local trim = destGUID and destGUID:find("^P[le][at]")
 					if id and not ignoreList[id] and not playerSpellBlacklist[id] and not total[id] and #aurasSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
@@ -304,6 +307,8 @@ do
 			[234621] = true, -- Devouring Maw 
 			[236329] = true, -- Star Burn
 			[243294] = true, -- Fel Slicer
+			[238442] = true, -- Spear of Anguish
+			[241593] = true, -- Aegwynn's Ward
 		}
 		for logName, logTbl in next, TranscriptDB do
 			if type(logTbl) == "table" and logTbl.total then
@@ -311,7 +316,7 @@ do
 					local text = logTbl.total[i]
 
 					-- AURA
-					local name, destGUID, tarName, id, spellName = text:match("SPELL_AURA_[AR][^#]+##([^#]+)#(P[le][at][^#]+)#([^#]+)#(%d+)#([^#]+)#") -- For sourceless we use SPELL_AURA_[AR] to filter _BROKEN which usually originates from NPCs
+					local name, destGUID, tarName, id, spellName = text:match("SPELL_AURA_[AR][^#]+##([^#]+)#(P[le][at][^#]+)#([^#]+)#(%d+)#([^#]+)#") -- SPELL_AURA_[AR] to filter _BROKEN
 					id = tonumber(id)
 					if name == "nil" and id and not ignoreList[id] and not badSourcelessPlayerSpellList[id] and not total[id] and #aurasSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
 						auraTbl[id] = tarName:gsub("%-.+", "*")
