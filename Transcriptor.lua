@@ -17,6 +17,7 @@ local logName = nil
 local currentLog = nil
 local logStartTime = nil
 local logging = nil
+local previousWorldState = nil
 local compareSuccess = nil
 local compareUnitSuccess = nil
 local compareStart = nil
@@ -496,7 +497,12 @@ function sh.UPDATE_WORLD_STATES()
 			end
 		end
 	end
-	return ret
+	if not ret or ret == previousWorldState then
+		return
+	else
+		previousWorldState = ret
+		return ret
+	end
 end
 sh.WORLD_STATE_UI_TIMER_UPDATE = sh.UPDATE_WORLD_STATES
 
@@ -1075,6 +1081,7 @@ do
 		else
 			ldb.text = L["|cffFF0000Recording|r"]
 			ldb.icon = "Interface\\AddOns\\Transcriptor\\icon_on"
+			previousWorldState = nil
 
 			compareStartTime = debugprofilestop()
 			logStartTime = compareStartTime / 1000
@@ -1138,6 +1145,8 @@ function Transcriptor:StopLog(silent)
 	else
 		ldb.text = L["|cff696969Idle|r"]
 		ldb.icon = "Interface\\AddOns\\Transcriptor\\icon_off"
+		previousWorldState = nil
+
 		--Clear Events
 		eventFrame:Hide()
 		eventFrame:UnregisterAllEvents()
