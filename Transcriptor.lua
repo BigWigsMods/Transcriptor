@@ -23,6 +23,7 @@ local compareUnitSuccess = nil
 local compareStart = nil
 local compareAuraApplied = nil
 local compareStartTime = nil
+local collectPlayerAuras = nil
 local inEncounter, blockingRelease = false, false
 local wowVersion, buildRevision, _, buildTOC = GetBuildInfo() -- Note that both returns here are strings, not numbers.
 
@@ -58,6 +59,12 @@ do
 	function UnitName(name)
 		return origUnitName(name) or "??"
 	end
+end
+
+local function MobId(guid)
+	if not guid then return 1 end
+	local _, _, _, _, _, id = strsplit("-", guid)
+	return tonumber(id) or 1
 end
 
 --------------------------------------------------------------------------------
@@ -561,11 +568,6 @@ do
 		["SPELL_ABSORBED"] = true,
 		["SPELL_CAST_FAILED"] = true,
 	}
-	local function MobId(guid)
-		if not guid then return 1 end
-		local _, _, _, _, _, id = strsplit("-", guid)
-		return tonumber(id) or 1
-	end
 	local mineOrPartyOrRaid = 7 -- COMBATLOG_OBJECT_AFFILIATION_MINE + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_RAID
 	local guardian = 8192 -- COMBATLOG_OBJECT_TYPE_GUARDIAN
 	local band = bit.band
@@ -593,17 +595,29 @@ do
 			if event == "SPELL_CAST_SUCCESS" and (not sourceName or band(sourceFlags, mineOrPartyOrRaid) == 0) then
 				if not compareSuccess then compareSuccess = {} end
 				if not compareSuccess[spellId] then compareSuccess[spellId] = {} end
-				compareSuccess[spellId][#compareSuccess[spellId]+1] = debugprofilestop()
+				local npcId = MobId(sourceGUID)
+				if not compareSuccess[spellId][npcId] then compareSuccess[spellId][npcId] = {} end
+				compareSuccess[spellId][npcId][#compareSuccess[spellId][npcId]+1] = debugprofilestop()
 			end
 			if event == "SPELL_CAST_START" and (not sourceName or band(sourceFlags, mineOrPartyOrRaid) == 0) then
 				if not compareStart then compareStart = {} end
 				if not compareStart[spellId] then compareStart[spellId] = {} end
-				compareStart[spellId][#compareStart[spellId]+1] = debugprofilestop()
+				local npcId = MobId(sourceGUID)
+				if not compareStart[spellId][npcId] then compareStart[spellId][npcId] = {} end
+				compareStart[spellId][npcId][#compareStart[spellId][npcId]+1] = debugprofilestop()
 			end
 			if event == "SPELL_AURA_APPLIED" and (not sourceName or band(sourceFlags, mineOrPartyOrRaid) == 0) then
 				if not compareAuraApplied then compareAuraApplied = {} end
 				if not compareAuraApplied[spellId] then compareAuraApplied[spellId] = {} end
-				compareAuraApplied[spellId][#compareAuraApplied[spellId]+1] = debugprofilestop()
+				local npcId = MobId(sourceGUID)
+				if not compareAuraApplied[spellId][npcId] then compareAuraApplied[spellId][npcId] = {} end
+				compareAuraApplied[spellId][npcId][#compareAuraApplied[spellId][npcId]+1] = debugprofilestop()
+			end
+
+			if sourceName and badPlayerFilteredEvents[event] and band(sourceFlags, mineOrPartyOrRaid) ~= 0 then
+				if not collectPlayerAuras then collectPlayerAuras = {} end
+				if not collectPlayerAuras[spellId] then collectPlayerAuras[spellId] = {} end
+				if not collectPlayerAuras[spellId][event] then collectPlayerAuras[spellId][event] = true end
 			end
 
 			return strjoin("#", tostringall(event, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount))
@@ -657,7 +671,9 @@ do
 			local _, _, _, spellId = ...
 			if not compareUnitSuccess then compareUnitSuccess = {} end
 			if not compareUnitSuccess[spellId] then compareUnitSuccess[spellId] = {} end
-			compareUnitSuccess[spellId][#compareUnitSuccess[spellId]+1] = debugprofilestop()
+			local npcId = MobId(UnitGUID(unit))
+			if not compareUnitSuccess[spellId][npcId] then compareUnitSuccess[spellId][npcId] = {} end
+			compareUnitSuccess[spellId][npcId][#compareUnitSuccess[spellId][npcId]+1] = debugprofilestop()
 			return format("%s(%s) [[%s]]", UnitName(unit), UnitName(unit.."target"), strjoin(":", tostringall(unit, ...)))
 		end
 	end
@@ -1165,76 +1181,94 @@ function Transcriptor:StopLog(silent)
 			print(L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."])
 		end
 
-		if compareSuccess or compareStart or compareAuraApplied then
+		if compareSuccess or compareStart or compareAuraApplied or compareUnitSuccess then
 			currentLog.TIMERS = {}
 			if compareSuccess then
 				currentLog.TIMERS.SPELL_CAST_SUCCESS = {}
 				for id,tbl in next, compareSuccess do
-					local n = format("%d-%s", id, (GetSpellInfo(id)))
-					local str
-					for i = 1, #tbl do
-						if not str then
-							local t = tbl[i] - compareStartTime
-							str = format("pull:%.1f", t/1000)
-						else
-							local t = tbl[i] - tbl[i-1]
-							str = format("%s, %.1f", str, t/1000)
+					for npcId, list in next, tbl do
+						local n = format("%d-%s-npc:%d", id, GetSpellInfo(id), npcId)
+						local str
+						for i = 1, #list do
+							if not str then
+								local t = list[i] - compareStartTime
+								str = format("pull:%.1f", t/1000)
+							else
+								local t = list[i] - list[i-1]
+								str = format("%s, %.1f", str, t/1000)
+							end
 						end
+						currentLog.TIMERS.SPELL_CAST_SUCCESS[n] = str
 					end
-					currentLog.TIMERS.SPELL_CAST_SUCCESS[n] = str
 				end
 			end
 			if compareStart then
 				currentLog.TIMERS.SPELL_CAST_START = {}
 				for id,tbl in next, compareStart do
-					local n = format("%d-%s", id, (GetSpellInfo(id)))
-					local str
-					for i = 1, #tbl do
-						if not str then
-							local t = tbl[i] - compareStartTime
-							str = format("pull:%.1f", t/1000)
-						else
-							local t = tbl[i] - tbl[i-1]
-							str = format("%s, %.1f", str, t/1000)
+					for npcId, list in next, tbl do
+						local n = format("%d-%s-npc:%d", id, GetSpellInfo(id), npcId)
+						local str
+						for i = 1, #list do
+							if not str then
+								local t = list[i] - compareStartTime
+								str = format("pull:%.1f", t/1000)
+							else
+								local t = list[i] - list[i-1]
+								str = format("%s, %.1f", str, t/1000)
+							end
 						end
+						currentLog.TIMERS.SPELL_CAST_START[n] = str
 					end
-					currentLog.TIMERS.SPELL_CAST_START[n] = str
 				end
 			end
 			if compareAuraApplied then
 				currentLog.TIMERS.SPELL_AURA_APPLIED = {}
 				for id,tbl in next, compareAuraApplied do
-					local n = format("%d-%s", id, (GetSpellInfo(id)))
-					local str
-					for i = 1, #tbl do
-						if not str then
-							local t = tbl[i] - compareStartTime
-							str = format("pull:%.1f", t/1000)
-						else
-							local t = tbl[i] - tbl[i-1]
-							str = format("%s, %.1f", str, t/1000)
+					for npcId, list in next, tbl do
+						local n = format("%d-%s-npc:%d", id, GetSpellInfo(id), npcId)
+						local str
+						for i = 1, #list do
+							if not str then
+								local t = list[i] - compareStartTime
+								str = format("pull:%.1f", t/1000)
+							else
+								local t = list[i] - list[i-1]
+								str = format("%s, %.1f", str, t/1000)
+							end
 						end
+						currentLog.TIMERS.SPELL_AURA_APPLIED[n] = str
 					end
-					currentLog.TIMERS.SPELL_AURA_APPLIED[n] = str
 				end
 			end
 			if compareUnitSuccess then
 				currentLog.TIMERS.UNIT_SPELLCAST_SUCCEEDED = {}
 				for id,tbl in next, compareUnitSuccess do
-					if not compareSuccess or not compareSuccess[id] then
-						local n = format("%d-%s", id, (GetSpellInfo(id)))
-						local str
-						for i = 1, #tbl do
-							if not str then
-								local t = tbl[i] - compareStartTime
-								str = format("pull:%.1f", t/1000)
-							else
-								local t = tbl[i] - tbl[i-1]
-								str = format("%s, %.1f", str, t/1000)
+					for npcId, list in next, tbl do
+						if not compareSuccess or not compareSuccess[id] or not compareSuccess[id][npcId] then
+							local n = format("%d-%s-npc:%d", id, GetSpellInfo(id), npcId)
+							local str
+							for i = 1, #list do
+								if not str then
+									local t = list[i] - compareStartTime
+									str = format("pull:%.1f", t/1000)
+								else
+									local t = list[i] - list[i-1]
+									str = format("%s, %.1f", str, t/1000)
+								end
 							end
+							currentLog.TIMERS.UNIT_SPELLCAST_SUCCEEDED[n] = str
 						end
-						currentLog.TIMERS.UNIT_SPELLCAST_SUCCEEDED[n] = str
 					end
+				end
+			end
+		end
+		if collectPlayerAuras then
+			currentLog.TIMERS.PLAYER_AURAS = {}
+			for id,tbl in next, collectPlayerAuras do
+				local n = format("%d-%s", id, (GetSpellInfo(id)))
+				currentLog.TIMERS.PLAYER_AURAS[n] = {}
+				for event in next, tbl do
+					currentLog.TIMERS.PLAYER_AURAS[n][#currentLog.TIMERS.PLAYER_AURAS[n]+1] = event
 				end
 			end
 		end
@@ -1247,6 +1281,7 @@ function Transcriptor:StopLog(silent)
 		compareStart = nil
 		compareAuraApplied = nil
 		compareStartTime = nil
+		collectPlayerAuras = nil
 		logStartTime = nil
 
 		return logName
