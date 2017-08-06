@@ -899,7 +899,7 @@ local dbmEvents = {
 }
 
 local function eventHandler(self, event, ...)
-	if TranscriptDB.ignoredEvents[event] then return end
+	if TranscriptIgnore[event] then return end
 	local line
 	if sh[event] then
 		line = sh[event](...)
@@ -1003,8 +1003,8 @@ local function insertMenuItems(tbl)
 	for i, v in next, tbl do
 		tinsert(menu, {
 			text = v,
-			func = function() TranscriptDB.ignoredEvents[v] = not TranscriptDB.ignoredEvents[v] end,
-			checked = function() return TranscriptDB.ignoredEvents[v] end,
+			func = function() TranscriptIgnore[v] = not TranscriptIgnore[v] end,
+			checked = function() return TranscriptIgnore[v] end,
 			isNotRadio = true,
 			keepShownOnClick = 1,
 		})
@@ -1014,8 +1014,9 @@ end
 
 local init = CreateFrame("Frame")
 init:SetScript("OnEvent", function(self, event, addon)
-	TranscriptDB = TranscriptDB or {}
-	if not TranscriptDB.ignoredEvents then TranscriptDB.ignoredEvents = {} end
+	if type(TranscriptDB) ~= "table" then TranscriptDB = {} end
+	if type(TranscriptIgnore) ~= "table" then TranscriptIgnore = {} end
+	TranscriptDB.ignoredEvents = nil
 
 	tinsert(menu, { text = L["|cFFFFD200Transcriptor|r - Disabled Events"], fontObject = "GameTooltipHeader", notCheckable = 1 })
 	insertMenuItems(wowEvents)
@@ -1091,27 +1092,27 @@ do
 			logName = format(logNameFormat, date("%Y-%m-%d"), date("%H:%M:%S"), GetCurrentMapAreaID() or 0, instanceId or 0, GetZoneText() or "?", GetRealZoneText() or "?", GetSubZoneText() or "none", diffText)
 
 			if type(TranscriptDB[logName]) ~= "table" then TranscriptDB[logName] = {} end
-			if type(TranscriptDB.ignoredEvents) ~= "table" then TranscriptDB.ignoredEvents = {} end
+			if type(TranscriptIgnore) ~= "table" then TranscriptIgnore = {} end
 			currentLog = TranscriptDB[logName]
 
 			if type(currentLog.total) ~= "table" then currentLog.total = {} end
 			--Register Events to be Tracked
 			eventFrame:Show()
 			for i, event in next, wowEvents do
-				if not TranscriptDB.ignoredEvents[event] then
+				if not TranscriptIgnore[event] then
 					eventFrame:RegisterEvent(event)
 				end
 			end
 			if BigWigsLoader then
 				for i, event in next, bwEvents do
-					if not TranscriptDB.ignoredEvents[event] then
+					if not TranscriptIgnore[event] then
 						BigWigsLoader.RegisterMessage(eventFrame, event, BWEventHandler)
 					end
 				end
 			end
 			if DBM then
 				for i, event in next, dbmEvents do
-					if not TranscriptDB.ignoredEvents[event] then
+					if not TranscriptIgnore[event] then
 						DBM:RegisterCallback(event, DBMEventHandler)
 					end
 				end
@@ -1254,12 +1255,7 @@ end
 
 function Transcriptor:ClearAll()
 	if not logging then
-		local t2 = {}
-		for k, v in next, TranscriptDB.ignoredEvents do
-			t2[k] = v
-		end
 		TranscriptDB = {}
-		TranscriptDB.ignoredEvents = t2
 		print(L["All transcripts cleared."])
 	else
 		print(L["You can't clear your transcripts while logging an encounter."])
