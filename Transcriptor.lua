@@ -165,6 +165,7 @@ do
 		local ignoreList = {
 			[234264] = true, -- Melted Armor (Goroth)
 			[233430] = true, -- Unbearable Torment (Demonic Inquisition)
+			[234332] = true, -- Hydra Acid (Mistress Sassz'ine)
 			[234995] = true, -- Lunar Suffusion (Sisters)
 			[234996] = true, -- Umbra Suffusion (Sisters)
 			[236726] = true, -- Lunar Barrage (Sisters)
