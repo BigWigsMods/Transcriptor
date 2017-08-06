@@ -567,7 +567,7 @@ do
 		return tonumber(id) or 1
 	end
 	local mineOrPartyOrRaid = 7 -- COMBATLOG_OBJECT_AFFILIATION_MINE + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_RAID
-	--local guardian = 8192 -- COMBATLOG_OBJECT_TYPE_GUARDIAN
+	local guardian = 8192 -- COMBATLOG_OBJECT_TYPE_GUARDIAN
 	local band = bit.band
 	-- Note some things we are trying to avoid filtering:
 	-- BRF/Kagraz - Player damage with no source "SPELL_DAMAGE##nil#Player-GUID#PLAYER#154938#Molten Torrent#"
@@ -576,7 +576,7 @@ do
 	-- ToS/Sisters - Boss pet marked as guardian "SPELL_CAST_SUCCESS#Creature-0-3895-1676-10786-119205-0000063360#Moontalon##nil#236697#Deathly Screech"
 	function sh.COMBAT_LOG_EVENT_UNFILTERED(timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount)
 		if badEvents[event] or
-		   (event == "UNIT_DIED" and band(destFlags, mineOrPartyOrRaid) ~= 0) or -- Filtering friendly deaths.
+		   (event == "UNIT_DIED" and band(destFlags, mineOrPartyOrRaid) ~= 0 and band(destFlags, guardian) == guardian) or -- Guardian deaths, player deaths can explain debuff removal
 		   (sourceName and badPlayerEvents[event] and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or
 		   (sourceName and badPlayerFilteredEvents[event] and playerSpellBlacklist[spellId] and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or
 		   (not sourceName and destName and badPlayerFilteredEvents[event] and badSourcelessPlayerSpellList[spellId] and band(destFlags, mineOrPartyOrRaid) ~= 0)
