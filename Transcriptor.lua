@@ -595,7 +595,7 @@ do
 			--	print("Transcriptor:", sourceName..":"..MobId(sourceGUID), "used spell", spellName..":"..spellId, "in event", event, "but isn't in our group.")
 			--end
 
-			--if sourceName and band(sourceFlags, mineOrPartyOrRaid) ~= 0 and not sourceGUID:find("^P[le][at]") then
+			--if sourceName and band(sourceFlags, mineOrPartyOrRaid) ~= 0 and not event:find("SPELL_AURA_BROKEN", nil, true) and not sourceGUID:find("^P[le][at]") then
 			--	sourceGUID = sourceGUID .. "-TSGROUP"
 			--end
 			if event == "SPELL_CAST_SUCCESS" and (not sourceName or band(sourceFlags, mineOrPartyOrRaid) == 0) then
