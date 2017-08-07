@@ -522,19 +522,6 @@ sh.WORLD_STATE_UI_TIMER_UPDATE = sh.UPDATE_WORLD_STATES
 do
 	badSourcelessPlayerSpellList = {
 		[81782] = true, -- Power Word: Barrier
-		[145629] = true, -- Anti-Magic Zone
-		[156055] = true, -- Oglethorpe's Missile Splitter
-		[156060] = true, -- Megawatt Filament
-		[157384] = true, -- Eye of the Storm
-		[159234] = true, -- Mark of the Thunderlord
-		[159675] = true, -- Mark of Warsong
-		[159676] = true, -- Mark of the Frostwolf
-		[159678] = true, -- Mark of Shadowmoon
-		[159679] = true, -- Mark of Blackrock
-		[173288] = true, -- Hemet's Heartseeker
-		[173322] = true, -- Mark of Bleeding Hollow
-		[183767] = true, -- Doom Shroom
-		[222278] = true, -- Grim Resolve
 	}
 	local badPlayerFilteredEvents = {
 		["SPELL_CAST_SUCCESS"] = true,
@@ -1269,6 +1256,7 @@ function Transcriptor:StopLog(silent)
 			end
 		end
 		if collectPlayerAuras then
+			if not currentLog.TIMERS then currentLog.TIMERS = {} end
 			currentLog.TIMERS.PLAYER_AURAS = {}
 			for id,tbl in next, collectPlayerAuras do
 				local n = format("%d-%s", id, (GetSpellInfo(id)))
