@@ -24,9 +24,12 @@ local compareStart = nil
 local compareAuraApplied = nil
 local compareStartTime = nil
 local collectPlayerAuras = nil
+local shouldLogFlags = false
 local inEncounter, blockingRelease = false, false
 local wowVersion, buildRevision, _, buildTOC = GetBuildInfo() -- Note that both returns here are strings, not numbers.
+local mineOrPartyOrRaid = 7 -- COMBATLOG_OBJECT_AFFILIATION_MINE + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_RAID
 
+local band = bit.band
 local tinsert = table.insert
 local format, strjoin = string.format, string.join
 local tostring, tostringall = tostring, tostringall
@@ -174,51 +177,44 @@ do
 			[238028] = true, -- Light Remanence (Maiden of Vigilance)
 			[238408] = true, -- Fel Remanence (Maiden of Vigilance)
 		}
+		local events = {
+			"SPELL_AURA_[AR][^#]+#(%d+)#([^#]+%-[^#]+)#([^#]+)#([^#]*)#([^#]+)#(%d+)#([^#]+)#", -- SPELL_AURA_[AR] to filter _BROKEN
+			"SPELL_CAST_[^#]+#(%d+)#([^#]+%-[^#]+)#([^#]+)#([^#]*)#([^#]+)#(%d+)#([^#]+)#",
+			"SPELL_SUMMON#(%d+)#([^#]+%-[^#]+)#([^#]+)#([^#]*)#([^#]+)#(%d+)#([^#]+)#"
+		}
+		local tables = {
+			auraTbl,
+			castTbl,
+			summonTbl,
+		}
+		local sortedTables = {
+			aurasSorted,
+			castsSorted,
+			summonSorted,
+		}
 		for logName, logTbl in next, TranscriptDB do
 			if type(logTbl) == "table" and logTbl.total then
 				for i=1, #logTbl.total do
 					local text = logTbl.total[i]
 
-					-- AURA
-					local name, destGUID, tarName, id, spellName = text:match("SPELL_AURA_[AR][^#]+#P[le][at][^#]+#([^#]+)#([^#]*)#([^#]+)#(%d+)#([^#]+)#") -- SPELL_AURA_[AR] to filter _BROKEN
-					id = tonumber(id)
-					local trim = destGUID and destGUID:find("^P[le][at]")
-					if id and not ignoreList[id] and not playerSpellBlacklist[id] and not total[id] and #aurasSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
-						if name == tarName then
-							auraTbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .." >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."|r"
-						else
-							auraTbl[id] = "|cFF3ADF00".. name:gsub("%-.+", "*") .." >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."|r"
+					for j = 1, 3 do
+						local flagsText, srcGUID, name, destGUID, tarName, idText, spellName = text:match(events[j])
+						local id = tonumber(idText)
+						local flags = tonumber(flagsText)
+						local tbl = tables[j]
+						local sortedTbl = sortedTables[j]
+						if id and flags and band(flags, mineOrPartyOrRaid) ~= 0 and not ignoreList[id] and not playerSpellBlacklist[id] and not total[id] and #sortedTbl < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
+							local srcGUIDType = strsplit("-", srcGUID)
+							local destGUIDType = strsplit("-", destGUID)
+							local trim = destGUID and destGUID:find("^P[le][at]")
+							if srcGUID == destGUID then
+								tbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .."(".. srcGUIDType ..") >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."(".. destGUIDType ..")|r"
+							else
+								tbl[id] = "|cFF3ADF00".. name:gsub("%-.+", "*") .."(".. srcGUIDType ..") >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."(".. destGUIDType ..")|r"
+							end
+							total[id] = true
+							sortedTbl[#sortedTbl+1] = id
 						end
-						total[id] = true
-						aurasSorted[#aurasSorted+1] = id
-					end
-
-					-- CAST
-					name, destGUID, tarName, id, spellName = text:match("SPELL_CAST_[^#]+#P[le][at][^#]+#([^#]+)#([^#]*)#([^#]+)#(%d+)#([^#]+)#")
-					id = tonumber(id)
-					local trim = destGUID and destGUID:find("^P[le][at]")
-					if id and not ignoreList[id] and not playerSpellBlacklist[id] and not total[id] and #castsSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
-						if name == tarName then
-							castTbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .." >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."|r"
-						else
-							castTbl[id] = "|cFF3ADF00".. name:gsub("%-.+", "*") .." >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."|r"
-						end
-						total[id] = true
-						castsSorted[#castsSorted+1] = id
-					end
-
-					-- SUMMON
-					name, destGUID, tarName, id, spellName = text:match("SPELL_SUMMON#P[le][at][^#]+#([^#]+)#([^#]*)#([^#]+)#(%d+)#([^#]+)#")
-					id = tonumber(id)
-					local trim = destGUID and destGUID:find("^P[le][at]")
-					if id and not ignoreList[id] and not playerSpellBlacklist[id] and not total[id] and #summonSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
-						if name == tarName then
-							summonTbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .." >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."|r"
-						else
-							summonTbl[id] = "|cFF3ADF00".. name:gsub("%-.+", "*") .." >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."|r"
-						end
-						total[id] = true
-						summonSorted[#summonSorted+1] = id
 					end
 				end
 			end
@@ -310,36 +306,38 @@ do
 			[238442] = true, -- Spear of Anguish
 			[241593] = true, -- Aegwynn's Ward
 		}
+		local eventsNoSource = {
+			"SPELL_AURA_[AR][^#]+#(%d+)##([^#]+)#([^#]+%-[^#]+)#([^#]+)#(%d+)#([^#]+)#", -- SPELL_AURA_[AR] to filter _BROKEN
+			"SPELL_CAST_[^#]+#(%d+)##([^#]+)#([^#]+%-[^#]+)#([^#]+)#(%d+)#([^#]+)#",
+			"SPELL_SUMMON#(%d+)##([^#]+)#([^#]+%-[^#]+)#([^#]+)#(%d+)#([^#]+)#"
+		}
+		tables = {
+			auraTbl,
+			castTbl,
+			summonTbl,
+		}
+		sortedTables = {
+			aurasSorted,
+			castsSorted,
+			summonSorted,
+		}
 		for logName, logTbl in next, TranscriptDB do
 			if type(logTbl) == "table" and logTbl.total then
 				for i=1, #logTbl.total do
 					local text = logTbl.total[i]
 
-					-- AURA
-					local name, destGUID, tarName, id, spellName = text:match("SPELL_AURA_[AR][^#]+##([^#]+)#(P[le][at][^#]+)#([^#]+)#(%d+)#([^#]+)#") -- SPELL_AURA_[AR] to filter _BROKEN
-					id = tonumber(id)
-					if name == "nil" and id and not ignoreList[id] and not badSourcelessPlayerSpellList[id] and not total[id] and #aurasSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
-						auraTbl[id] = tarName:gsub("%-.+", "*")
-						total[id] = true
-						aurasSorted[#aurasSorted+1] = id
-					end
-
-					-- CAST
-					name, destGUID, tarName, id, spellName = text:match("SPELL_CAST_[^#]+##([^#]+)#(P[le][at][^#]+)#([^#]+)#(%d+)#([^#]+)#")
-					id = tonumber(id)
-					if name == "nil" and id and not ignoreList[id] and not badSourcelessPlayerSpellList[id] and not total[id] and #castsSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
-						castTbl[id] = tarName:gsub("%-.+", "*")
-						total[id] = true
-						castsSorted[#castsSorted+1] = id
-					end
-
-					-- SUMMON
-					name, destGUID, tarName, id, spellName = text:match("SPELL_SUMMON##([^#]+)#(P[le][at][^#]+)#([^#]+)#(%d+)#([^#]+)#")
-					id = tonumber(id)
-					if name == "nil" and id and not ignoreList[id] and not badSourcelessPlayerSpellList[id] and not total[id] and #summonSorted < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
-						summonTbl[id] = tarName:gsub("%-.+", "*")
-						total[id] = true
-						summonSorted[#summonSorted+1] = id
+					for j = 1, 3 do
+						local flagsText, name, destGUID, tarName, idText, spellName = text:match(eventsNoSource[j])
+						local id = tonumber(idText)
+						local flags = tonumber(flagsText)
+						local tbl = tables[j]
+						local sortedTbl = sortedTables[j]
+						if name == "nil" and id and flags and band(flags, mineOrPartyOrRaid) ~= 0 and not ignoreList[id] and not badSourcelessPlayerSpellList[id] and not total[id] and #sortedTbl < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
+							local destGUIDType = strsplit("-", destGUID)
+							tbl[id] = tarName:gsub("%-.+", "*")
+							total[id] = true
+							sortedTbl[#sortedTbl+1] = id
+						end
 					end
 				end
 			end
@@ -561,9 +559,7 @@ do
 		["SPELL_ABSORBED"] = true,
 		["SPELL_CAST_FAILED"] = true,
 	}
-	local mineOrPartyOrRaid = 7 -- COMBATLOG_OBJECT_AFFILIATION_MINE + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_RAID
 	local guardian = 8192 -- COMBATLOG_OBJECT_TYPE_GUARDIAN
-	local band = bit.band
 	-- Note some things we are trying to avoid filtering:
 	-- BRF/Kagraz - Player damage with no source "SPELL_DAMAGE##nil#Player-GUID#PLAYER#154938#Molten Torrent#"
 	-- HFC/Socrethar - Player cast on friendly vehicle "SPELL_CAST_SUCCESS#Player-GUID#PLAYER#Vehicle-0-3151-1448-8853-90296-00001D943C#Soulbound Construct#190466#Incomplete Binding"
@@ -582,9 +578,6 @@ do
 			--	print("Transcriptor:", sourceName..":"..MobId(sourceGUID), "used spell", spellName..":"..spellId, "in event", event, "but isn't in our group.")
 			--end
 
-			--if sourceName and band(sourceFlags, mineOrPartyOrRaid) ~= 0 and not event:find("SPELL_AURA_BROKEN", nil, true) and not sourceGUID:find("^P[le][at]") then
-			--	sourceGUID = sourceGUID .. "-TSGROUP"
-			--end
 			if event == "SPELL_CAST_SUCCESS" and (not sourceName or band(sourceFlags, mineOrPartyOrRaid) == 0) then
 				if not compareSuccess then compareSuccess = {} end
 				if not compareSuccess[spellId] then compareSuccess[spellId] = {} end
@@ -613,7 +606,11 @@ do
 				if not collectPlayerAuras[spellId][event] then collectPlayerAuras[spellId][event] = true end
 			end
 
-			return strjoin("#", tostringall(event, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount))
+			if shouldLogFlags and (sourceName or destName) and badPlayerFilteredEvents[event] then
+				return strjoin("#", tostringall(event, sourceName and sourceFlags or destFlags, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount))
+			else
+				return strjoin("#", tostringall(event, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount))
+			end
 		end
 	end
 end
@@ -1092,6 +1089,7 @@ do
 			ldb.text = L["|cffFF0000Recording|r"]
 			ldb.icon = "Interface\\AddOns\\Transcriptor\\icon_on"
 			previousWorldState = nil
+			shouldLogFlags = TranscriptIgnore.logFlags and true or false
 
 			compareStartTime = debugprofilestop()
 			logStartTime = compareStartTime / 1000
