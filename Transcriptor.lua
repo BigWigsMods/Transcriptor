@@ -582,21 +582,21 @@ do
 				if not compareSuccess then compareSuccess = {} end
 				if not compareSuccess[spellId] then compareSuccess[spellId] = {} end
 				local npcId = MobId(sourceGUID)
-				if not compareSuccess[spellId][npcId] then compareSuccess[spellId][npcId] = {} end
+				if not compareSuccess[spellId][npcId] then compareSuccess[spellId][npcId] = {compareStartTime} end
 				compareSuccess[spellId][npcId][#compareSuccess[spellId][npcId]+1] = debugprofilestop()
 			end
 			if event == "SPELL_CAST_START" and (not sourceName or band(sourceFlags, mineOrPartyOrRaid) == 0) then
 				if not compareStart then compareStart = {} end
 				if not compareStart[spellId] then compareStart[spellId] = {} end
 				local npcId = MobId(sourceGUID)
-				if not compareStart[spellId][npcId] then compareStart[spellId][npcId] = {} end
+				if not compareStart[spellId][npcId] then compareStart[spellId][npcId] = {compareStartTime} end
 				compareStart[spellId][npcId][#compareStart[spellId][npcId]+1] = debugprofilestop()
 			end
 			if event == "SPELL_AURA_APPLIED" and (not sourceName or band(sourceFlags, mineOrPartyOrRaid) == 0) then
 				if not compareAuraApplied then compareAuraApplied = {} end
 				if not compareAuraApplied[spellId] then compareAuraApplied[spellId] = {} end
 				local npcId = MobId(sourceGUID)
-				if not compareAuraApplied[spellId][npcId] then compareAuraApplied[spellId][npcId] = {} end
+				if not compareAuraApplied[spellId][npcId] then compareAuraApplied[spellId][npcId] = {compareStartTime} end
 				compareAuraApplied[spellId][npcId][#compareAuraApplied[spellId][npcId]+1] = debugprofilestop()
 			end
 
@@ -662,7 +662,7 @@ do
 			if not compareUnitSuccess then compareUnitSuccess = {} end
 			if not compareUnitSuccess[spellId] then compareUnitSuccess[spellId] = {} end
 			local npcId = MobId(UnitGUID(unit))
-			if not compareUnitSuccess[spellId][npcId] then compareUnitSuccess[spellId][npcId] = {} end
+			if not compareUnitSuccess[spellId][npcId] then compareUnitSuccess[spellId][npcId] = {compareStartTime} end
 			compareUnitSuccess[spellId][npcId][#compareUnitSuccess[spellId][npcId]+1] = debugprofilestop()
 			return format("%s(%s) [[%s]]", UnitName(unit), UnitName(unit.."target"), strjoin(":", tostringall(unit, ...)))
 		end
@@ -1180,9 +1180,9 @@ function Transcriptor:StopLog(silent)
 					for npcId, list in next, tbl do
 						local n = format("%d-%s-npc:%d", id, GetSpellInfo(id), npcId)
 						local str
-						for i = 1, #list do
+						for i = 2, #list do
 							if not str then
-								local t = list[i] - compareStartTime
+								local t = list[i] - list[1]
 								str = format("pull:%.1f", t/1000)
 							else
 								local t = list[i] - list[i-1]
@@ -1199,9 +1199,9 @@ function Transcriptor:StopLog(silent)
 					for npcId, list in next, tbl do
 						local n = format("%d-%s-npc:%d", id, GetSpellInfo(id), npcId)
 						local str
-						for i = 1, #list do
+						for i = 2, #list do
 							if not str then
-								local t = list[i] - compareStartTime
+								local t = list[i] - list[1]
 								str = format("pull:%.1f", t/1000)
 							else
 								local t = list[i] - list[i-1]
@@ -1218,9 +1218,9 @@ function Transcriptor:StopLog(silent)
 					for npcId, list in next, tbl do
 						local n = format("%d-%s-npc:%d", id, GetSpellInfo(id), npcId)
 						local str
-						for i = 1, #list do
+						for i = 2, #list do
 							if not str then
-								local t = list[i] - compareStartTime
+								local t = list[i] - list[1]
 								str = format("pull:%.1f", t/1000)
 							else
 								local t = list[i] - list[i-1]
@@ -1238,9 +1238,9 @@ function Transcriptor:StopLog(silent)
 						if not compareSuccess or not compareSuccess[id] or not compareSuccess[id][npcId] then
 							local n = format("%d-%s-npc:%d", id, GetSpellInfo(id), npcId)
 							local str
-							for i = 1, #list do
+							for i = 2, #list do
 								if not str then
-									local t = list[i] - compareStartTime
+									local t = list[i] - list[1]
 									str = format("pull:%.1f", t/1000)
 								else
 									local t = list[i] - list[i-1]
