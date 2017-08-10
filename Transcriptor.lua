@@ -305,6 +305,10 @@ do
 			[243294] = true, -- Fel Slicer
 			[238442] = true, -- Spear of Anguish
 			[241593] = true, -- Aegwynn's Ward
+			[236555] = true, -- Deceiver's Veil
+			[241721] = true, -- Illidan's Sightless Gaze
+			[241822] = true, -- Choking Shadow
+			[242696] = true, -- Deceiver's Veil
 		}
 		local eventsNoSource = {
 			"SPELL_AURA_[AR][^#]+#(%d+)##([^#]+)#([^#]+%-[^#]+)#([^#]+)#(%d+)#([^#]+)#", -- SPELL_AURA_[AR] to filter _BROKEN
