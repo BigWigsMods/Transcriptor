@@ -1218,12 +1218,12 @@ function Transcriptor:StopLog(silent)
 				currentLog.TIMERS.SPELL_CAST_SUCCESS = {}
 				for id,tbl in next, compareSuccess do
 					for npcId, list in next, tbl do
-						local n = format("%d-%s-npc:%d", id, GetSpellInfo(id), npcId)
+						local n = format("%s-%d-npc:%d", GetSpellInfo(id), id, npcId)
 						local str
 						for i = 2, #list do
 							if not str then
 								local t = list[i] - list[1]
-								str = format("pull:%.1f", t/1000)
+								str = format("%s = pull:%.1f", n, t/1000)
 							else
 								if type(list[i]) == "table" then
 									str = format("%s, %s", str, list[i][2])
@@ -1246,20 +1246,21 @@ function Transcriptor:StopLog(silent)
 								end
 							end
 						end
-						currentLog.TIMERS.SPELL_CAST_SUCCESS[n] = str
+						currentLog.TIMERS.SPELL_CAST_SUCCESS[#currentLog.TIMERS.SPELL_CAST_SUCCESS+1] = str
 					end
 				end
+				table.sort(currentLog.TIMERS.SPELL_CAST_SUCCESS)
 			end
 			if compareStart then
 				currentLog.TIMERS.SPELL_CAST_START = {}
 				for id,tbl in next, compareStart do
 					for npcId, list in next, tbl do
-						local n = format("%d-%s-npc:%d", id, GetSpellInfo(id), npcId)
+						local n = format("%s-%d-npc:%d", GetSpellInfo(id), id, npcId)
 						local str
 						for i = 2, #list do
 							if not str then
 								local t = list[i] - list[1]
-								str = format("pull:%.1f", t/1000)
+								str = format("%s = pull:%.1f", n, t/1000)
 							else
 								if type(list[i]) == "table" then
 									str = format("%s, %s", str, list[i][2])
@@ -1282,20 +1283,21 @@ function Transcriptor:StopLog(silent)
 								end
 							end
 						end
-						currentLog.TIMERS.SPELL_CAST_START[n] = str
+						currentLog.TIMERS.SPELL_CAST_START[#currentLog.TIMERS.SPELL_CAST_START+1] = str
 					end
 				end
+				table.sort(currentLog.TIMERS.SPELL_CAST_START)
 			end
 			if compareAuraApplied then
 				currentLog.TIMERS.SPELL_AURA_APPLIED = {}
 				for id,tbl in next, compareAuraApplied do
 					for npcId, list in next, tbl do
-						local n = format("%d-%s-npc:%d", id, GetSpellInfo(id), npcId)
+						local n = format("%s-%d-npc:%d", GetSpellInfo(id), id, npcId)
 						local str
 						for i = 2, #list do
 							if not str then
 								local t = list[i] - list[1]
-								str = format("pull:%.1f", t/1000)
+								str = format("%s = pull:%.1f", n, t/1000)
 							else
 								if type(list[i]) == "table" then
 									str = format("%s, %s", str, list[i][2])
@@ -1318,21 +1320,22 @@ function Transcriptor:StopLog(silent)
 								end
 							end
 						end
-						currentLog.TIMERS.SPELL_AURA_APPLIED[n] = str
+						currentLog.TIMERS.SPELL_AURA_APPLIED[#currentLog.TIMERS.SPELL_AURA_APPLIED+1] = str
 					end
 				end
+				table.sort(currentLog.TIMERS.SPELL_AURA_APPLIED)
 			end
 			if compareUnitSuccess then
 				currentLog.TIMERS.UNIT_SPELLCAST_SUCCEEDED = {}
 				for id,tbl in next, compareUnitSuccess do
 					for npcId, list in next, tbl do
 						if not compareSuccess or not compareSuccess[id] or not compareSuccess[id][npcId] then
-							local n = format("%d-%s-npc:%d", id, GetSpellInfo(id), npcId)
+							local n = format("%s-%d-npc:%d", GetSpellInfo(id), id, npcId)
 							local str
 							for i = 2, #list do
 								if not str then
 									local t = list[i] - list[1]
-									str = format("pull:%.1f", t/1000)
+									str = format("%s = pull:%.1f", n, t/1000)
 								else
 									if type(list[i]) == "table" then
 										str = format("%s, %s", str, list[i][2])
@@ -1355,10 +1358,11 @@ function Transcriptor:StopLog(silent)
 									end
 								end
 							end
-							currentLog.TIMERS.UNIT_SPELLCAST_SUCCEEDED[n] = str
+							currentLog.TIMERS.UNIT_SPELLCAST_SUCCEEDED[#currentLog.TIMERS.UNIT_SPELLCAST_SUCCEEDED+1] = str
 						end
 					end
 				end
+				table.sort(currentLog.TIMERS.UNIT_SPELLCAST_SUCCEEDED)
 			end
 		end
 		if collectPlayerAuras then
