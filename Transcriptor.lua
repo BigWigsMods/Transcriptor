@@ -7,10 +7,12 @@ end
 
 local playerSpellBlacklist
 local badSourcelessPlayerSpellList
+local specialEvents
 
 do
 	local n, tbl = ...
 	playerSpellBlacklist = tbl.blacklist
+	specialEvents = tbl.specialEvents
 end
 
 local logName = nil
@@ -68,6 +70,37 @@ local function MobId(guid)
 	if not guid then return 1 end
 	local _, _, _, _, _, id = strsplit("-", guid)
 	return tonumber(id) or 1
+end
+
+local function InsertSpecialEvent(name)
+	if compareSuccess then
+		for id,tbl in next, compareSuccess do
+			for npcId, list in next, tbl do
+				list[#list+1] = {debugprofilestop(), name}
+			end
+		end
+	end
+	if compareStart then
+		for id,tbl in next, compareStart do
+			for npcId, list in next, tbl do
+				list[#list+1] = {debugprofilestop(), name}
+			end
+		end
+	end
+	if compareAuraApplied then
+		for id,tbl in next, compareAuraApplied do
+			for npcId, list in next, tbl do
+				list[#list+1] = {debugprofilestop(), name}
+			end
+		end
+	end
+	if compareUnitSuccess then
+		for id,tbl in next, compareUnitSuccess do
+			for npcId, list in next, tbl do
+				list[#list+1] = {debugprofilestop(), name}
+			end
+		end
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -613,6 +646,14 @@ do
 				if not collectPlayerAuras[spellId][event] then collectPlayerAuras[spellId][event] = true end
 			end
 
+			if specialEvents[event] and specialEvents[event][spellId] then
+				local npcId = MobId(sourceGUID)
+				local name = specialEvents[event][spellId][npcId]
+				if name then
+					InsertSpecialEvent(name)
+				end
+			end
+
 			if shouldLogFlags and (sourceName or destName) and badPlayerFilteredEvents[event] then
 				return strjoin("#", tostringall(event, sourceName and sourceFlags or destFlags, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount))
 			else
@@ -671,6 +712,14 @@ do
 			local npcId = MobId(UnitGUID(unit))
 			if not compareUnitSuccess[spellId][npcId] then compareUnitSuccess[spellId][npcId] = {compareStartTime} end
 			compareUnitSuccess[spellId][npcId][#compareUnitSuccess[spellId][npcId]+1] = debugprofilestop()
+
+			if specialEvents.UNIT_SPELLCAST_SUCCEEDED and specialEvents.UNIT_SPELLCAST_SUCCEEDED[spellId] then
+				local name = specialEvents.UNIT_SPELLCAST_SUCCEEDED[spellId][npcId]
+				if name then
+					InsertSpecialEvent(name)
+				end
+			end
+
 			return format("%s(%s) [[%s]]", UnitName(unit), UnitName(unit.."target"), strjoin(":", tostringall(unit, ...)))
 		end
 	end
@@ -1063,39 +1112,9 @@ init:RegisterEvent("PLAYER_LOGIN")
 -- Logging
 --
 
-local function BWEventHandler(event, module, key, text, ...)
+local function BWEventHandler(event, module, ...)
 	if module and module.baseName == "BigWigs_CommonAuras" then return end
-	if event == "BigWigs_Message" and key == "stages" then
-		if compareSuccess then
-			for id,tbl in next, compareSuccess do
-				for npcId, list in next, tbl do
-					list[#list+1] = {debugprofilestop(), text}
-				end
-			end
-		end
-		if compareStart then
-			for id,tbl in next, compareStart do
-				for npcId, list in next, tbl do
-					list[#list+1] = {debugprofilestop(), text}
-				end
-			end
-		end
-		if compareAuraApplied then
-			for id,tbl in next, compareAuraApplied do
-				for npcId, list in next, tbl do
-					list[#list+1] = {debugprofilestop(), text}
-				end
-			end
-		end
-		if compareUnitSuccess then
-			for id,tbl in next, compareUnitSuccess do
-				for npcId, list in next, tbl do
-					list[#list+1] = {debugprofilestop(), text}
-				end
-			end
-		end
-	end
-	eventHandler(eventFrame, event, module and module.moduleName, key, text, ...)
+	eventHandler(eventFrame, event, module and module.moduleName, ...)
 end
 
 local function DBMEventHandler(...)
