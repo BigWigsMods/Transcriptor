@@ -898,7 +898,10 @@ local eventCategories = {
 	ARENA_OPPONENT_UPDATE = "PVP",
 	BigWigs_Message = "BigWigs",
 	BigWigs_StartBar = "BigWigs",
-	BigWigs_Debug = "BigWigs",
+	--BigWigs_Debug = "BigWigs",
+	DBM_Announce = "DBM",
+	DBM_TimerStart = "DBM",
+	DBM_TimerStop = "DBM",
 }
 local bwEvents = {
 	"BigWigs_Message",
@@ -1060,9 +1063,39 @@ init:RegisterEvent("PLAYER_LOGIN")
 -- Logging
 --
 
-local function BWEventHandler(event, module, ...)
+local function BWEventHandler(event, module, key, text, ...)
 	if module and module.baseName == "BigWigs_CommonAuras" then return end
-	eventHandler(eventFrame, event, module and module.moduleName, ...)
+	if event == "BigWigs_Message" and key == "stages" then
+		if compareSuccess then
+			for id,tbl in next, compareSuccess do
+				for npcId, list in next, tbl do
+					list[#list+1] = {debugprofilestop(), text}
+				end
+			end
+		end
+		if compareStart then
+			for id,tbl in next, compareStart do
+				for npcId, list in next, tbl do
+					list[#list+1] = {debugprofilestop(), text}
+				end
+			end
+		end
+		if compareAuraApplied then
+			for id,tbl in next, compareAuraApplied do
+				for npcId, list in next, tbl do
+					list[#list+1] = {debugprofilestop(), text}
+				end
+			end
+		end
+		if compareUnitSuccess then
+			for id,tbl in next, compareUnitSuccess do
+				for npcId, list in next, tbl do
+					list[#list+1] = {debugprofilestop(), text}
+				end
+			end
+		end
+	end
+	eventHandler(eventFrame, event, module and module.moduleName, key, text, ...)
 end
 
 local function DBMEventHandler(...)
@@ -1192,8 +1225,25 @@ function Transcriptor:StopLog(silent)
 								local t = list[i] - list[1]
 								str = format("pull:%.1f", t/1000)
 							else
-								local t = list[i] - list[i-1]
-								str = format("%s, %.1f", str, t/1000)
+								if type(list[i]) == "table" then
+									str = format("%s, %s", str, list[i][2])
+								else
+									if type(list[i-1]) == "table" then
+										if type(list[i-2]) == "table" then
+											local tStage = list[i] - list[i-1][1]
+											local tStagePrevious = list[i] - list[i-2][1]
+											local t = list[i] - list[i-3]
+											str = format("%s, %.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, t/1000)
+										else
+											local tStage = list[i] - list[i-1][1]
+											local t = list[i] - list[i-2]
+											str = format("%s, %.1f/%.1f", str, tStage/1000, t/1000)
+										end
+									else
+										local t = list[i] - list[i-1]
+										str = format("%s, %.1f", str, t/1000)
+									end
+								end
 							end
 						end
 						currentLog.TIMERS.SPELL_CAST_SUCCESS[n] = str
@@ -1211,8 +1261,25 @@ function Transcriptor:StopLog(silent)
 								local t = list[i] - list[1]
 								str = format("pull:%.1f", t/1000)
 							else
-								local t = list[i] - list[i-1]
-								str = format("%s, %.1f", str, t/1000)
+								if type(list[i]) == "table" then
+									str = format("%s, %s", str, list[i][2])
+								else
+									if type(list[i-1]) == "table" then
+										if type(list[i-2]) == "table" then
+											local tStage = list[i] - list[i-1][1]
+											local tStagePrevious = list[i] - list[i-2][1]
+											local t = list[i] - list[i-3]
+											str = format("%s, %.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, t/1000)
+										else
+											local tStage = list[i] - list[i-1][1]
+											local t = list[i] - list[i-2]
+											str = format("%s, %.1f/%.1f", str, tStage/1000, t/1000)
+										end
+									else
+										local t = list[i] - list[i-1]
+										str = format("%s, %.1f", str, t/1000)
+									end
+								end
 							end
 						end
 						currentLog.TIMERS.SPELL_CAST_START[n] = str
@@ -1230,8 +1297,25 @@ function Transcriptor:StopLog(silent)
 								local t = list[i] - list[1]
 								str = format("pull:%.1f", t/1000)
 							else
-								local t = list[i] - list[i-1]
-								str = format("%s, %.1f", str, t/1000)
+								if type(list[i]) == "table" then
+									str = format("%s, %s", str, list[i][2])
+								else
+									if type(list[i-1]) == "table" then
+										if type(list[i-2]) == "table" then
+											local tStage = list[i] - list[i-1][1]
+											local tStagePrevious = list[i] - list[i-2][1]
+											local t = list[i] - list[i-3]
+											str = format("%s, %.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, t/1000)
+										else
+											local tStage = list[i] - list[i-1][1]
+											local t = list[i] - list[i-2]
+											str = format("%s, %.1f/%.1f", str, tStage/1000, t/1000)
+										end
+									else
+										local t = list[i] - list[i-1]
+										str = format("%s, %.1f", str, t/1000)
+									end
+								end
 							end
 						end
 						currentLog.TIMERS.SPELL_AURA_APPLIED[n] = str
@@ -1250,8 +1334,25 @@ function Transcriptor:StopLog(silent)
 									local t = list[i] - list[1]
 									str = format("pull:%.1f", t/1000)
 								else
-									local t = list[i] - list[i-1]
-									str = format("%s, %.1f", str, t/1000)
+									if type(list[i]) == "table" then
+										str = format("%s, %s", str, list[i][2])
+									else
+										if type(list[i-1]) == "table" then
+											if type(list[i-2]) == "table" then
+												local tStage = list[i] - list[i-1][1]
+												local tStagePrevious = list[i] - list[i-2][1]
+												local t = list[i] - list[i-3]
+												str = format("%s, %.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, t/1000)
+											else
+												local tStage = list[i] - list[i-1][1]
+												local t = list[i] - list[i-2]
+												str = format("%s, %.1f/%.1f", str, tStage/1000, t/1000)
+											end
+										else
+											local t = list[i] - list[i-1]
+											str = format("%s, %.1f", str, t/1000)
+										end
+									end
 								end
 							end
 							currentLog.TIMERS.UNIT_SPELLCAST_SUCCEEDED[n] = str
