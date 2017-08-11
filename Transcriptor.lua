@@ -309,6 +309,9 @@ do
 			[241721] = true, -- Illidan's Sightless Gaze
 			[241822] = true, -- Choking Shadow
 			[242696] = true, -- Deceiver's Veil
+			[230345] = true, -- Crashing Comet
+			[230348] = true, -- Fel Pool
+			[233901] = true, -- Suffocating Dark
 		}
 		local eventsNoSource = {
 			"SPELL_AURA_[AR][^#]+#(%d+)##([^#]+)#([^#]+%-[^#]+)#([^#]+)#(%d+)#([^#]+)#", -- SPELL_AURA_[AR] to filter _BROKEN
