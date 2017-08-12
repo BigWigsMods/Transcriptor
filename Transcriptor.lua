@@ -713,7 +713,7 @@ do
 			if not compareUnitSuccess[spellId][npcId] then compareUnitSuccess[spellId][npcId] = {compareStartTime} end
 			compareUnitSuccess[spellId][npcId][#compareUnitSuccess[spellId][npcId]+1] = debugprofilestop()
 
-			if specialEvents.UNIT_SPELLCAST_SUCCEEDED and specialEvents.UNIT_SPELLCAST_SUCCEEDED[spellId] then
+			if specialEvents.UNIT_SPELLCAST_SUCCEEDED[spellId] then
 				local name = specialEvents.UNIT_SPELLCAST_SUCCEEDED[spellId][npcId]
 				if name then
 					InsertSpecialEvent(name)
