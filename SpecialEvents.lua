@@ -18,6 +18,9 @@ tbl.specialEvents = {
 		},
 	},
 	["SPELL_CAST_START"] = {
+		[232174] = { -- Frosty Discharge
+			[116407] = "Discharge", -- Harjatan the Bludger
+		},
 		[241983] = { -- Deceiver's Veil
 			[117269] = "Intermission 2", -- Kil'jaeden
 		},
