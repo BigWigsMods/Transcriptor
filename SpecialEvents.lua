@@ -65,9 +65,9 @@ tbl.specialEvents = {
 		},
 		-- [[ Antorus, the Burning Throne ]] --
 		[245227] = { -- Assume Command
-			[122367] = "Ishkar Activating", -- Admiral Svirax (High Command)
-			[122369] = "Erodus Activating", -- Chief Engineer Ishkar (High Command)
-			[122333] = "Svirax Activating", -- General Erodus (High Command)
+			[122367] = "Svirax Leaving", -- Admiral Svirax (High Command)
+			[122369] = "Ishkar Leaving", -- Chief Engineer Ishkar (High Command)
+			[122333] = "Erodus Leaving", -- General Erodus (High Command)
 		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
