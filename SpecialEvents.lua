@@ -6,6 +6,9 @@ tbl.specialEvents = {
 			[118523] = "Stage 2", -- Huntress Kasparian (Sisters of the Moon)
 			[118374] = "Stage 3", -- Captain Yathae Moonstrike (Sisters of the Moon)
 		},
+		[239978] = { -- Soul Pallor
+			[118460] = "Stage 2", -- Engine of Souls (The Desolate Host)
+		},
 	},
 	["SPELL_AURA_APPLIED"] = {
 		[244834] = { -- Nether Gale
