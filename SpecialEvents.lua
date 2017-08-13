@@ -1,7 +1,29 @@
-local n, tbl = ...
+local tbl
+do
+	local _
+	_, tbl = ...
+end
+
 tbl.specialEvents = {
 	["UNIT_SPELLCAST_SUCCEEDED"] = {
 		--[[ Tomb of Sargeras ]]--
+		[239423] = { -- Dread Shark
+			[115767] = function() -- Mistress Sassz'ine
+				tbl.data[1] = (tbl.data[1] or 1) + 1
+
+				local stage = tbl.data[1]
+				local _, _, diff = GetInstanceInfo()
+				if diff == 16 then -- Mythic
+					if stage == 3 then
+						return "Stage 2"
+					elseif stage == 5 then
+						return "Stage 3"
+					end
+				else
+					return "Stage ".. stage
+				end
+			end,
+		},
 		[235268] = { -- Lunar Ghost
 			[118523] = "Stage 2", -- Huntress Kasparian (Sisters of the Moon)
 			[118374] = "Stage 3", -- Captain Yathae Moonstrike (Sisters of the Moon)

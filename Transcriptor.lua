@@ -8,11 +8,13 @@ end
 local playerSpellBlacklist
 local badSourcelessPlayerSpellList
 local specialEvents
+local data = {}
 
 do
 	local n, tbl = ...
 	playerSpellBlacklist = tbl.blacklist
 	specialEvents = tbl.specialEvents
+	tbl.data = data
 end
 
 local logName = nil
@@ -37,7 +39,7 @@ local format, strjoin = string.format, string.join
 local tostring, tostringall = tostring, tostringall
 local type, select, next = type, select, next
 local date = date
-local debugprofilestop = debugprofilestop
+local debugprofilestop, wipe = debugprofilestop, wipe
 local print = print
 
 local C_Scenario = C_Scenario
@@ -73,6 +75,10 @@ local function MobId(guid)
 end
 
 local function InsertSpecialEvent(name)
+	if type(name) == "function" then
+		name = name()
+	end
+	if not name then return end
 	if compareSuccess then
 		for id,tbl in next, compareSuccess do
 			for npcId, list in next, tbl do
@@ -864,6 +870,7 @@ end
 
 function sh.ENCOUNTER_START(...)
 	compareStartTime = debugprofilestop()
+	wipe(data)
 	return strjoin("#", "ENCOUNTER_START", ...)
 end
 
@@ -1149,6 +1156,7 @@ do
 			ldb.icon = "Interface\\AddOns\\Transcriptor\\icon_on"
 			previousWorldState = nil
 			shouldLogFlags = TranscriptIgnore.logFlags and true or false
+			wipe(data)
 
 			compareStartTime = debugprofilestop()
 			logStartTime = compareStartTime / 1000
