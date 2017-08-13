@@ -113,4 +113,9 @@ tbl.specialEvents = {
 			[116939] = "Stage 2", -- Fallen Avatar
 		},
 	},
+	["UNIT_DIED"] = {
+		--[[ Antorus, the Burning Throne ]]--
+		[122773] = "Decimator Killed", -- Decimator (Worldbreaker)
+		[122778] = "Annihilator Killed", -- Annihilator (Worldbreaker)
+	},
 }

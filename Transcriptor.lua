@@ -658,6 +658,11 @@ do
 				if name then
 					InsertSpecialEvent(name)
 				end
+			elseif event == "UNIT_DIED" then
+				local name = specialEvents.UNIT_DIED[MobId(destGUID)]
+				if name then
+					InsertSpecialEvent(name)
+				end
 			end
 
 			if shouldLogFlags and (sourceName or destName) and badPlayerFilteredEvents[event] then
