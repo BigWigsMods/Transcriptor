@@ -47,6 +47,12 @@ tbl.specialEvents = {
 		},
 
 		-- [[ Antorus, the Burning Throne ]] --
+		[246897] = { -- Haywire
+			[122773] = "Decimator Haywire", -- Decimator (Worldbreaker)
+		},
+		[246965] = { -- Haywire
+			[122778] = "Annihilator Haywire", -- Annihilator (Worldbreaker)
+		},
 		[246516] = { -- Apocalypse Protocol
 			[122578] = "Construction Stage", -- Kin'garoth
 		},
