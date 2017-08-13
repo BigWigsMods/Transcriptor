@@ -652,14 +652,13 @@ do
 				if not collectPlayerAuras[spellId][event] then collectPlayerAuras[spellId][event] = true end
 			end
 
-			if specialEvents[event] and specialEvents[event][spellId] then
-				local npcId = MobId(sourceGUID)
-				local name = specialEvents[event][spellId][npcId]
+			if event == "UNIT_DIED" then
+				local name = specialEvents.UNIT_DIED[MobId(destGUID)]
 				if name then
 					InsertSpecialEvent(name)
 				end
-			elseif event == "UNIT_DIED" then
-				local name = specialEvents.UNIT_DIED[MobId(destGUID)]
+			elseif specialEvents[event] and specialEvents[event][spellId] then
+				local name = specialEvents[event][spellId][MobId(sourceGUID)]
 				if name then
 					InsertSpecialEvent(name)
 				end
