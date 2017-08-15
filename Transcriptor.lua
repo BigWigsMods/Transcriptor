@@ -669,13 +669,13 @@ do
 				if spellId == dmgCache.spellId then
 					if timeStamp - dmgCache.timeStamp > 0.2 then
 						if dmgCache.count == 1 then
-							tinsert(currentLog.total, format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.event, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.destGUID, dmgCache.destName, dmgCache.spellId, dmgCache.spellName))
+							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.event, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.destGUID, dmgCache.destName, dmgCache.spellId, dmgCache.spellName)
 						else
-							tinsert(currentLog.total, format("<%.2f %s> [CLEU] SPELL_DAMAGE[CONDENSED]#%s#%s#%d#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.count, dmgCache.spellId, dmgCache.spellName))
+							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_DAMAGE[CONDENSED]#%s#%s#%d#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.count, dmgCache.spellId, dmgCache.spellName)
 						end
 						dmgCache.spellId = spellId
 						dmgCache.sourceGUID = sourceGUID
-						dmgCache.sourceName = sourceName
+						dmgCache.sourceName = sourceName or "nil"
 						dmgCache.spellName = spellName
 						dmgCache.timeStop = (debugprofilestop() / 1000) - logStartTime
 						dmgCache.time = date("%H:%M:%S")
@@ -690,14 +690,14 @@ do
 				else
 					if dmgCache.spellId then
 						if dmgCache.count == 1 then
-							tinsert(currentLog.total, format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.event, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.destGUID, dmgCache.destName, dmgCache.spellId, dmgCache.spellName))
+							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.event, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.destGUID, dmgCache.destName, dmgCache.spellId, dmgCache.spellName)
 						else
-							tinsert(currentLog.total, format("<%.2f %s> [CLEU] SPELL_DAMAGE[CONDENSED]#%s#%s#%d#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.count, dmgCache.spellId, dmgCache.spellName))
+							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_DAMAGE[CONDENSED]#%s#%s#%d#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.count, dmgCache.spellId, dmgCache.spellName)
 						end
 					end
 					dmgCache.spellId = spellId
 					dmgCache.sourceGUID = sourceGUID
-					dmgCache.sourceName = sourceName
+					dmgCache.sourceName = sourceName or "nil"
 					dmgCache.spellName = spellName
 					dmgCache.timeStop = (debugprofilestop() / 1000) - logStartTime
 					dmgCache.time = date("%H:%M:%S")
@@ -710,9 +710,9 @@ do
 			else
 				if dmgCache.spellId then
 					if dmgCache.count == 1 then
-						tinsert(currentLog.total, format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.event, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.destGUID, dmgCache.destName, dmgCache.spellId, dmgCache.spellName))
+						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.event, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.destGUID, dmgCache.destName, dmgCache.spellId, dmgCache.spellName)
 					else
-						tinsert(currentLog.total, format("<%.2f %s> [CLEU] SPELL_DAMAGE[CONDENSED]#%s#%s#%d#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.count, dmgCache.spellId, dmgCache.spellName))
+						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_DAMAGE[CONDENSED]#%s#%s#%d#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.count, dmgCache.spellId, dmgCache.spellName)
 					end
 					dmgCache.spellId = nil
 				end
@@ -1042,10 +1042,10 @@ local function eventHandler(self, event, ...)
 	local time = date("%H:%M:%S")
 	-- We only have CLEU in the total log, it's way too much information to log twice.
 	if event == "COMBAT_LOG_EVENT_UNFILTERED" then
-		tinsert(currentLog.total, format("<%.2f %s> [CLEU] %s", t, time, line))
+		currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s", t, time, line)
 	else
 		local text = format("<%.2f %s> [%s] %s", t, time, event, line)
-		tinsert(currentLog.total, text)
+		currentLog.total[#currentLog.total+1] = text
 		if event == "WORLD_STATE_UI_TIMER_UPDATE" then return end -- Only in total table
 		local cat = eventCategories[event] or event
 		if type(currentLog[cat]) ~= "table" then currentLog[cat] = {} end
@@ -1059,7 +1059,7 @@ eventFrame:SetScript("OnUpdate", function()
 		local stop = debugprofilestop() / 1000
 		local t = stop - logStartTime
 		local time = date("%H:%M:%S")
-		tinsert(currentLog.total, format("<%.2f %s> [IsEncounterInProgress()] true", t, time))
+		currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IsEncounterInProgress()] true", t, time)
 		if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
 		tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterInProgress()] true", t, time))
 	elseif inEncounter and not IsEncounterInProgress() then
@@ -1067,7 +1067,7 @@ eventFrame:SetScript("OnUpdate", function()
 		local stop = debugprofilestop() / 1000
 		local t = stop - logStartTime
 		local time = date("%H:%M:%S")
-		tinsert(currentLog.total, format("<%.2f %s> [IsEncounterInProgress()] false", t, time))
+		currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IsEncounterInProgress()] false", t, time)
 		if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
 		tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterInProgress()] false", t, time))
 	end
@@ -1076,7 +1076,7 @@ eventFrame:SetScript("OnUpdate", function()
 		local stop = debugprofilestop() / 1000
 		local t = stop - logStartTime
 		local time = date("%H:%M:%S")
-		tinsert(currentLog.total, format("<%.2f %s> [IsEncounterSuppressingRelease()] true", t, time))
+		currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IsEncounterSuppressingRelease()] true", t, time)
 		if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
 		tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterSuppressingRelease()] true", t, time))
 	elseif blockingRelease and not IsEncounterSuppressingRelease() then
@@ -1084,7 +1084,7 @@ eventFrame:SetScript("OnUpdate", function()
 		local stop = debugprofilestop() / 1000
 		local t = stop - logStartTime
 		local time = date("%H:%M:%S")
-		tinsert(currentLog.total, format("<%.2f %s> [IsEncounterSuppressingRelease()] false", t, time))
+		currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IsEncounterSuppressingRelease()] false", t, time)
 		if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
 		tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterSuppressingRelease()] false", t, time))
 	end
