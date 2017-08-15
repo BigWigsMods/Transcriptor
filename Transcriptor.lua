@@ -606,6 +606,7 @@ do
 		["SPELL_CAST_FAILED"] = true,
 	}
 	local guardian = 8192 -- COMBATLOG_OBJECT_TYPE_GUARDIAN
+	local dmgCache = {}
 	-- Note some things we are trying to avoid filtering:
 	-- BRF/Kagraz - Player damage with no source "SPELL_DAMAGE##nil#Player-GUID#PLAYER#154938#Molten Torrent#"
 	-- HFC/Socrethar - Player cast on friendly vehicle "SPELL_CAST_SUCCESS#Player-GUID#PLAYER#Vehicle-0-3151-1448-8853-90296-00001D943C#Soulbound Construct#190466#Incomplete Binding"
@@ -664,10 +665,63 @@ do
 				end
 			end
 
-			if shouldLogFlags and (sourceName or destName) and badPlayerFilteredEvents[event] then
-				return strjoin("#", tostringall(event, sourceName and sourceFlags or destFlags, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount))
+			if event == "SPELL_DAMAGE" or event == "SPELL_MISSED" then
+				if spellId == dmgCache.spellId then
+					if timeStamp - dmgCache.timeStamp > 0.2 then
+						if dmgCache.count == 1 then
+							tinsert(currentLog.total, format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.event, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.destGUID, dmgCache.destName, dmgCache.spellId, dmgCache.spellName))
+						else
+							tinsert(currentLog.total, format("<%.2f %s> [CLEU] SPELL_DAMAGE[CONDENSED]#%s#%s#%d#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.count, dmgCache.spellId, dmgCache.spellName))
+						end
+						dmgCache.spellId = spellId
+						dmgCache.sourceGUID = sourceGUID
+						dmgCache.sourceName = sourceName
+						dmgCache.spellName = spellName
+						dmgCache.timeStop = (debugprofilestop() / 1000) - logStartTime
+						dmgCache.time = date("%H:%M:%S")
+						dmgCache.timeStamp = timeStamp
+						dmgCache.count = 1
+						dmgCache.event = event
+						dmgCache.destGUID = destGUID
+						dmgCache.destName = destName
+					else
+						dmgCache.count = dmgCache.count + 1
+					end
+				else
+					if dmgCache.spellId then
+						if dmgCache.count == 1 then
+							tinsert(currentLog.total, format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.event, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.destGUID, dmgCache.destName, dmgCache.spellId, dmgCache.spellName))
+						else
+							tinsert(currentLog.total, format("<%.2f %s> [CLEU] SPELL_DAMAGE[CONDENSED]#%s#%s#%d#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.count, dmgCache.spellId, dmgCache.spellName))
+						end
+					end
+					dmgCache.spellId = spellId
+					dmgCache.sourceGUID = sourceGUID
+					dmgCache.sourceName = sourceName
+					dmgCache.spellName = spellName
+					dmgCache.timeStop = (debugprofilestop() / 1000) - logStartTime
+					dmgCache.time = date("%H:%M:%S")
+					dmgCache.timeStamp = timeStamp
+					dmgCache.count = 1
+					dmgCache.event = event
+					dmgCache.destGUID = destGUID
+					dmgCache.destName = destName
+				end
 			else
-				return strjoin("#", tostringall(event, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount))
+				if dmgCache.spellId then
+					if dmgCache.count == 1 then
+						tinsert(currentLog.total, format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.event, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.destGUID, dmgCache.destName, dmgCache.spellId, dmgCache.spellName))
+					else
+						tinsert(currentLog.total, format("<%.2f %s> [CLEU] SPELL_DAMAGE[CONDENSED]#%s#%s#%d#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.count, dmgCache.spellId, dmgCache.spellName))
+					end
+					dmgCache.spellId = nil
+				end
+
+				if shouldLogFlags and (sourceName or destName) and badPlayerFilteredEvents[event] then
+					return strjoin("#", tostringall(event, sourceName and sourceFlags or destFlags, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount))
+				else
+					return strjoin("#", tostringall(event, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount))
+				end
 			end
 		end
 	end
