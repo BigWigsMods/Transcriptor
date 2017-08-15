@@ -606,7 +606,7 @@ do
 		["SPELL_CAST_FAILED"] = true,
 	}
 	local guardian = 8192 -- COMBATLOG_OBJECT_TYPE_GUARDIAN
-	local dmgCache = {}
+	local dmgCache, dmgPrdcCache = {}, {}
 	-- Note some things we are trying to avoid filtering:
 	-- BRF/Kagraz - Player damage with no source "SPELL_DAMAGE##nil#Player-GUID#PLAYER#154938#Molten Torrent#"
 	-- HFC/Socrethar - Player cast on friendly vehicle "SPELL_CAST_SUCCESS#Player-GUID#PLAYER#Vehicle-0-3151-1448-8853-90296-00001D943C#Soulbound Construct#190466#Incomplete Binding"
@@ -666,6 +666,15 @@ do
 			end
 
 			if event == "SPELL_DAMAGE" or event == "SPELL_MISSED" then
+				if dmgPrdcCache.spellId then
+					if dmgPrdcCache.count == 1 then
+						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.event, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.destGUID, dmgPrdcCache.destName, dmgPrdcCache.spellId, dmgPrdcCache.spellName)
+					else
+						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_PERIODIC_DAMAGE[CONDENSED]#%s#%s#%d Targets#%d#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.count, dmgPrdcCache.spellId, dmgPrdcCache.spellName)
+					end
+					dmgPrdcCache.spellId = nil
+				end
+
 				if spellId == dmgCache.spellId then
 					if timeStamp - dmgCache.timeStamp > 0.2 then
 						if dmgCache.count == 1 then
@@ -707,6 +716,57 @@ do
 					dmgCache.destGUID = destGUID
 					dmgCache.destName = destName
 				end
+			elseif event == "SPELL_PERIODIC_DAMAGE" or event == "SPELL_PERIODIC_MISSED" then
+				if dmgCache.spellId then
+					if dmgCache.count == 1 then
+						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.event, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.destGUID, dmgCache.destName, dmgCache.spellId, dmgCache.spellName)
+					else
+						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_DAMAGE[CONDENSED]#%s#%s#%d Targets#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.count, dmgCache.spellId, dmgCache.spellName)
+					end
+					dmgCache.spellId = nil
+				end
+
+				if spellId == dmgPrdcCache.spellId then
+					if timeStamp - dmgPrdcCache.timeStamp > 0.2 then
+						if dmgPrdcCache.count == 1 then
+							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.event, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.destGUID, dmgPrdcCache.destName, dmgPrdcCache.spellId, dmgPrdcCache.spellName)
+						else
+							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_PERIODIC_DAMAGE[CONDENSED]#%s#%s#%d Targets#%d#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.count, dmgPrdcCache.spellId, dmgPrdcCache.spellName)
+						end
+						dmgPrdcCache.spellId = spellId
+						dmgPrdcCache.sourceGUID = sourceGUID
+						dmgPrdcCache.sourceName = sourceName or "nil"
+						dmgPrdcCache.spellName = spellName
+						dmgPrdcCache.timeStop = (debugprofilestop() / 1000) - logStartTime
+						dmgPrdcCache.time = date("%H:%M:%S")
+						dmgPrdcCache.timeStamp = timeStamp
+						dmgPrdcCache.count = 1
+						dmgPrdcCache.event = event
+						dmgPrdcCache.destGUID = destGUID
+						dmgPrdcCache.destName = destName
+					else
+						dmgPrdcCache.count = dmgPrdcCache.count + 1
+					end
+				else
+					if dmgPrdcCache.spellId then
+						if dmgPrdcCache.count == 1 then
+							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.event, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.destGUID, dmgPrdcCache.destName, dmgPrdcCache.spellId, dmgPrdcCache.spellName)
+						else
+							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_PERIODIC_DAMAGE[CONDENSED]#%s#%s#%d Targets#%d#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.count, dmgPrdcCache.spellId, dmgPrdcCache.spellName)
+						end
+					end
+					dmgPrdcCache.spellId = spellId
+					dmgPrdcCache.sourceGUID = sourceGUID
+					dmgPrdcCache.sourceName = sourceName or "nil"
+					dmgPrdcCache.spellName = spellName
+					dmgPrdcCache.timeStop = (debugprofilestop() / 1000) - logStartTime
+					dmgPrdcCache.time = date("%H:%M:%S")
+					dmgPrdcCache.timeStamp = timeStamp
+					dmgPrdcCache.count = 1
+					dmgPrdcCache.event = event
+					dmgPrdcCache.destGUID = destGUID
+					dmgPrdcCache.destName = destName
+				end
 			else
 				if dmgCache.spellId then
 					if dmgCache.count == 1 then
@@ -715,6 +775,13 @@ do
 						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_DAMAGE[CONDENSED]#%s#%s#%d Targets#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.count, dmgCache.spellId, dmgCache.spellName)
 					end
 					dmgCache.spellId = nil
+				elseif dmgPrdcCache.spellId then
+					if dmgPrdcCache.count == 1 then
+						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.event, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.destGUID, dmgPrdcCache.destName, dmgPrdcCache.spellId, dmgPrdcCache.spellName)
+					else
+						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_PERIODIC_DAMAGE[CONDENSED]#%s#%s#%d Targets#%d#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.count, dmgPrdcCache.spellId, dmgPrdcCache.spellName)
+					end
+					dmgPrdcCache.spellId = nil
 				end
 
 				if shouldLogFlags and (sourceName or destName) and badPlayerFilteredEvents[event] then
