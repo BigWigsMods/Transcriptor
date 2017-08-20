@@ -1382,10 +1382,18 @@ function Transcriptor:StopLog(silent)
 								else
 									if type(list[i-1]) == "table" then
 										if type(list[i-2]) == "table" then
-											local tStage = list[i] - list[i-1][1]
-											local tStagePrevious = list[i] - list[i-2][1]
-											local t = list[i] - list[i-3]
-											str = format("%s, %.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, t/1000)
+											if type(list[i-3]) == "table" then
+												local tStage = list[i] - list[i-1][1]
+												local tStagePrevious = list[i] - list[i-2][1]
+												local tStagePreviousMore = list[i] - list[i-3][1]
+												local t = list[i] - list[i-4]
+												str = format("%s, %.1f/%.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, tStagePreviousMore/1000, t/1000)
+											else
+												local tStage = list[i] - list[i-1][1]
+												local tStagePrevious = list[i] - list[i-2][1]
+												local t = list[i] - list[i-3]
+												str = format("%s, %.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, t/1000)
+											end
 										else
 											local tStage = list[i] - list[i-1][1]
 											local t = list[i] - list[i-2]
@@ -1419,10 +1427,18 @@ function Transcriptor:StopLog(silent)
 								else
 									if type(list[i-1]) == "table" then
 										if type(list[i-2]) == "table" then
-											local tStage = list[i] - list[i-1][1]
-											local tStagePrevious = list[i] - list[i-2][1]
-											local t = list[i] - list[i-3]
-											str = format("%s, %.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, t/1000)
+											if type(list[i-3]) == "table" then
+												local tStage = list[i] - list[i-1][1]
+												local tStagePrevious = list[i] - list[i-2][1]
+												local tStagePreviousMore = list[i] - list[i-3][1]
+												local t = list[i] - list[i-4]
+												str = format("%s, %.1f/%.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, tStagePreviousMore/1000, t/1000)
+											else
+												local tStage = list[i] - list[i-1][1]
+												local tStagePrevious = list[i] - list[i-2][1]
+												local t = list[i] - list[i-3]
+												str = format("%s, %.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, t/1000)
+											end
 										else
 											local tStage = list[i] - list[i-1][1]
 											local t = list[i] - list[i-2]
@@ -1456,10 +1472,18 @@ function Transcriptor:StopLog(silent)
 								else
 									if type(list[i-1]) == "table" then
 										if type(list[i-2]) == "table" then
-											local tStage = list[i] - list[i-1][1]
-											local tStagePrevious = list[i] - list[i-2][1]
-											local t = list[i] - list[i-3]
-											str = format("%s, %.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, t/1000)
+											if type(list[i-3]) == "table" then
+												local tStage = list[i] - list[i-1][1]
+												local tStagePrevious = list[i] - list[i-2][1]
+												local tStagePreviousMore = list[i] - list[i-3][1]
+												local t = list[i] - list[i-4]
+												str = format("%s, %.1f/%.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, tStagePreviousMore/1000, t/1000)
+											else
+												local tStage = list[i] - list[i-1][1]
+												local tStagePrevious = list[i] - list[i-2][1]
+												local t = list[i] - list[i-3]
+												str = format("%s, %.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, t/1000)
+											end
 										else
 											local tStage = list[i] - list[i-1][1]
 											local t = list[i] - list[i-2]
@@ -1494,10 +1518,18 @@ function Transcriptor:StopLog(silent)
 									else
 										if type(list[i-1]) == "table" then
 											if type(list[i-2]) == "table" then
-												local tStage = list[i] - list[i-1][1]
-												local tStagePrevious = list[i] - list[i-2][1]
-												local t = list[i] - list[i-3]
-												str = format("%s, %.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, t/1000)
+												if type(list[i-3]) == "table" then
+													local tStage = list[i] - list[i-1][1]
+													local tStagePrevious = list[i] - list[i-2][1]
+													local tStagePreviousMore = list[i] - list[i-3][1]
+													local t = list[i] - list[i-4]
+													str = format("%s, %.1f/%.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, tStagePreviousMore/1000, t/1000)
+												else
+													local tStage = list[i] - list[i-1][1]
+													local tStagePrevious = list[i] - list[i-2][1]
+													local t = list[i] - list[i-3]
+													str = format("%s, %.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, t/1000)
+												end
 											else
 												local tStage = list[i] - list[i-1][1]
 												local t = list[i] - list[i-2]
