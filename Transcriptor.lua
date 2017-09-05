@@ -35,7 +35,7 @@ local mineOrPartyOrRaid = 7 -- COMBATLOG_OBJECT_AFFILIATION_MINE + COMBATLOG_OBJ
 
 local band = bit.band
 local tinsert = table.insert
-local format, strjoin = string.format, string.join
+local format, find, strjoin = string.format, string.find, string.join
 local tostring, tostringall = tostring, tostringall
 local type, select, next = type, select, next
 local date = date
@@ -119,7 +119,7 @@ function GetMapID(name)
 		local fetchedName = GetMapNameByID(i)
 		if fetchedName then
 			local lowerFetchedName = fetchedName:lower()
-			if lowerFetchedName:find(name) then
+			if find(lowerFetchedName, name, nil, true) then
 				print(fetchedName..": "..i)
 			end
 		end
@@ -131,7 +131,7 @@ function GetBossID(name)
 		local fetchedName = EJ_GetEncounterInfo(i)
 		if fetchedName then
 			local lowerFetchedName = fetchedName:lower()
-			if lowerFetchedName:find(name) then
+			if find(lowerFetchedName, name, nil, true) then
 				print(fetchedName..": "..i)
 			end
 		end
@@ -143,7 +143,7 @@ function GetSectionID(name)
 		local fetchedName = EJ_GetSectionInfo(i)
 		if fetchedName then
 			local lowerFetchedName = fetchedName:lower()
-			if lowerFetchedName:find(name) then
+			if find(lowerFetchedName, name, nil, true) then
 				print(fetchedName..": "..i)
 			end
 		end
@@ -181,7 +181,7 @@ do
 		if i % 2 ~= 0 then
 			editBox[i]:SetScript("OnHyperlinkLeave", GameTooltip_Hide)
 			editBox[i]:SetScript("OnHyperlinkEnter", function(self, link, text) 
-				if link and link:find("spell", nil, true) then
+				if link and find(link, "spell", nil, true) then
 					local spellId = link:match("(%d+)")
 					if spellId then
 						GameTooltip:SetOwner(frame[i], "ANCHOR_LEFT", 0, -500)
@@ -245,7 +245,7 @@ do
 						if id and flags and band(flags, mineOrPartyOrRaid) ~= 0 and not ignoreList[id] and not playerSpellBlacklist[id] and not total[id] and #sortedTbl < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
 							local srcGUIDType = strsplit("-", srcGUID)
 							local destGUIDType = strsplit("-", destGUID)
-							local trim = destGUID and destGUID:find("^P[le][at]")
+							local trim = destGUID and find(destGUID, "^P[le][at]")
 							if srcGUID == destGUID then
 								tbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .."(".. srcGUIDType ..") >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."(".. destGUIDType ..")|r"
 							else
@@ -625,21 +625,21 @@ do
 			--	print("Transcriptor:", sourceName..":"..MobId(sourceGUID), "used spell", spellName..":"..spellId, "in event", event, "but isn't in our group.")
 			--end
 
-			if event == "SPELL_CAST_SUCCESS" and (not sourceName or band(sourceFlags, mineOrPartyOrRaid) == 0) then
+			if event == "SPELL_CAST_SUCCESS" and (not sourceName or (band(sourceFlags, mineOrPartyOrRaid) == 0 and not find(sourceGUID, "Player", nil, true))) then
 				if not compareSuccess then compareSuccess = {} end
 				if not compareSuccess[spellId] then compareSuccess[spellId] = {} end
 				local npcId = MobId(sourceGUID)
 				if not compareSuccess[spellId][npcId] then compareSuccess[spellId][npcId] = {compareStartTime} end
 				compareSuccess[spellId][npcId][#compareSuccess[spellId][npcId]+1] = debugprofilestop()
 			end
-			if event == "SPELL_CAST_START" and (not sourceName or band(sourceFlags, mineOrPartyOrRaid) == 0) then
+			if event == "SPELL_CAST_START" and (not sourceName or (band(sourceFlags, mineOrPartyOrRaid) == 0 and not find(sourceGUID, "Player", nil, true))) then
 				if not compareStart then compareStart = {} end
 				if not compareStart[spellId] then compareStart[spellId] = {} end
 				local npcId = MobId(sourceGUID)
 				if not compareStart[spellId][npcId] then compareStart[spellId][npcId] = {compareStartTime} end
 				compareStart[spellId][npcId][#compareStart[spellId][npcId]+1] = debugprofilestop()
 			end
-			if event == "SPELL_AURA_APPLIED" and (not sourceName or band(sourceFlags, mineOrPartyOrRaid) == 0) then
+			if event == "SPELL_AURA_APPLIED" and (not sourceName or (band(sourceFlags, mineOrPartyOrRaid) == 0 and not find(sourceGUID, "Player", nil, true))) then
 				if not compareAuraApplied then compareAuraApplied = {} end
 				if not compareAuraApplied[spellId] then compareAuraApplied[spellId] = {} end
 				local npcId = MobId(sourceGUID)
