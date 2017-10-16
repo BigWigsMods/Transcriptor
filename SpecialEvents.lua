@@ -106,6 +106,15 @@ tbl.specialEvents = {
 			[122369] = "Ishkar Leaving", -- Chief Engineer Ishkar (High Command)
 			[122333] = "Erodus Leaving", -- General Erodus (High Command)
 		},
+		[255648] = { -- Golganneth's Wrath
+			[126268] = "Stage 2", -- Golganneth (Argus the Unmaker)
+		},
+		[257645] = { -- Temporal Blast
+			[125885] = "Stage 3", -- Aman'Thul (Argus the Unmaker)
+		},
+		[256542] = { -- Reap Soul
+			[124828] = "Stage 4", -- Argus the Unmaker
+		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
 		--[[ Tomb of Sargeras ]]--
