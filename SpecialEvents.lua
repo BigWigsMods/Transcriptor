@@ -33,12 +33,12 @@ tbl.specialEvents = {
 		},
 
 		-- [[ Antorus, the Burning Throne ]] --
-		[248995] = { -- Jet Packs
-			[124158] = "Intermission 1", -- Imonar
-		},
-		[248194] = { -- Jet Packs
-			[124158] = "Intermission 2", -- Imonar
-		},
+		--[248995] = { -- Jet Packs
+		--	[124158] = "Intermission 1", -- Imonar
+		--},
+		--[248194] = { -- Jet Packs
+		--	[124158] = "Intermission 2", -- Imonar
+		--},
 	},
 	["SPELL_AURA_APPLIED"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -53,9 +53,9 @@ tbl.specialEvents = {
 		[246965] = { -- Haywire
 			[122778] = "Annihilator Haywire", -- Annihilator (Worldbreaker)
 		},
-		[246516] = { -- Apocalypse Protocol
-			[122578] = "Construction Stage", -- Kin'garoth
-		},
+		--[246516] = { -- Apocalypse Protocol
+		--	[122578] = "Construction Stage", -- Kin'garoth
+		--},
 		[244894] = { -- Corrupt Aegis
 			[121975] = function() -- Aggramar
 				return "Intermission ".. (tbl.data[1] or 1)
@@ -75,15 +75,15 @@ tbl.specialEvents = {
 		},
 
 		-- [[ Antorus, the Burning Throne ]] --
-		[248233] = { -- Conflagration
-			[124158] = "Stage 2", -- Imonar
-		},
-		[250135] = { -- Conflagration
-			[124158] = "Stage 3", -- Imonar
-		},
-		[246516] = { -- Apocalypse Protocol
-			[122578] = "Deployment Stage", -- Kin'garoth
-		},
+		--[248233] = { -- Conflagration
+		--	[124158] = "Stage 2", -- Imonar
+		--},
+		--[250135] = { -- Conflagration
+		--	[124158] = "Stage 3", -- Imonar
+		--},
+		--[246516] = { -- Apocalypse Protocol
+		--	[122578] = "Deployment Stage", -- Kin'garoth
+		--},
 		[244894] = { -- Corrupt Aegis
 			[121975] = function() -- Aggramar
 				tbl.data[1] = (tbl.data[1] or 1) + 1
