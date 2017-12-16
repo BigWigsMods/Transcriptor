@@ -29,7 +29,7 @@ local compareAuraApplied = nil
 local compareStartTime = nil
 local collectPlayerAuras = nil
 local shouldLogFlags = false
-local inEncounter, blockingRelease = false, false
+local inEncounter, blockingRelease, limitingRes = false, false, false
 local wowVersion, buildRevision, _, buildTOC = GetBuildInfo() -- Note that both returns here are strings, not numbers.
 local mineOrPartyOrRaid = 7 -- COMBATLOG_OBJECT_AFFILIATION_MINE + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_RAID
 
@@ -42,9 +42,10 @@ local date = date
 local debugprofilestop, wipe = debugprofilestop, wipe
 local print = print
 
-local C_Scenario = C_Scenario
+local C_Scenario, C_DeathInfo_GetSelfResurrectOptions = C_Scenario, C_DeathInfo.GetSelfResurrectOptions
 local RegisterAddonMessagePrefix = RegisterAddonMessagePrefix
-local IsEncounterInProgress, IsEncounterSuppressingRelease, IsAltKeyDown, EJ_GetEncounterInfo, EJ_GetSectionInfo = IsEncounterInProgress, IsEncounterSuppressingRelease, IsAltKeyDown, EJ_GetEncounterInfo, EJ_GetSectionInfo
+local IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease = IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease
+local IsAltKeyDown, EJ_GetEncounterInfo, EJ_GetSectionInfo = IsAltKeyDown, EJ_GetEncounterInfo, EJ_GetSectionInfo
 local UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo = UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo
 local UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification = UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification
 local UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth, UnitHealthMax = UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth, UnitHealthMax
@@ -1154,6 +1155,32 @@ eventFrame:SetScript("OnUpdate", function()
 		currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IsEncounterSuppressingRelease()] false", t, time)
 		if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
 		tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterSuppressingRelease()] false", t, time))
+	end
+	if IsEncounterLimitingResurrections then -- XXX avail after 7.3.5
+		if not limitingRes and IsEncounterLimitingResurrections() then
+			limitingRes = true
+			local stop = debugprofilestop() / 1000
+			local t = stop - logStartTime
+			local time = date("%H:%M:%S")
+			local tbl = C_DeathInfo_GetSelfResurrectOptions()
+			if tbl and tbl[1] then
+				currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IsEncounterLimitingResurrections()] true {%s}", t, time, tbl[1].name)
+				if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
+				tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterLimitingResurrections()] true {%s}", t, time, tbl[1].name))
+			else
+				currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IsEncounterLimitingResurrections()] true", t, time)
+				if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
+				tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterLimitingResurrections()] true", t, time))
+			end
+		elseif limitingRes and not IsEncounterLimitingResurrections() then
+			limitingRes = false
+			local stop = debugprofilestop() / 1000
+			local t = stop - logStartTime
+			local time = date("%H:%M:%S")
+			currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IsEncounterLimitingResurrections()] false", t, time)
+			if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
+			tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterLimitingResurrections()] false", t, time))
+		end
 	end
 end)
 
