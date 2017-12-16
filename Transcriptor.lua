@@ -42,7 +42,7 @@ local date = date
 local debugprofilestop, wipe = debugprofilestop, wipe
 local print = print
 
-local C_Scenario, C_DeathInfo_GetSelfResurrectOptions = C_Scenario, C_DeathInfo.GetSelfResurrectOptions
+local C_Scenario, C_DeathInfo_GetSelfResurrectOptions = C_Scenario, C_DeathInfo and C_DeathInfo.GetSelfResurrectOptions -- XXX temp compat
 local RegisterAddonMessagePrefix = RegisterAddonMessagePrefix
 local IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease = IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease
 local IsAltKeyDown, EJ_GetEncounterInfo, EJ_GetSectionInfo = IsAltKeyDown, EJ_GetEncounterInfo, EJ_GetSectionInfo
