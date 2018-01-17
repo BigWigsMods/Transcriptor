@@ -45,7 +45,7 @@ local print = print
 local C_Scenario, C_DeathInfo_GetSelfResurrectOptions = C_Scenario, C_DeathInfo and C_DeathInfo.GetSelfResurrectOptions -- XXX temp compat
 local RegisterAddonMessagePrefix = RegisterAddonMessagePrefix
 local IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease = IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease
-local IsAltKeyDown, EJ_GetEncounterInfo, EJ_GetSectionInfo = IsAltKeyDown, EJ_GetEncounterInfo, EJ_GetSectionInfo
+local IsAltKeyDown, EJ_GetEncounterInfo, C_EncounterJournal_GetSectionInfo = IsAltKeyDown, EJ_GetEncounterInfo, C_EncounterJournal.GetSectionInfo
 local UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo = UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo
 local UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification = UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification
 local UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth, UnitHealthMax = UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth, UnitHealthMax
@@ -141,8 +141,9 @@ end
 function GetSectionID(name)
 	name = name:lower()
 	for i=1,15000 do
-		local fetchedName = EJ_GetSectionInfo(i)
-		if fetchedName then
+		local tbl = C_EncounterJournal_GetSectionInfo(i)
+		if tbl then
+			local fetchedName = tbl.title
 			local lowerFetchedName = fetchedName:lower()
 			if find(lowerFetchedName, name, nil, true) then
 				print(fetchedName..": "..i)
