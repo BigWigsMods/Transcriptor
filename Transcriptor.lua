@@ -1417,7 +1417,7 @@ function Transcriptor:StopLog(silent)
 											if type(list[i-3]) == "table" then
 												if type(list[i-4]) == "table" then
 													local counter = 5
-													while type(list[i-counter]) == "table" then
+													while type(list[i-counter]) == "table" do
 														counter = counter + 1
 													end
 													local t = list[i] - list[i-counter]
@@ -1471,7 +1471,7 @@ function Transcriptor:StopLog(silent)
 											if type(list[i-3]) == "table" then
 												if type(list[i-4]) == "table" then
 													local counter = 5
-													while type(list[i-counter]) == "table" then
+													while type(list[i-counter]) == "table" do
 														counter = counter + 1
 													end
 													local t = list[i] - list[i-counter]
@@ -1525,7 +1525,7 @@ function Transcriptor:StopLog(silent)
 											if type(list[i-3]) == "table" then
 												if type(list[i-4]) == "table" then
 													local counter = 5
-													while type(list[i-counter]) == "table" then
+													while type(list[i-counter]) == "table" do
 														counter = counter + 1
 													end
 													local t = list[i] - list[i-counter]
@@ -1580,7 +1580,7 @@ function Transcriptor:StopLog(silent)
 												if type(list[i-3]) == "table" then
 													if type(list[i-4]) == "table" then
 														local counter = 5
-														while type(list[i-counter]) == "table" then
+														while type(list[i-counter]) == "table" do
 															counter = counter + 1
 														end
 														local t = list[i] - list[i-counter]
