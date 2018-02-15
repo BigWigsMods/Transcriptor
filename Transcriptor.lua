@@ -42,7 +42,7 @@ local date = date
 local debugprofilestop, wipe = debugprofilestop, wipe
 local print = print
 
-local C_Scenario, C_DeathInfo_GetSelfResurrectOptions = C_Scenario, C_DeathInfo and C_DeathInfo.GetSelfResurrectOptions -- XXX temp compat
+local C_Scenario, C_DeathInfo_GetSelfResurrectOptions = C_Scenario, C_DeathInfo.GetSelfResurrectOptions
 local RegisterAddonMessagePrefix = RegisterAddonMessagePrefix
 local IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease = IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease
 local IsAltKeyDown, EJ_GetEncounterInfo, C_EncounterJournal_GetSectionInfo = IsAltKeyDown, EJ_GetEncounterInfo, C_EncounterJournal.GetSectionInfo
@@ -578,7 +578,7 @@ do
 		["SPELL_AURA_REMOVED_DOSE"] = true,
 		["SPELL_CAST_START"] = true,
 		["SPELL_SUMMON"] = true,
-		--"<87.10 17:55:03> [CLEU] SPELL_AURA_BROKEN_SPELL#Creature-0-3771-1676-28425-118022-000004A6B5#Infernal Chaosbringer#Player-XXX#XXX#115191#Stealth#242906#Immolation Aura", -- [148]
+		--"<87.10 17:55:03> [CLEU] SPELL_AURA_BROKEN_SPELL#Creature-0-3771-1676-28425-118022-000004A6B5#Infernal Chaosbringer#Player-XYZ#XYZ#115191#Stealth#242906#Immolation Aura", -- [148]
 		--"<498.56 22:02:38> [CLEU] SPELL_AURA_BROKEN_SPELL#Creature-0-3895-1676-10786-106551-00008631CC-TSGuardian#Hati#Creature-0-3895-1676-10786-120697-000086306F#Worshiper of Elune#206961#Tremble Before Me#118459#Beast Cleave", -- [8039]
 		--["SPELL_AURA_BROKEN_SPELL"] = true,
 	}
@@ -1163,31 +1163,29 @@ eventFrame:SetScript("OnUpdate", function()
 		if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
 		tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterSuppressingRelease()] false", t, time))
 	end
-	if IsEncounterLimitingResurrections then -- XXX avail after 7.3.5
-		if not limitingRes and IsEncounterLimitingResurrections() then
-			limitingRes = true
-			local stop = debugprofilestop() / 1000
-			local t = stop - logStartTime
-			local time = date("%H:%M:%S")
-			local tbl = C_DeathInfo_GetSelfResurrectOptions()
-			if tbl and tbl[1] then
-				currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IsEncounterLimitingResurrections()] true {%s}", t, time, tbl[1].name)
-				if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
-				tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterLimitingResurrections()] true {%s}", t, time, tbl[1].name))
-			else
-				currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IsEncounterLimitingResurrections()] true", t, time)
-				if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
-				tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterLimitingResurrections()] true", t, time))
-			end
-		elseif limitingRes and not IsEncounterLimitingResurrections() then
-			limitingRes = false
-			local stop = debugprofilestop() / 1000
-			local t = stop - logStartTime
-			local time = date("%H:%M:%S")
-			currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IsEncounterLimitingResurrections()] false", t, time)
+	if not limitingRes and IsEncounterLimitingResurrections() then
+		limitingRes = true
+		local stop = debugprofilestop() / 1000
+		local t = stop - logStartTime
+		local time = date("%H:%M:%S")
+		local tbl = C_DeathInfo_GetSelfResurrectOptions()
+		if tbl and tbl[1] then
+			currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IsEncounterLimitingResurrections()] true {%s}", t, time, tbl[1].name)
 			if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
-			tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterLimitingResurrections()] false", t, time))
+			tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterLimitingResurrections()] true {%s}", t, time, tbl[1].name))
+		else
+			currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IsEncounterLimitingResurrections()] true", t, time)
+			if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
+			tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterLimitingResurrections()] true", t, time))
 		end
+	elseif limitingRes and not IsEncounterLimitingResurrections() then
+		limitingRes = false
+		local stop = debugprofilestop() / 1000
+		local t = stop - logStartTime
+		local time = date("%H:%M:%S")
+		currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IsEncounterLimitingResurrections()] false", t, time)
+		if type(currentLog.COMBAT) ~= "table" then currentLog.COMBAT = {} end
+		tinsert(currentLog.COMBAT, format("<%.2f %s> [IsEncounterLimitingResurrections()] false", t, time))
 	end
 end)
 
