@@ -1428,8 +1428,9 @@ function Transcriptor:StopLog(silent)
 													while type(list[i-counter]) == "table" do
 														counter = counter + 1
 													end
+													local tStage = list[i] - list[i-1][1]
 													local t = list[i] - list[i-counter]
-													str = format("%s, TooManyStages/%.1f", str, t/1000)
+													str = format("%s, TooManyStages/%.1f/%.1f", str, tStage/1000, t/1000)
 												else
 													local tStage = list[i] - list[i-1][1]
 													local tStagePrevious = list[i] - list[i-2][1]
@@ -1490,8 +1491,9 @@ function Transcriptor:StopLog(silent)
 													while type(list[i-counter]) == "table" do
 														counter = counter + 1
 													end
+													local tStage = list[i] - list[i-1][1]
 													local t = list[i] - list[i-counter]
-													str = format("%s, TooManyStages/%.1f", str, t/1000)
+													str = format("%s, TooManyStages/%.1f/%.1f", str, tStage/1000, t/1000)
 												else
 													local tStage = list[i] - list[i-1][1]
 													local tStagePrevious = list[i] - list[i-2][1]
@@ -1552,8 +1554,9 @@ function Transcriptor:StopLog(silent)
 													while type(list[i-counter]) == "table" do
 														counter = counter + 1
 													end
+													local tStage = list[i] - list[i-1][1]
 													local t = list[i] - list[i-counter]
-													str = format("%s, TooManyStages/%.1f", str, t/1000)
+													str = format("%s, TooManyStages/%.1f/%.1f", str, tStage/1000, t/1000)
 												else
 													local tStage = list[i] - list[i-1][1]
 													local tStagePrevious = list[i] - list[i-2][1]
@@ -1615,8 +1618,9 @@ function Transcriptor:StopLog(silent)
 														while type(list[i-counter]) == "table" do
 															counter = counter + 1
 														end
+														local tStage = list[i] - list[i-1][1]
 														local t = list[i] - list[i-counter]
-														str = format("%s, TooManyStages/%.1f", str, t/1000)
+														str = format("%s, TooManyStages/%.1f/%.1f", str, tStage/1000, t/1000)
 													else
 														local tStage = list[i] - list[i-1][1]
 														local tStagePrevious = list[i] - list[i-2][1]
