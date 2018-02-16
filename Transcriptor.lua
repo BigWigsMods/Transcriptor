@@ -1410,7 +1410,15 @@ function Transcriptor:StopLog(silent)
 								str = format("%s = pull:%.1f", n, t/1000)
 							else
 								if type(list[i]) == "table" then
-									str = format("%s, %s", str, list[i][2])
+									if type(list[i-1]) == "number" then
+										local t = list[i][1]-list[i-1]
+										str = format("%s, %s/%.1f", str, list[i][2], t/1000)
+									elseif type(list[i-1]) == "table" then
+										local t = list[i][1]-list[i-1][1]
+										str = format("%s, %s/%.1f", str, list[i][2], t/1000)
+									else
+										str = format("%s, %s", str, list[i][2])
+									end
 								else
 									if type(list[i-1]) == "table" then
 										if type(list[i-2]) == "table" then
@@ -1464,7 +1472,15 @@ function Transcriptor:StopLog(silent)
 								str = format("%s = pull:%.1f", n, t/1000)
 							else
 								if type(list[i]) == "table" then
-									str = format("%s, %s", str, list[i][2])
+									if type(list[i-1]) == "number" then
+										local t = list[i][1]-list[i-1]
+										str = format("%s, %s/%.1f", str, list[i][2], t/1000)
+									elseif type(list[i-1]) == "table" then
+										local t = list[i][1]-list[i-1][1]
+										str = format("%s, %s/%.1f", str, list[i][2], t/1000)
+									else
+										str = format("%s, %s", str, list[i][2])
+									end
 								else
 									if type(list[i-1]) == "table" then
 										if type(list[i-2]) == "table" then
@@ -1518,7 +1534,15 @@ function Transcriptor:StopLog(silent)
 								str = format("%s = pull:%.1f", n, t/1000)
 							else
 								if type(list[i]) == "table" then
-									str = format("%s, %s", str, list[i][2])
+									if type(list[i-1]) == "number" then
+										local t = list[i][1]-list[i-1]
+										str = format("%s, %s/%.1f", str, list[i][2], t/1000)
+									elseif type(list[i-1]) == "table" then
+										local t = list[i][1]-list[i-1][1]
+										str = format("%s, %s/%.1f", str, list[i][2], t/1000)
+									else
+										str = format("%s, %s", str, list[i][2])
+									end
 								else
 									if type(list[i-1]) == "table" then
 										if type(list[i-2]) == "table" then
@@ -1573,7 +1597,15 @@ function Transcriptor:StopLog(silent)
 									str = format("%s = pull:%.1f", n, t/1000)
 								else
 									if type(list[i]) == "table" then
-										str = format("%s, %s", str, list[i][2])
+										if type(list[i-1]) == "number" then
+											local t = list[i][1]-list[i-1]
+											str = format("%s, %s/%.1f", str, list[i][2], t/1000)
+										elseif type(list[i-1]) == "table" then
+											local t = list[i][1]-list[i-1][1]
+											str = format("%s, %s/%.1f", str, list[i][2], t/1000)
+										else
+											str = format("%s, %s", str, list[i][2])
+										end
 									else
 										if type(list[i-1]) == "table" then
 											if type(list[i-2]) == "table" then
