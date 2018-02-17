@@ -913,7 +913,7 @@ do
 		arena1 = true, arena2 = true, arena3 = true, arena4 = true, arena5 = true,
 		arenapet1 = true, arenapet2 = true, arenapet3 = true, arenapet4 = true, arenapet5 = true
 	}
-	function sh.UNIT_POWER(unit, typeName)
+	function sh.UNIT_POWER_UPDATE(unit, typeName)
 		if not allowedPowerUnits[unit] then return end
 		local typeIndex = UnitPowerType(unit)
 		local mainPower = UnitPower(unit)
@@ -922,6 +922,7 @@ do
 		local alternatePowerMax = UnitPowerMax(unit, 10)
 		return strjoin("#", unit, UnitName(unit), typeName, typeIndex, mainPower, maxPower, alternatePower, alternatePowerMax)
 	end
+	sh.UNIT_POWER = sh.UNIT_POWER_UPDATE -- XXX 8.0
 end
 
 function sh.SCENARIO_UPDATE(newStep)
@@ -1030,6 +1031,7 @@ local wowEvents = {
 	"UNIT_SPELLCAST_CHANNEL_START",
 	"UNIT_SPELLCAST_CHANNEL_STOP",
 	"UNIT_POWER",
+	"UNIT_POWER_UPDATE",
 	"UPDATE_WORLD_STATES",
 	"WORLD_STATE_UI_TIMER_UPDATE",
 	"INSTANCE_ENCOUNTER_ENGAGE_UNIT",
