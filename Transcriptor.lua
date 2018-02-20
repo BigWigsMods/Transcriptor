@@ -1382,7 +1382,14 @@ function Transcriptor:StopLog(silent)
 
 		--Clear Events
 		eventFrame:Hide()
-		eventFrame:UnregisterAllEvents()
+		-- XXX start temp broken in 8.0
+		--eventFrame:UnregisterAllEvents()
+		for i, event in next, wowEvents do
+			if not TranscriptIgnore[event] then
+				eventFrame:UnregisterEvent(event)
+			end
+		end
+		-- XXX end
 		if BigWigsLoader then
 			BigWigsLoader.SendMessage(eventFrame, "BigWigs_OnPluginDisable", eventFrame)
 		end
