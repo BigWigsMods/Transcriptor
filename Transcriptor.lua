@@ -43,7 +43,6 @@ local debugprofilestop, wipe = debugprofilestop, wipe
 local print = print
 
 local C_Scenario, C_DeathInfo_GetSelfResurrectOptions = C_Scenario, C_DeathInfo.GetSelfResurrectOptions
-local RegisterAddonMessagePrefix = RegisterAddonMessagePrefix
 local IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease = IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease
 local IsAltKeyDown, EJ_GetEncounterInfo, C_EncounterJournal_GetSectionInfo = IsAltKeyDown, EJ_GetEncounterInfo, C_EncounterJournal.GetSectionInfo
 local UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo = UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo
@@ -1254,7 +1253,11 @@ init:SetScript("OnEvent", function(self, event, addon)
 	if DBM then insertMenuItems(dbmEvents) end
 	tinsert(menu, { text = CLOSE, func = function() CloseDropDownMenus() end, notCheckable = 1 })
 
-	RegisterAddonMessagePrefix("Transcriptor")
+	if C_ChatInfo then -- XXX 8.0
+		C_ChatInfo.RegisterAddonMessagePrefix("Transcriptor")
+	else
+		RegisterAddonMessagePrefix("Transcriptor")
+	end
 
 	SlashCmdList["TRANSCRIPTOR"] = function(input)
 		if type(input) == "string" and input:lower() == "clear" then
