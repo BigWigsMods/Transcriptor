@@ -1,9 +1,5 @@
 
 local Transcriptor = {}
-local version = "@project-version@"
-if version:find("@", nil, true) then
-	version = "repo"
-end
 
 local playerSpellBlacklist
 local badSourcelessPlayerSpellList
@@ -30,7 +26,6 @@ local compareStartTime = nil
 local collectPlayerAuras = nil
 local shouldLogFlags = false
 local inEncounter, blockingRelease, limitingRes = false, false, false
-local wowVersion, buildRevision, _, buildTOC = GetBuildInfo() -- Note that both returns here are strings, not numbers.
 local mineOrPartyOrRaid = 7 -- COMBATLOG_OBJECT_AFFILIATION_MINE + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_RAID
 
 local band = bit.band
@@ -53,6 +48,7 @@ local GetInstanceInfo, GetCurrentMapAreaID, GetCurrentMapDungeonLevel, GetMapNam
 local GetZoneText, GetRealZoneText, GetSubZoneText, SetMapToCurrentZone, GetSpellInfo = GetZoneText, GetRealZoneText, GetSubZoneText, SetMapToCurrentZone, GetSpellInfo
 local GetSpellTabInfo, GetNumSpellTabs, GetSpellBookItemInfo, GetSpellBookItemName = GetSpellTabInfo, GetNumSpellTabs, GetSpellBookItemInfo, GetSpellBookItemName
 
+local GetBestMapForUnit = C_Map and C_Map.GetBestMapForUnit
 -- GLOBALS: TranscriptDB BigWigsLoader DBM CLOSE SlashCmdList SLASH_TRANSCRIPTOR1 SLASH_TRANSCRIPTOR2 SLASH_TRANSCRIPTOR3 EasyMenu CloseDropDownMenus
 -- GLOBALS: GetMapID GetBossID GetSectionID
 
@@ -181,7 +177,7 @@ do
 		editBox[i]:SetScript("OnEscapePressed", function(f) f:GetParent():GetParent():Hide() f:SetText("") end)
 		if i % 2 ~= 0 then
 			editBox[i]:SetScript("OnHyperlinkLeave", GameTooltip_Hide)
-			editBox[i]:SetScript("OnHyperlinkEnter", function(self, link, text) 
+			editBox[i]:SetScript("OnHyperlinkEnter", function(self, link, text)
 				if link and find(link, "spell", nil, true) then
 					local spellId = link:match("(%d+)")
 					if spellId then
@@ -340,7 +336,7 @@ do
 			[231770] = true, -- Drenched
 			[232732] = true, -- Slicing Tornado
 			[232913] = true, -- Befouling Ink
-			[234621] = true, -- Devouring Maw 
+			[234621] = true, -- Devouring Maw
 			[236329] = true, -- Star Burn
 			[243294] = true, -- Fel Slicer
 			[238442] = true, -- Spear of Anguish
@@ -543,26 +539,26 @@ local eventFrame = CreateFrame("Frame")
 eventFrame:Hide()
 
 local sh = {}
-function sh.UPDATE_WORLD_STATES()
-	local ret
-	for i = 1, GetNumWorldStateUI() do
-		local m = strjoin("#", tostringall(GetWorldStateUIInfo(i)))
-		if m then
-			if not ret then
-				ret = format("[%d] %s", i, m)
-			else
-				ret = format("%s [%d] %s", ret, i, m)
-			end
-		end
-	end
-	if not ret or ret == previousWorldState then
-		return
-	else
-		previousWorldState = ret
-		return ret
-	end
-end
-sh.WORLD_STATE_UI_TIMER_UPDATE = sh.UPDATE_WORLD_STATES
+--function sh.UPDATE_WORLD_STATES()
+--	local ret
+--	for i = 1, GetNumWorldStateUI() do
+--		local m = strjoin("#", tostringall(GetWorldStateUIInfo(i)))
+--		if m then
+--			if not ret then
+--				ret = format("[%d] %s", i, m)
+--			else
+--				ret = format("%s [%d] %s", ret, i, m)
+--			end
+--		end
+--	end
+--	if not ret or ret == previousWorldState then
+--		return
+--	else
+--		previousWorldState = ret
+--		return ret
+--	end
+--end
+--sh.WORLD_STATE_UI_TIMER_UPDATE = sh.UPDATE_WORLD_STATES
 
 do
 	badSourcelessPlayerSpellList = {
@@ -846,7 +842,12 @@ do
 
 	function sh.UNIT_SPELLCAST_SUCCEEDED(unit, ...)
 		if safeUnit(unit) then
-			local _, _, _, spellId = ...
+			local _, spellId
+			if CombatLogGetCurrentEventInfo then -- XXX 8.0
+				_, spellId = ...
+			else
+				_, _, _, spellId = ...
+			end
 			if not compareUnitSuccess then compareUnitSuccess = {} end
 			if not compareUnitSuccess[spellId] then compareUnitSuccess[spellId] = {} end
 			local npcId = MobId(UnitGUID(unit))
@@ -990,11 +991,16 @@ sh.ZONE_CHANGED_INDOORS = sh.ZONE_CHANGED
 sh.ZONE_CHANGED_NEW_AREA = sh.ZONE_CHANGED
 
 function sh.CINEMATIC_START(...)
-	SetMapToCurrentZone()
-	local areaId = GetCurrentMapAreaID() or 0
-	local areaLevel = GetCurrentMapDungeonLevel() or 0
-	local id = ("%d:%d"):format(areaId, areaLevel)
-	return strjoin("#", "Fake ID:", id, "Real Args:", tostringall(...))
+	if GetCurrentMapAreaID then -- XXX 8.0
+		SetMapToCurrentZone()
+		local areaId = GetCurrentMapAreaID() or 0
+		local areaLevel = GetCurrentMapDungeonLevel() or 0
+		local id = ("%d:%d"):format(areaId, areaLevel)
+		return strjoin("#", "Fake ID:", id, "Real Args:", tostringall(...))
+	else
+		local id = -(GetBestMapForUnit("player"))
+		return strjoin("#", "Fake (map) ID:", id, "Real Args:", tostringall(...))
+	end
 end
 
 function sh.CHAT_MSG_ADDON(prefix, msg, channel, sender)
@@ -1032,8 +1038,8 @@ local wowEvents = {
 	"UNIT_SPELLCAST_CHANNEL_START",
 	"UNIT_SPELLCAST_CHANNEL_STOP",
 	CombatLogGetCurrentEventInfo and "UNIT_POWER_UPDATE" or "UNIT_POWER", -- XXX 8.0
-	"UPDATE_WORLD_STATES",
-	"WORLD_STATE_UI_TIMER_UPDATE",
+	--"UPDATE_WORLD_STATES",
+	--"WORLD_STATE_UI_TIMER_UPDATE",
 	"INSTANCE_ENCOUNTER_ENGAGE_UNIT",
 	"UNIT_TARGETABLE_CHANGED",
 	"ENCOUNTER_START",
@@ -1310,7 +1316,8 @@ do
 		[23] = "5Mythic",
 		[24] = "5Timewalking",
 	}
-	local logNameFormat = "[%s]@[%s] - %d/%d/%s/%s/%s@%s" .. format(" (%s) (%s.%s)", version, wowVersion, buildRevision)
+	local wowVersion, buildRevision = GetBuildInfo() -- Note that both returns here are strings, not numbers.
+	local logNameFormat = "[%s]@[%s] - Zone:%d Difficulty:%d,%s Type:%s " .. format("Version: %s.%s", wowVersion, buildRevision)
 	function Transcriptor:StartLog(silent)
 		if logging then
 			print(L["You are already logging an encounter."])
@@ -1323,10 +1330,9 @@ do
 
 			compareStartTime = debugprofilestop()
 			logStartTime = compareStartTime / 1000
-			local _, _, diff, _, _, _, _, instanceId = GetInstanceInfo()
-			local diffText = difficultyTbl[diff] or tostring(diff)
-			SetMapToCurrentZone() -- Update map ID
-			logName = format(logNameFormat, date("%Y-%m-%d"), date("%H:%M:%S"), GetCurrentMapAreaID() or 0, instanceId or 0, GetZoneText() or "?", GetRealZoneText() or "?", GetSubZoneText() or "none", diffText)
+			local _, instanceType, diff, _, _, _, _, instanceId = GetInstanceInfo()
+			local diffText = difficultyTbl[diff] or "None"
+			logName = format(logNameFormat, date("%Y-%m-%d"), date("%H:%M:%S"), instanceId or 0, diff, diffText, instanceType)
 
 			if type(TranscriptDB[logName]) ~= "table" then TranscriptDB[logName] = {} end
 			if type(TranscriptIgnore) ~= "table" then TranscriptIgnore = {} end
