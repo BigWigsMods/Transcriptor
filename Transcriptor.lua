@@ -17,7 +17,6 @@ local logName = nil
 local currentLog = nil
 local logStartTime = nil
 local logging = nil
-local previousWorldState = nil
 local compareSuccess = nil
 local compareUnitSuccess = nil
 local compareStart = nil
@@ -537,28 +536,50 @@ end
 
 local eventFrame = CreateFrame("Frame")
 eventFrame:Hide()
-
 local sh = {}
---function sh.UPDATE_WORLD_STATES()
---	local ret
---	for i = 1, GetNumWorldStateUI() do
---		local m = strjoin("#", tostringall(GetWorldStateUIInfo(i)))
---		if m then
---			if not ret then
---				ret = format("[%d] %s", i, m)
---			else
---				ret = format("%s [%d] %s", ret, i, m)
---			end
---		end
---	end
---	if not ret or ret == previousWorldState then
---		return
---	else
---		previousWorldState = ret
---		return ret
---	end
---end
---sh.WORLD_STATE_UI_TIMER_UPDATE = sh.UPDATE_WORLD_STATES
+
+--[[
+	TopCenterFrame
+	widgetSetID = 1, widgetType = 0
+	widgetID = 8, 507, 527, 982
+
+	We don't care about other widgets, for now
+]]
+do
+	local GetIconAndTextWidgetVisualizationInfo = C_UIWidgetManager and C_UIWidgetManager.GetIconAndTextWidgetVisualizationInfo
+	local widgetsWeCareAbout = {
+		[8] = true,
+		[507] = true,
+		[527] = true,
+		[982] = true,
+	}
+	function sh.UPDATE_UI_WIDGET(tbl)
+		local id = tbl.widgetID
+		if widgetsWeCareAbout[id] then
+			local dataTbl = GetIconAndTextWidgetVisualizationInfo(id)
+			local txt = format("[%d]", id)
+			if dataTbl.text then
+				txt = format("%s %s", txt, dataTbl.text)
+			end
+			for k, v in next, dataTbl do
+				if k ~= "text" then
+					txt = format("%s, %s:%s", txt, k, tostring(v))
+				end
+			end
+			return txt
+		else
+			local txt
+			for k, v in next, tbl do
+				if not txt then
+					txt = format("%s:%s", k, v)
+				else
+					txt = format("%s, %s:%s", txt, k, v)
+				end
+			end
+			return txt
+		end
+	end
+end
 
 do
 	badSourcelessPlayerSpellList = {
@@ -866,14 +887,24 @@ do
 	end
 	function sh.UNIT_SPELLCAST_START(unit, ...)
 		if safeUnit(unit) then
-			local _, _, _, icon, startTime, endTime = UnitCastingInfo(unit)
+			local _, icon, startTime, endTime
+			if CombatLogGetCurrentEventInfo then -- XXX 8.0
+				_, _, icon, startTime, endTime = UnitCastingInfo(unit)
+			else
+				_, _, _, icon, startTime, endTime = UnitCastingInfo(unit)
+			end
 			local time = ((endTime or 0) - (startTime or 0)) / 1000
 			return format("%s(%s) - %d - %ssec [[%s]]", UnitName(unit), UnitName(unit.."target"), icon, time, strjoin(":", tostringall(unit, ...)))
 		end
 	end
 	function sh.UNIT_SPELLCAST_CHANNEL_START(unit, ...)
 		if safeUnit(unit) then
-			local _, _, _, icon, startTime, endTime = UnitChannelInfo(unit)
+			local _, icon, startTime, endTime
+			if CombatLogGetCurrentEventInfo then -- XXX 8.0
+				_, _, icon, startTime, endTime = UnitChannelInfo(unit)
+			else
+				_, _, _, icon, startTime, endTime = UnitChannelInfo(unit)
+			end
 			local time = ((endTime or 0) - (startTime or 0)) / 1000
 			return format("%s(%s) - %s - %ssec [[%s]]", UnitName(unit), UnitName(unit.."target"), icon, time, strjoin(":", tostringall(unit, ...)))
 		end
@@ -1038,8 +1069,7 @@ local wowEvents = {
 	"UNIT_SPELLCAST_CHANNEL_START",
 	"UNIT_SPELLCAST_CHANNEL_STOP",
 	CombatLogGetCurrentEventInfo and "UNIT_POWER_UPDATE" or "UNIT_POWER", -- XXX 8.0
-	--"UPDATE_WORLD_STATES",
-	--"WORLD_STATE_UI_TIMER_UPDATE",
+	"UPDATE_UI_WIDGET",
 	"INSTANCE_ENCOUNTER_ENGAGE_UNIT",
 	"UNIT_TARGETABLE_CHANGED",
 	"ENCOUNTER_START",
@@ -1324,7 +1354,6 @@ do
 		else
 			ldb.text = L["|cffFF0000Recording|r"]
 			ldb.icon = "Interface\\AddOns\\Transcriptor\\icon_on"
-			previousWorldState = nil
 			shouldLogFlags = TranscriptIgnore.logFlags and true or false
 			wipe(data)
 
@@ -1389,18 +1418,14 @@ function Transcriptor:StopLog(silent)
 	else
 		ldb.text = L["|cff696969Idle|r"]
 		ldb.icon = "Interface\\AddOns\\Transcriptor\\icon_off"
-		previousWorldState = nil
 
 		--Clear Events
 		eventFrame:Hide()
-		-- XXX start temp broken in 8.0
-		--eventFrame:UnregisterAllEvents()
 		for i, event in next, wowEvents do
 			if not TranscriptIgnore[event] then
 				eventFrame:UnregisterEvent(event)
 			end
 		end
-		-- XXX end
 		if BigWigsLoader then
 			BigWigsLoader.SendMessage(eventFrame, "BigWigs_OnPluginDisable", eventFrame)
 		end
