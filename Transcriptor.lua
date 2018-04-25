@@ -539,23 +539,18 @@ eventFrame:Hide()
 local sh = {}
 
 --[[
-	TopCenterFrame
-	widgetSetID = 1, widgetType = 0
-	widgetID = 8, 507, 527, 982
+	TopCenterFrame: widgetSetID = 1, widgetType = 0
+	widgetID = 
+		The Black Morass: 507 (health), 527 (waves)
+		The Violet Hold (WotLK): 565 (health), 566 (waves)
 
 	We don't care about other widgets, for now
 ]]
 do
 	local GetIconAndTextWidgetVisualizationInfo = C_UIWidgetManager and C_UIWidgetManager.GetIconAndTextWidgetVisualizationInfo
-	local widgetsWeCareAbout = {
-		[8] = true,
-		[507] = true,
-		[527] = true,
-		[982] = true,
-	}
 	function sh.UPDATE_UI_WIDGET(tbl)
-		local id = tbl.widgetID
-		if widgetsWeCareAbout[id] then
+		if tbl.widgetSetID == 1 and tbl.widgetType == 0 then
+			local id = tbl.widgetID
 			local dataTbl = GetIconAndTextWidgetVisualizationInfo(id)
 			local txt = format("[%d]", id)
 			if dataTbl.text then
