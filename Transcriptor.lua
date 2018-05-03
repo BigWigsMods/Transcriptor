@@ -23,6 +23,7 @@ local compareStart = nil
 local compareAuraApplied = nil
 local compareStartTime = nil
 local collectPlayerAuras = nil
+local hiddenUnitAuraCollector, hiddenUnitAuraCollectorBlacklist = nil, nil
 local shouldLogFlags = false
 local inEncounter, blockingRelease, limitingRes = false, false, false
 local mineOrPartyOrRaid = 7 -- COMBATLOG_OBJECT_AFFILIATION_MINE + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_RAID
@@ -632,6 +633,10 @@ do
 			timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount = CombatLogGetCurrentEventInfo()
 		end
 
+		if event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED" then
+			hiddenUnitAuraCollectorBlacklist[spellId] = true
+		end
+
 		if badEvents[event] or
 		   (event == "UNIT_DIED" and band(destFlags, mineOrPartyOrRaid) ~= 0 and band(destFlags, guardian) == guardian) or -- Guardian deaths, player deaths can explain debuff removal
 		   (sourceName and badPlayerEvents[event] and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or
@@ -1041,6 +1046,82 @@ function sh.ENCOUNTER_START(...)
 	return strjoin("#", "ENCOUNTER_START", ...)
 end
 
+do
+	local UnitAura = UnitAura
+	local units = {
+		"boss1", "boss2", "boss3", "boss4", "boss5",
+		"target", "mouseover", "focus",
+		"nameplate1", "nameplate2", "nameplate3", "nameplate4", "nameplate5", "nameplate6", "nameplate7", "nameplate8", "nameplate9", "nameplate10",
+		"nameplate11", "nameplate12", "nameplate13", "nameplate14", "nameplate15", "nameplate16", "nameplate17", "nameplate18", "nameplate19", "nameplate20",
+		"nameplate21", "nameplate22", "nameplate23", "nameplate24", "nameplate25", "nameplate26", "nameplate27", "nameplate28", "nameplate29", "nameplate30",
+		"nameplate31", "nameplate32", "nameplate33", "nameplate34", "nameplate35", "nameplate36", "nameplate37", "nameplate38", "nameplate39", "nameplate40",
+		"party1", "party2", "party3", "party4",
+		"raid1", "raid2", "raid3", "raid4", "raid5",
+		"raid6", "raid7", "raid8", "raid9", "raid10",
+		"raid11", "raid12", "raid13", "raid14", "raid15",
+		"raid16", "raid17", "raid18", "raid19", "raid20",
+		"raid21", "raid22", "raid23", "raid24", "raid25",
+		"raid26", "raid27", "raid28", "raid29", "raid30",
+		"raid31", "raid32", "raid33", "raid34", "raid35",
+		"raid36", "raid37", "raid38", "raid39", "raid40"
+	}
+	if GetCurrentMapAreaID then  -- XXX 8.0
+		function Transcriptor:UpdateHiddenAuraBlacklist()
+			hiddenUnitAuraCollector, hiddenUnitAuraCollectorBlacklist = {}, {}
+			for j = 1, #units do
+				local unit = units[j]
+				for i = 1, 100 do
+					local _, _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i)
+					if spellId then
+						if not hiddenUnitAuraCollectorBlacklist[spellId] then
+							hiddenUnitAuraCollectorBlacklist[spellId] = true
+						end
+					else
+						break
+					end
+				end
+			end
+		end
+		function sh.UNIT_AURA(unit)
+			for i = 1, 100 do
+				local name, _, _, _, _, duration, _, _, _, _, spellId = UnitAura(unit, i)
+				if not spellId then
+					break
+				elseif not hiddenUnitAuraCollector[spellId] then
+					hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall(spellId, name, duration, unit, UnitName(unit)))
+				end
+			end
+		end
+	else
+		function Transcriptor:UpdateHiddenAuraBlacklist()
+			hiddenUnitAuraCollector, hiddenUnitAuraCollectorBlacklist = {}, {}
+			for j = 1, #units do
+				local unit = units[j]
+				for i = 1, 100 do
+					local _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i)
+					if spellId then
+						if not hiddenUnitAuraCollectorBlacklist[spellId] then
+							hiddenUnitAuraCollectorBlacklist[spellId] = true
+						end
+					else
+						break
+					end
+				end
+			end
+		end
+		function sh.UNIT_AURA(unit)
+			for i = 1, 100 do
+				local name, _, stack, _, duration, _, _, _, _, spellId = UnitAura(unit, i)
+				if not spellId then
+					break
+				elseif not hiddenUnitAuraCollector[spellId] then
+					hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall(spellId, name, duration, unit, UnitName(unit)))
+				end
+			end
+		end
+	end
+end
+
 local wowEvents = {
 	-- Raids
 	"CHAT_MSG_ADDON",
@@ -1065,6 +1146,7 @@ local wowEvents = {
 	"UNIT_SPELLCAST_CHANNEL_STOP",
 	CombatLogGetCurrentEventInfo and "UNIT_POWER_UPDATE" or "UNIT_POWER", -- XXX 8.0
 	"UPDATE_UI_WIDGET",
+	"UNIT_AURA",
 	"INSTANCE_ENCOUNTER_ENGAGE_UNIT",
 	"UNIT_TARGETABLE_CHANGED",
 	"ENCOUNTER_START",
@@ -1354,6 +1436,7 @@ do
 
 			compareStartTime = debugprofilestop()
 			logStartTime = compareStartTime / 1000
+			self:UpdateHiddenAuraBlacklist()
 			local _, instanceType, diff, _, _, _, _, instanceId = GetInstanceInfo()
 			local diffText = difficultyTbl[diff] or "None"
 			logName = format(logNameFormat, date("%Y-%m-%d"), date("%H:%M:%S"), instanceId or 0, diff, diffText, instanceType)
@@ -1703,6 +1786,13 @@ function Transcriptor:StopLog(silent)
 				end
 			end
 		end
+		for id, str in next, hiddenUnitAuraCollector do
+			if not hiddenUnitAuraCollectorBlacklist[id] then
+				if not currentLog.TIMERS then currentLog.TIMERS = {} end
+				if not currentLog.TIMERS.HIDDEN_AURAS then currentLog.TIMERS.HIDDEN_AURAS = {} end
+				currentLog.TIMERS.HIDDEN_AURAS[#currentLog.TIMERS.HIDDEN_AURAS+1] = str
+			end
+		end
 
 		--Clear Log Path
 		currentLog = nil
@@ -1714,6 +1804,8 @@ function Transcriptor:StopLog(silent)
 		compareStartTime = nil
 		collectPlayerAuras = nil
 		logStartTime = nil
+		hiddenUnitAuraCollector = nil
+		hiddenUnitAuraCollectorBlacklist = nil
 
 		return logName
 	end
