@@ -1071,7 +1071,7 @@ do
 			for j = 1, #units do
 				local unit = units[j]
 				for i = 1, 100 do
-					local _, _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i)
+					local _, _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i, "HARMFUL")
 					if spellId then
 						if not hiddenUnitAuraCollectorBlacklist[spellId] then
 							hiddenUnitAuraCollectorBlacklist[spellId] = true
@@ -1084,7 +1084,7 @@ do
 		end
 		function sh.UNIT_AURA(unit)
 			for i = 1, 100 do
-				local name, _, _, _, _, duration, _, _, _, _, spellId = UnitAura(unit, i)
+				local name, _, _, _, _, duration, _, _, _, _, spellId = UnitAura(unit, i, "HARMFUL")
 				if not spellId then
 					break
 				elseif not hiddenUnitAuraCollector[spellId] then
@@ -1098,7 +1098,7 @@ do
 			for j = 1, #units do
 				local unit = units[j]
 				for i = 1, 100 do
-					local _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i)
+					local _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i, "HARMFUL")
 					if spellId then
 						if not hiddenUnitAuraCollectorBlacklist[spellId] then
 							hiddenUnitAuraCollectorBlacklist[spellId] = true
@@ -1111,7 +1111,7 @@ do
 		end
 		function sh.UNIT_AURA(unit)
 			for i = 1, 100 do
-				local name, _, stack, _, duration, _, _, _, _, spellId = UnitAura(unit, i)
+				local name, _, stack, _, duration, _, _, _, _, spellId = UnitAura(unit, i, "HARMFUL")
 				if not spellId then
 					break
 				elseif not hiddenUnitAuraCollector[spellId] then
