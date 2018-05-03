@@ -633,7 +633,7 @@ do
 			timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount = CombatLogGetCurrentEventInfo()
 		end
 
-		if event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED" then
+		if event == "SPELL_AURA_APPLIED" and not hiddenUnitAuraCollectorBlacklist[spellId] then
 			hiddenUnitAuraCollectorBlacklist[spellId] = true
 		end
 
