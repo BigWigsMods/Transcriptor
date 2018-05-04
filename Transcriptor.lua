@@ -23,7 +23,8 @@ local compareStart = nil
 local compareAuraApplied = nil
 local compareStartTime = nil
 local collectPlayerAuras = nil
-local hiddenUnitAuraCollector, hiddenUnitAuraCollectorBlacklist = nil, nil
+local hiddenUnitAuraCollector, hiddenAuraInitList = nil, nil
+local hiddenAuraPermList = {}
 local shouldLogFlags = false
 local inEncounter, blockingRelease, limitingRes = false, false, false
 local mineOrPartyOrRaid = 7 -- COMBATLOG_OBJECT_AFFILIATION_MINE + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_RAID
@@ -633,8 +634,8 @@ do
 			timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount = CombatLogGetCurrentEventInfo()
 		end
 
-		if event == "SPELL_AURA_APPLIED" and not hiddenUnitAuraCollectorBlacklist[spellId] then
-			hiddenUnitAuraCollectorBlacklist[spellId] = true
+		if (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") and not hiddenAuraPermList[spellId] then
+			hiddenAuraPermList[spellId] = true
 		end
 
 		if badEvents[event] or
@@ -1067,14 +1068,24 @@ do
 	}
 	if GetCurrentMapAreaID then  -- XXX 8.0
 		function Transcriptor:UpdateHiddenAuraBlacklist()
-			hiddenUnitAuraCollector, hiddenUnitAuraCollectorBlacklist = {}, {}
+			hiddenUnitAuraCollector, hiddenAuraInitList = {}, {}
 			for j = 1, #units do
 				local unit = units[j]
 				for i = 1, 100 do
 					local _, _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i, "HARMFUL")
 					if spellId then
-						if not hiddenUnitAuraCollectorBlacklist[spellId] then
-							hiddenUnitAuraCollectorBlacklist[spellId] = true
+						if not hiddenAuraInitList[spellId] then
+							hiddenAuraInitList[spellId] = true
+						end
+					else
+						break
+					end
+				end
+				for i = 1, 100 do
+					local _, _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
+					if spellId then
+						if not hiddenAuraInitList[spellId] then
+							hiddenAuraInitList[spellId] = true
 						end
 					else
 						break
@@ -1088,20 +1099,38 @@ do
 				if not spellId then
 					break
 				elseif not hiddenUnitAuraCollector[spellId] then
-					hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall(spellId, name, duration, unit, UnitName(unit)))
+					hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("DEBUFF", spellId, name, duration, unit, UnitName(unit)))
+				end
+			end
+			for i = 1, 100 do
+				local name, _, _, _, _, duration, _, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
+				if not spellId then
+					break
+				elseif not hiddenUnitAuraCollector[spellId] then
+					hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BUFF", spellId, name, duration, unit, UnitName(unit)))
 				end
 			end
 		end
 	else
 		function Transcriptor:UpdateHiddenAuraBlacklist()
-			hiddenUnitAuraCollector, hiddenUnitAuraCollectorBlacklist = {}, {}
+			hiddenUnitAuraCollector, hiddenAuraInitList = {}, {}
 			for j = 1, #units do
 				local unit = units[j]
 				for i = 1, 100 do
 					local _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i, "HARMFUL")
 					if spellId then
-						if not hiddenUnitAuraCollectorBlacklist[spellId] then
-							hiddenUnitAuraCollectorBlacklist[spellId] = true
+						if not hiddenAuraInitList[spellId] then
+							hiddenAuraInitList[spellId] = true
+						end
+					else
+						break
+					end
+				end
+				for i = 1, 100 do
+					local _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
+					if spellId then
+						if not hiddenAuraInitList[spellId] then
+							hiddenAuraInitList[spellId] = true
 						end
 					else
 						break
@@ -1115,7 +1144,15 @@ do
 				if not spellId then
 					break
 				elseif not hiddenUnitAuraCollector[spellId] then
-					hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall(spellId, name, duration, unit, UnitName(unit)))
+					hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("DEBUFF", spellId, name, duration, unit, UnitName(unit)))
+				end
+			end
+			for i = 1, 100 do
+				local name, _, stack, _, duration, _, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
+				if not spellId then
+					break
+				elseif not hiddenUnitAuraCollector[spellId] then
+					hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BUFF", spellId, name, duration, unit, UnitName(unit)))
 				end
 			end
 		end
@@ -1787,7 +1824,7 @@ function Transcriptor:StopLog(silent)
 			end
 		end
 		for id, str in next, hiddenUnitAuraCollector do
-			if not hiddenUnitAuraCollectorBlacklist[id] then
+			if not hiddenAuraPermList[id] and not hiddenAuraInitList[id] then
 				if not currentLog.TIMERS then currentLog.TIMERS = {} end
 				if not currentLog.TIMERS.HIDDEN_AURAS then currentLog.TIMERS.HIDDEN_AURAS = {} end
 				currentLog.TIMERS.HIDDEN_AURAS[#currentLog.TIMERS.HIDDEN_AURAS+1] = str
@@ -1805,7 +1842,7 @@ function Transcriptor:StopLog(silent)
 		collectPlayerAuras = nil
 		logStartTime = nil
 		hiddenUnitAuraCollector = nil
-		hiddenUnitAuraCollectorBlacklist = nil
+		hiddenAuraInitList = nil
 
 		return logName
 	end
