@@ -856,7 +856,12 @@ do
 
 	function sh.UNIT_SPELLCAST_STOP(unit, ...)
 		if safeUnit(unit) then
-			return format("%s(%s) [[%s]]", UnitName(unit), UnitName(unit.."target"), strjoin(":", tostringall(unit, ...)))
+			if CombatLogGetCurrentEventInfo then -- XXX 8.0
+				local _, spellId = ...
+				return format("%s(%s) -%s- [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId), strjoin(":", tostringall(unit, ...)))
+			else
+				return format("%s(%s) [[%s]]", UnitName(unit), UnitName(unit.."target"), strjoin(":", tostringall(unit, ...)))
+			end
 		end
 	end
 	sh.UNIT_SPELLCAST_CHANNEL_STOP = sh.UNIT_SPELLCAST_STOP
@@ -883,31 +888,31 @@ do
 				end
 			end
 
-			return format("%s(%s) [[%s]]", UnitName(unit), UnitName(unit.."target"), strjoin(":", tostringall(unit, ...)))
+			return format("%s(%s) -%s- [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId), strjoin(":", tostringall(unit, ...)))
 		end
 	end
 	function sh.UNIT_SPELLCAST_START(unit, ...)
 		if safeUnit(unit) then
-			local _, icon, startTime, endTime
+			local _, spellName, startTime, endTime
 			if CombatLogGetCurrentEventInfo then -- XXX 8.0
-				_, _, icon, startTime, endTime = UnitCastingInfo(unit)
+				spellName, _, _, startTime, endTime = UnitCastingInfo(unit)
 			else
-				_, _, _, icon, startTime, endTime = UnitCastingInfo(unit)
+				spellName, _, _, _, startTime, endTime = UnitCastingInfo(unit)
 			end
 			local time = ((endTime or 0) - (startTime or 0)) / 1000
-			return format("%s(%s) - %d - %ssec [[%s]]", UnitName(unit), UnitName(unit.."target"), icon, time, strjoin(":", tostringall(unit, ...)))
+			return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), spellName, time, strjoin(":", tostringall(unit, ...)))
 		end
 	end
 	function sh.UNIT_SPELLCAST_CHANNEL_START(unit, ...)
 		if safeUnit(unit) then
-			local _, icon, startTime, endTime
+			local _, spellName, startTime, endTime
 			if CombatLogGetCurrentEventInfo then -- XXX 8.0
-				_, _, icon, startTime, endTime = UnitChannelInfo(unit)
+				spellName, _, _, startTime, endTime = UnitChannelInfo(unit)
 			else
-				_, _, _, icon, startTime, endTime = UnitChannelInfo(unit)
+				spellName, _, _, _, startTime, endTime = UnitChannelInfo(unit)
 			end
 			local time = ((endTime or 0) - (startTime or 0)) / 1000
-			return format("%s(%s) - %s - %ssec [[%s]]", UnitName(unit), UnitName(unit.."target"), icon, time, strjoin(":", tostringall(unit, ...)))
+			return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), spellName, time, strjoin(":", tostringall(unit, ...)))
 		end
 	end
 end
