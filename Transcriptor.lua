@@ -40,12 +40,12 @@ local print = print
 
 local C_Scenario, C_DeathInfo_GetSelfResurrectOptions = C_Scenario, C_DeathInfo.GetSelfResurrectOptions
 local IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease = IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease
-local IsAltKeyDown, EJ_GetEncounterInfo, C_EncounterJournal_GetSectionInfo = IsAltKeyDown, EJ_GetEncounterInfo, C_EncounterJournal.GetSectionInfo
+local IsAltKeyDown, EJ_GetEncounterInfo, C_EncounterJournal_GetSectionInfo, C_Map_GetMapInfo = IsAltKeyDown, EJ_GetEncounterInfo, C_EncounterJournal.GetSectionInfo, C_Map.GetMapInfo
 local UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo = UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo
 local UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification = UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification
 local UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth, UnitHealthMax = UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth, UnitHealthMax
-local UnitLevel, UnitCreatureType, GetNumWorldStateUI, GetWorldStateUIInfo = UnitLevel, UnitCreatureType, GetNumWorldStateUI, GetWorldStateUIInfo
-local GetInstanceInfo, GetCurrentMapAreaID, GetCurrentMapDungeonLevel, GetMapNameByID = GetInstanceInfo, GetCurrentMapAreaID, GetCurrentMapDungeonLevel, GetMapNameByID
+local UnitLevel, UnitCreatureType = UnitLevel, UnitCreatureType
+local GetInstanceInfo, GetCurrentMapDungeonLevel = GetInstanceInfo, GetCurrentMapDungeonLevel
 local GetZoneText, GetRealZoneText, GetSubZoneText, SetMapToCurrentZone, GetSpellInfo = GetZoneText, GetRealZoneText, GetSubZoneText, SetMapToCurrentZone, GetSpellInfo
 local GetSpellTabInfo, GetNumSpellTabs, GetSpellBookItemInfo, GetSpellBookItemName = GetSpellTabInfo, GetNumSpellTabs, GetSpellBookItemInfo, GetSpellBookItemName
 
@@ -112,19 +112,22 @@ end
 
 function GetMapID(name)
 	name = name:lower()
-	for i=1,2000 do
-		local fetchedName = GetMapNameByID(i)
-		if fetchedName then
-			local lowerFetchedName = fetchedName:lower()
-			if find(lowerFetchedName, name, nil, true) then
-				print(fetchedName..": "..i)
+	for i=1,3000 do
+		local tbl = C_Map_GetMapInfo(i)
+		if tbl then
+			local fetchedName = tbl.name
+			if fetchedName then
+				local lowerFetchedName = fetchedName:lower()
+				if find(lowerFetchedName, name, nil, true) then
+					print(fetchedName..": "..i)
+				end
 			end
 		end
 	end
 end
 function GetBossID(name)
 	name = name:lower()
-	for i=1,2000 do
+	for i=1,3000 do
 		local fetchedName = EJ_GetEncounterInfo(i)
 		if fetchedName then
 			local lowerFetchedName = fetchedName:lower()
@@ -628,11 +631,8 @@ do
 	-- HFC/Socrethar - Player cast on friendly vehicle "SPELL_CAST_SUCCESS#Player-GUID#PLAYER#Vehicle-0-3151-1448-8853-90296-00001D943C#Soulbound Construct#190466#Incomplete Binding"
 	-- HFC/Zakuun - Player boss debuff cast on self "SPELL_AURA_APPLIED#Player-GUID#PLAYER#Player-GUID#PLAYER#189030#Befouled#DEBUFF#"
 	-- ToS/Sisters - Boss pet marked as guardian "SPELL_CAST_SUCCESS#Creature-0-3895-1676-10786-119205-0000063360#Moontalon##nil#236697#Deathly Screech"
-	function sh.COMBAT_LOG_EVENT_UNFILTERED(timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount)
-		-- XXX 8.0
-		if CombatLogGetCurrentEventInfo then
-			timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount = CombatLogGetCurrentEventInfo()
-		end
+	function sh.COMBAT_LOG_EVENT_UNFILTERED()
+		local timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount = CombatLogGetCurrentEventInfo()
 
 		if (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") and not hiddenAuraPermList[spellId] then
 			hiddenAuraPermList[spellId] = true
@@ -854,27 +854,16 @@ do
 		end
 	end
 
-	function sh.UNIT_SPELLCAST_STOP(unit, ...)
+	function sh.UNIT_SPELLCAST_STOP(unit, castId, spellId, ...)
 		if safeUnit(unit) then
-			if CombatLogGetCurrentEventInfo then -- XXX 8.0
-				local _, spellId = ...
-				return format("%s(%s) -%s- [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId), strjoin(":", tostringall(unit, ...)))
-			else
-				return format("%s(%s) [[%s]]", UnitName(unit), UnitName(unit.."target"), strjoin(":", tostringall(unit, ...)))
-			end
+			return format("%s(%s) -%s- [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId), strjoin(":", tostringall(unit, castId, ...)))
 		end
 	end
 	sh.UNIT_SPELLCAST_CHANNEL_STOP = sh.UNIT_SPELLCAST_STOP
 	sh.UNIT_SPELLCAST_INTERRUPTED = sh.UNIT_SPELLCAST_STOP
 
-	function sh.UNIT_SPELLCAST_SUCCEEDED(unit, ...)
+	function sh.UNIT_SPELLCAST_SUCCEEDED(unit, castId, spellId, ...)
 		if safeUnit(unit) then
-			local _, spellId
-			if CombatLogGetCurrentEventInfo then -- XXX 8.0
-				_, spellId = ...
-			else
-				_, _, _, spellId = ...
-			end
 			if not compareUnitSuccess then compareUnitSuccess = {} end
 			if not compareUnitSuccess[spellId] then compareUnitSuccess[spellId] = {} end
 			local npcId = MobId(UnitGUID(unit))
@@ -888,29 +877,19 @@ do
 				end
 			end
 
-			return format("%s(%s) -%s- [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId), strjoin(":", tostringall(unit, ...)))
+			return format("%s(%s) -%s- [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId), strjoin(":", tostringall(unit, castId, ...)))
 		end
 	end
 	function sh.UNIT_SPELLCAST_START(unit, ...)
 		if safeUnit(unit) then
-			local _, spellName, startTime, endTime
-			if CombatLogGetCurrentEventInfo then -- XXX 8.0
-				spellName, _, _, startTime, endTime = UnitCastingInfo(unit)
-			else
-				spellName, _, _, _, startTime, endTime = UnitCastingInfo(unit)
-			end
+			local spellName, _, _, startTime, endTime = UnitCastingInfo(unit)
 			local time = ((endTime or 0) - (startTime or 0)) / 1000
 			return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), spellName, time, strjoin(":", tostringall(unit, ...)))
 		end
 	end
 	function sh.UNIT_SPELLCAST_CHANNEL_START(unit, ...)
 		if safeUnit(unit) then
-			local _, spellName, startTime, endTime
-			if CombatLogGetCurrentEventInfo then -- XXX 8.0
-				spellName, _, _, startTime, endTime = UnitChannelInfo(unit)
-			else
-				spellName, _, _, _, startTime, endTime = UnitChannelInfo(unit)
-			end
+			local spellName, _, _, startTime, endTime = UnitChannelInfo(unit)
 			local time = ((endTime or 0) - (startTime or 0)) / 1000
 			return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), spellName, time, strjoin(":", tostringall(unit, ...)))
 		end
@@ -961,7 +940,6 @@ do
 		local alternatePowerMax = UnitPowerMax(unit, 10)
 		return strjoin("#", unit, UnitName(unit), typeName, typeIndex, mainPower, maxPower, alternatePower, alternatePowerMax)
 	end
-	sh.UNIT_POWER = sh.UNIT_POWER_UPDATE -- XXX 8.0
 end
 
 function sh.SCENARIO_UPDATE(newStep)
@@ -1028,16 +1006,8 @@ sh.ZONE_CHANGED_INDOORS = sh.ZONE_CHANGED
 sh.ZONE_CHANGED_NEW_AREA = sh.ZONE_CHANGED
 
 function sh.CINEMATIC_START(...)
-	if GetCurrentMapAreaID then -- XXX 8.0
-		SetMapToCurrentZone()
-		local areaId = GetCurrentMapAreaID() or 0
-		local areaLevel = GetCurrentMapDungeonLevel() or 0
-		local id = ("%d:%d"):format(areaId, areaLevel)
-		return strjoin("#", "Fake ID:", id, "Real Args:", tostringall(...))
-	else
-		local id = -(GetBestMapForUnit("player"))
-		return strjoin("#", "Fake (map) ID:", id, "Real Args:", tostringall(...))
-	end
+	local id = -(GetBestMapForUnit("player"))
+	return strjoin("#", "uiMapID:", id, "Real Args:", tostringall(...))
 end
 
 function sh.CHAT_MSG_ADDON(prefix, msg, channel, sender)
@@ -1071,94 +1041,47 @@ do
 		"raid31", "raid32", "raid33", "raid34", "raid35",
 		"raid36", "raid37", "raid38", "raid39", "raid40"
 	}
-	if GetCurrentMapAreaID then  -- XXX 8.0
-		function Transcriptor:UpdateHiddenAuraBlacklist()
-			hiddenUnitAuraCollector, hiddenAuraInitList = {}, {}
-			for j = 1, #units do
-				local unit = units[j]
-				for i = 1, 100 do
-					local _, _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i, "HARMFUL")
-					if spellId then
-						if not hiddenAuraInitList[spellId] then
-							hiddenAuraInitList[spellId] = true
-						end
-					else
-						break
+	function Transcriptor:UpdateHiddenAuraBlacklist()
+		hiddenUnitAuraCollector, hiddenAuraInitList = {}, {}
+		for j = 1, #units do
+			local unit = units[j]
+			for i = 1, 100 do
+				local _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i, "HARMFUL")
+				if spellId then
+					if not hiddenAuraInitList[spellId] then
+						hiddenAuraInitList[spellId] = true
 					end
+				else
+					break
 				end
-				for i = 1, 100 do
-					local _, _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
-					if spellId then
-						if not hiddenAuraInitList[spellId] then
-							hiddenAuraInitList[spellId] = true
-						end
-					else
-						break
+			end
+			for i = 1, 100 do
+				local _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
+				if spellId then
+					if not hiddenAuraInitList[spellId] then
+						hiddenAuraInitList[spellId] = true
 					end
+				else
+					break
 				end
 			end
 		end
-		function sh.UNIT_AURA(unit)
-			for i = 1, 100 do
-				local name, _, _, _, _, duration, _, _, _, _, spellId = UnitAura(unit, i, "HARMFUL")
-				if not spellId then
-					break
-				elseif not hiddenUnitAuraCollector[spellId] then
-					hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("DEBUFF", spellId, name, duration, unit, UnitName(unit)))
-				end
-			end
-			for i = 1, 100 do
-				local name, _, _, _, _, duration, _, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
-				if not spellId then
-					break
-				elseif not hiddenUnitAuraCollector[spellId] then
-					hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BUFF", spellId, name, duration, unit, UnitName(unit)))
-				end
+	end
+	function sh.UNIT_AURA(unit)
+		for i = 1, 100 do
+			local name, _, stack, _, duration, _, _, _, _, spellId = UnitAura(unit, i, "HARMFUL")
+			if not spellId then
+				break
+			elseif not hiddenUnitAuraCollector[spellId] then
+				hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("DEBUFF", spellId, name, duration, unit, UnitName(unit)))
 			end
 		end
-	else
-		function Transcriptor:UpdateHiddenAuraBlacklist()
-			hiddenUnitAuraCollector, hiddenAuraInitList = {}, {}
-			for j = 1, #units do
-				local unit = units[j]
-				for i = 1, 100 do
-					local _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i, "HARMFUL")
-					if spellId then
-						if not hiddenAuraInitList[spellId] then
-							hiddenAuraInitList[spellId] = true
-						end
-					else
-						break
-					end
-				end
-				for i = 1, 100 do
-					local _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
-					if spellId then
-						if not hiddenAuraInitList[spellId] then
-							hiddenAuraInitList[spellId] = true
-						end
-					else
-						break
-					end
-				end
-			end
-		end
-		function sh.UNIT_AURA(unit)
-			for i = 1, 100 do
-				local name, _, stack, _, duration, _, _, _, _, spellId = UnitAura(unit, i, "HARMFUL")
-				if not spellId then
-					break
-				elseif not hiddenUnitAuraCollector[spellId] then
-					hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("DEBUFF", spellId, name, duration, unit, UnitName(unit)))
-				end
-			end
-			for i = 1, 100 do
-				local name, _, stack, _, duration, _, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
-				if not spellId then
-					break
-				elseif not hiddenUnitAuraCollector[spellId] then
-					hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BUFF", spellId, name, duration, unit, UnitName(unit)))
-				end
+		for i = 1, 100 do
+			local name, _, stack, _, duration, _, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
+			if not spellId then
+				break
+			elseif not hiddenUnitAuraCollector[spellId] then
+				hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BUFF", spellId, name, duration, unit, UnitName(unit)))
 			end
 		end
 	end
@@ -1186,7 +1109,7 @@ local wowEvents = {
 	"UNIT_SPELLCAST_INTERRUPTED",
 	"UNIT_SPELLCAST_CHANNEL_START",
 	"UNIT_SPELLCAST_CHANNEL_STOP",
-	CombatLogGetCurrentEventInfo and "UNIT_POWER_UPDATE" or "UNIT_POWER", -- XXX 8.0
+	"UNIT_POWER_UPDATE",
 	"UPDATE_UI_WIDGET",
 	"UNIT_AURA",
 	"INSTANCE_ENCOUNTER_ENGAGE_UNIT",
@@ -1410,11 +1333,7 @@ init:SetScript("OnEvent", function(self, event, addon)
 	if DBM then insertMenuItems(dbmEvents) end
 	tinsert(menu, { text = CLOSE, func = function() CloseDropDownMenus() end, notCheckable = 1 })
 
-	if C_ChatInfo then -- XXX 8.0
-		C_ChatInfo.RegisterAddonMessagePrefix("Transcriptor")
-	else
-		RegisterAddonMessagePrefix("Transcriptor")
-	end
+	C_ChatInfo.RegisterAddonMessagePrefix("Transcriptor")
 
 	SlashCmdList["TRANSCRIPTOR"] = function(input)
 		if type(input) == "string" and input:lower() == "clear" then
