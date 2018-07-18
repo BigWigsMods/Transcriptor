@@ -33,7 +33,7 @@ local band = bit.band
 local tinsert = table.insert
 local format, find, strjoin = string.format, string.find, string.join
 local tostring, tostringall = tostring, tostringall
-local type, select, next = type, select, next
+local type, next = type, next
 local date = date
 local debugprofilestop, wipe = debugprofilestop, wipe
 local print = print
@@ -43,13 +43,12 @@ local IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppre
 local IsAltKeyDown, EJ_GetEncounterInfo, C_EncounterJournal_GetSectionInfo, C_Map_GetMapInfo = IsAltKeyDown, EJ_GetEncounterInfo, C_EncounterJournal.GetSectionInfo, C_Map.GetMapInfo
 local UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo = UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo
 local UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification = UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification
-local UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth, UnitHealthMax = UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth, UnitHealthMax
+local UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth = UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth
 local UnitLevel, UnitCreatureType = UnitLevel, UnitCreatureType
-local GetInstanceInfo, GetCurrentMapDungeonLevel = GetInstanceInfo, GetCurrentMapDungeonLevel
-local GetZoneText, GetRealZoneText, GetSubZoneText, SetMapToCurrentZone, GetSpellInfo = GetZoneText, GetRealZoneText, GetSubZoneText, SetMapToCurrentZone, GetSpellInfo
-local GetSpellTabInfo, GetNumSpellTabs, GetSpellBookItemInfo, GetSpellBookItemName = GetSpellTabInfo, GetNumSpellTabs, GetSpellBookItemInfo, GetSpellBookItemName
+local GetInstanceInfo = GetInstanceInfo
+local GetZoneText, GetRealZoneText, GetSubZoneText, GetSpellInfo = GetZoneText, GetRealZoneText, GetSubZoneText, GetSpellInfo
+local GetBestMapForUnit = C_Map.GetBestMapForUnit
 
-local GetBestMapForUnit = C_Map and C_Map.GetBestMapForUnit
 -- GLOBALS: TranscriptDB BigWigsLoader DBM CLOSE SlashCmdList SLASH_TRANSCRIPTOR1 SLASH_TRANSCRIPTOR2 SLASH_TRANSCRIPTOR3 EasyMenu CloseDropDownMenus
 -- GLOBALS: GetMapID GetBossID GetSectionID
 
@@ -238,7 +237,7 @@ do
 					local text = logTbl.total[i]
 
 					for j = 1, 3 do
-						local flagsText, srcGUID, name, destGUID, tarName, idText, spellName = text:match(events[j])
+						local flagsText, srcGUID, name, destGUID, tarName, idText = text:match(events[j])
 						local id = tonumber(idText)
 						local flags = tonumber(flagsText)
 						local tbl = tables[j]
@@ -374,13 +373,12 @@ do
 					local text = logTbl.total[i]
 
 					for j = 1, 3 do
-						local flagsText, name, destGUID, tarName, idText, spellName = text:match(eventsNoSource[j])
+						local flagsText, name, destGUID, tarName, idText = text:match(eventsNoSource[j])
 						local id = tonumber(idText)
 						local flags = tonumber(flagsText)
 						local tbl = tables[j]
 						local sortedTbl = sortedTables[j]
 						if name == "nil" and id and flags and band(flags, mineOrPartyOrRaid) ~= 0 and not ignoreList[id] and not badSourcelessPlayerSpellList[id] and not total[id] and #sortedTbl < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
-							local destGUIDType = strsplit("-", destGUID)
 							tbl[id] = tarName:gsub("%-.+", "*")
 							total[id] = true
 							sortedTbl[#sortedTbl+1] = id
@@ -1069,7 +1067,7 @@ do
 	end
 	function sh.UNIT_AURA(unit)
 		for i = 1, 100 do
-			local name, _, stack, _, duration, _, _, _, _, spellId = UnitAura(unit, i, "HARMFUL")
+			local name, _, _, _, duration, _, _, _, _, spellId = UnitAura(unit, i, "HARMFUL")
 			if not spellId then
 				break
 			elseif not hiddenUnitAuraCollector[spellId] then
@@ -1077,7 +1075,7 @@ do
 			end
 		end
 		for i = 1, 100 do
-			local name, _, stack, _, duration, _, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
+			local name, _, _, _, duration, _, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
 			if not spellId then
 				break
 			elseif not hiddenUnitAuraCollector[spellId] then
