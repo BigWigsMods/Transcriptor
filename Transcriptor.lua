@@ -1044,42 +1044,26 @@ do
 		for j = 1, #units do
 			local unit = units[j]
 			for i = 1, 100 do
-				local _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i, "HARMFUL")
-				if spellId then
-					if not hiddenAuraInitList[spellId] then
-						hiddenAuraInitList[spellId] = true
-					end
-				else
+				local _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i, "HARMFUL|HELPFUL")
+				if not spellId then
 					break
-				end
-			end
-			for i = 1, 100 do
-				local _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
-				if spellId then
-					if not hiddenAuraInitList[spellId] then
-						hiddenAuraInitList[spellId] = true
-					end
-				else
-					break
+				elseif not hiddenAuraInitList[spellId] then
+					hiddenAuraInitList[spellId] = true
 				end
 			end
 		end
 	end
 	function sh.UNIT_AURA(unit)
 		for i = 1, 100 do
-			local name, _, _, _, duration, _, _, _, _, spellId = UnitAura(unit, i, "HARMFUL")
+			local name, _, _, _, duration, _, _, _, _, spellId = UnitAura(unit, i, "HARMFUL|HELPFUL")
 			if not spellId then
 				break
 			elseif not hiddenUnitAuraCollector[spellId] then
-				hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("DEBUFF", spellId, name, duration, unit, UnitName(unit)))
-			end
-		end
-		for i = 1, 100 do
-			local name, _, _, _, duration, _, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
-			if not spellId then
-				break
-			elseif not hiddenUnitAuraCollector[spellId] then
-				hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BUFF", spellId, name, duration, unit, UnitName(unit)))
+				if UnitIsVisible(unit) then
+					hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("DEBUFF", spellId, name, duration, unit, UnitName(unit)))
+				else -- If it's not visible it may not show up in CLEU, use this as an indicator of a false positive
+					hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("DEBUFF", "UNIT_NOT_VISIBLE", spellId, name, duration, unit, UnitName(unit)))
+				end
 			end
 		end
 	end
