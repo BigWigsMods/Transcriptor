@@ -882,12 +882,6 @@ do
 		if safeUnit(unit) then
 			local spellName, _, _, startTime, endTime = UnitCastingInfo(unit)
 			local time = ((endTime or 0) - (startTime or 0)) / 1000
-			if not spellName then
-				local msg = strjoin(":", "Transcriptor spellName was nil", tostringall(unit, ...))
-				msg = strjoin(":", msg, "UnitCastingInfo", tostringall(UnitCastingInfo(unit)))
-				print(msg)
-				geterrorhandler()(msg)
-			end
 			return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), spellName or "NIL", time, strjoin(":", tostringall(unit, ...)))
 		end
 	end
@@ -895,12 +889,6 @@ do
 		if safeUnit(unit) then
 			local spellName, _, _, startTime, endTime = UnitChannelInfo(unit)
 			local time = ((endTime or 0) - (startTime or 0)) / 1000
-			if not spellName then
-				local msg = strjoin(":", "Transcriptor spellName was nil", tostringall(unit, ...))
-				msg = strjoin(":", msg, "UnitChannelInfo", tostringall(UnitChannelInfo(unit)))
-				print(msg)
-				geterrorhandler()(msg)
-			end
 			return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), spellName or "NIL", time, strjoin(":", tostringall(unit, ...)))
 		end
 	end
