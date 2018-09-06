@@ -550,6 +550,11 @@ local sh = {}
 	We don't care about other widgets, for now
 ]]
 do
+	local blackList = {
+		[1309] = true,
+		[1313] = true,
+		[1319] = true,
+	}
 	local GetIconAndTextWidgetVisualizationInfo = C_UIWidgetManager and C_UIWidgetManager.GetIconAndTextWidgetVisualizationInfo
 	function sh.UPDATE_UI_WIDGET(tbl)
 		if tbl.widgetSetID == 1 and tbl.widgetType == 0 then
@@ -565,7 +570,7 @@ do
 				end
 			end
 			return txt
-		else
+		elseif not blackList[tbl.widgetID] then
 			local txt
 			for k, v in next, tbl do
 				if not txt then
