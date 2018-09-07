@@ -215,6 +215,7 @@ do
 			[235117] = true, -- Unstable Soul (Maiden of Vigilance)
 			[238028] = true, -- Light Remanence (Maiden of Vigilance)
 			[238408] = true, -- Fel Remanence (Maiden of Vigilance)
+			[270620] = true, -- Psionic Blast (Zek'voz/Uldir || Mind Controlled player)
 		}
 		local events = {
 			"SPELL_AURA_[AR][^#]+#(%d+)#([^#]+%-[^#]+)#([^#]+)#([^#]*)#([^#]+)#(%d+)#([^#]+)#", -- SPELL_AURA_[AR] to filter _BROKEN
@@ -242,17 +243,21 @@ do
 						local flags = tonumber(flagsText)
 						local tbl = tables[j]
 						local sortedTbl = sortedTables[j]
-						if id and flags and band(flags, mineOrPartyOrRaid) ~= 0 and not ignoreList[id] and not playerSpellBlacklist[id] and not total[id] and #sortedTbl < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
-							local srcGUIDType = strsplit("-", srcGUID)
-							local destGUIDType = strsplit("-", destGUID)
-							local trim = destGUID and find(destGUID, "^P[le][at]")
-							if srcGUID == destGUID then
-								tbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .."(".. srcGUIDType ..") >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."(".. destGUIDType ..")|r"
-							else
-								tbl[id] = "|cFF3ADF00".. name:gsub("%-.+", "*") .."(".. srcGUIDType ..") >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."(".. destGUIDType ..")|r"
+						if id and flags and band(flags, mineOrPartyOrRaid) ~= 0 and not ignoreList[id] and not playerSpellBlacklist[id] and #sortedTbl < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
+							if not total[id] or destGUIDType ~= "" then
+								local srcGUIDType = strsplit("-", srcGUID)
+								local destGUIDType = strsplit("-", destGUID)
+								local trim = destGUID and find(destGUID, "^P[le][at]")
+								if srcGUID == destGUID then
+									tbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .."(".. srcGUIDType ..") >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."(".. destGUIDType ..")|r"
+								else
+									tbl[id] = "|cFF3ADF00".. name:gsub("%-.+", "*") .."(".. srcGUIDType ..") >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."(".. destGUIDType ..")|r"
+								end
+								if not total[id] then
+									total[id] = true
+									sortedTbl[#sortedTbl+1] = id
+								end
 							end
-							total[id] = true
-							sortedTbl[#sortedTbl+1] = id
 						end
 					end
 				end
