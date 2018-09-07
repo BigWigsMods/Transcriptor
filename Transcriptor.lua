@@ -936,12 +936,10 @@ do
 	}
 	function sh.UNIT_POWER_UPDATE(unit, typeName)
 		if not allowedPowerUnits[unit] then return end
-		local typeIndex = UnitPowerType(unit)
-		local mainPower = UnitPower(unit)
-		local maxPower = UnitPowerMax(unit)
-		local alternatePower = UnitPower(unit, 10)
-		local alternatePowerMax = UnitPowerMax(unit, 10)
-		return strjoin("#", unit, UnitName(unit), typeName, typeIndex, mainPower, maxPower, alternatePower, alternatePowerMax)
+		local powerType = format("TYPE:%s/%d", typeName, UnitPowerType(unit))
+		local mainPower = format("MAIN:%d/%d", UnitPower(unit), UnitPowerMax(unit))
+		local altPower = format("ALT:%d/%d", UnitPower(unit, 10), UnitPowerMax(unit, 10))
+		return strjoin("#", unit, UnitName(unit), powerType, mainPower, altPower)
 	end
 end
 
