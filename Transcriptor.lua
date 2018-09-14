@@ -216,6 +216,7 @@ do
 			[238028] = true, -- Light Remanence (Maiden of Vigilance)
 			[238408] = true, -- Fel Remanence (Maiden of Vigilance)
 			[270620] = true, -- Psionic Blast (Zek'voz/Uldir || Mind Controlled player)
+			[272407] = true, -- Oblivion Sphere (Mythrax/Uldir || Orb spawning on player)
 		}
 		local events = {
 			"SPELL_AURA_[AR][^#]+#(%d+)#([^#]+%-[^#]+)#([^#]+)#([^#]*)#([^#]+)#(%d+)#([^#]+)#", -- SPELL_AURA_[AR] to filter _BROKEN
