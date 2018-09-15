@@ -1055,8 +1055,8 @@ do
 		"raid26pet", "raid27pet", "raid28pet", "raid29pet", "raid30pet",
 		"raid31", "raid32", "raid33", "raid34", "raid35",
 		"raid31pet", "raid32pet", "raid33pet", "raid34pet", "raid35pet",
-		"raid36", "raid37", "raid38", "raid39", "raid40"
-		"raid36pet", "raid37pet", "raid38pet", "raid39pet", "raid40pet"
+		"raid36", "raid37", "raid38", "raid39", "raid40",
+		"raid36pet", "raid37pet", "raid38pet", "raid39pet", "raid40pet",
 	}
 	local count = #units
 	function Transcriptor:UpdateHiddenAuraBlacklist()
