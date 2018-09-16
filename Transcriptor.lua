@@ -217,6 +217,11 @@ do
 			[238408] = true, -- Fel Remanence (Maiden of Vigilance)
 			[270620] = true, -- Psionic Blast (Zek'voz/Uldir || Mind Controlled player)
 			[272407] = true, -- Oblivion Sphere (Mythrax/Uldir || Orb spawning on player)
+			[263372] = true, -- Power Matrix (G'huun/Uldir || Holding the orb)
+			[263436] = true, -- Imperfect Physiology (G'huun/Uldir || After the orb)
+			[263373] = true, -- Deposit Power Matrix (G'huun/Uldir)
+			[263416] = true, -- Throw Power Matrix (G'huun/Uldir)
+			[269455] = true, -- Collect Power Matrix (G'huun/Uldir)
 		}
 		local events = {
 			"SPELL_AURA_[AR][^#]+#(%d+)#([^#]+%-[^#]+)#([^#]+)#([^#]*)#([^#]+)#(%d+)#([^#]+)#", -- SPELL_AURA_[AR] to filter _BROKEN
