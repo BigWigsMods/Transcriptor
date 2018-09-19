@@ -562,9 +562,12 @@ local sh = {}
 ]]
 do
 	local blackList = {
-		[1309] = true,
-		[1313] = true,
-		[1319] = true,
+		[1309] = true, -- C_UIWidgetManager.GetStatusBarWidgetVisualizationInfo(1309)
+		[1311] = true, -- C_UIWidgetManager.GetStatusBarWidgetVisualizationInfo(1311)
+		[1313] = true, -- C_UIWidgetManager.GetStatusBarWidgetVisualizationInfo(1313)
+		[1315] = true, -- C_UIWidgetManager.GetStatusBarWidgetVisualizationInfo(1315)
+		[1317] = true, -- C_UIWidgetManager.GetStatusBarWidgetVisualizationInfo(1317)
+		[1319] = true, -- C_UIWidgetManager.GetStatusBarWidgetVisualizationInfo(1319)
 	}
 	local GetIconAndTextWidgetVisualizationInfo = C_UIWidgetManager and C_UIWidgetManager.GetIconAndTextWidgetVisualizationInfo
 	function sh.UPDATE_UI_WIDGET(tbl)
