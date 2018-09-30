@@ -39,6 +39,19 @@ tbl.specialEvents = {
 		[248194] = { -- Jet Packs
 			[124158] = "Intermission 2", -- Imonar
 		},
+
+		-- [[ Uldir ]] --
+		[269051] = { -- Cleansing Purge
+			[136429] = "Room 1", -- Room 1 (MOTHER)
+			[137022] = "Room 2", -- Room 2 (MOTHER)
+			[137023] = "Room 3", -- Room 3 (MOTHER)
+		},
+		[279749] = { -- Stage 2 Start
+			[134546] = "Stage 2", -- Mythrax
+		},
+		[279748] = { -- Stage 2 End
+			[134546] = "Stage 1", -- Mythrax
+		},
 	},
 	["SPELL_AURA_APPLIED"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -60,6 +73,14 @@ tbl.specialEvents = {
 			[121975] = function() -- Aggramar
 				return "Intermission ".. (tbl.data[1] or 1)
 			end,
+		},
+
+		-- [[ Uldir ]] --
+		[271965] = { -- Powered Down
+			[137119] = "Intermission", -- Taloc
+		},
+		[270443] = { -- Corrupting Bite
+			[132998] = "Stage 2", -- G'huun
 		},
 	},
 	["SPELL_AURA_REMOVED"] = {
@@ -90,6 +111,14 @@ tbl.specialEvents = {
 				return "Stage ".. tbl.data[1]
 			end,
 		},
+
+		-- [[ Uldir ]] --
+		[271965] = { -- Powered Down
+			[137119] = "Stage 2", -- Taloc
+		},
+		[265217] = { -- Liquefy
+			[134442] = "Intermission Over", -- Vectis
+		},
 	},
 	["SPELL_CAST_START"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -115,11 +144,24 @@ tbl.specialEvents = {
 		[256542] = { -- Reap Soul
 			[124828] = "Stage 4", -- Argus the Unmaker
 		},
+
+		-- [[ Uldir ]] --
+		[265217] = { -- Liquefy
+			[134442] = "Intermission", -- Vectis
+		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
 		--[[ Tomb of Sargeras ]]--
 		[235597] = { -- Annihilation
 			[116939] = "Stage 2", -- Fallen Avatar
+		},
+
+		-- [[ Uldir ]] --
+		[274168] = { -- Locus of Corruption
+			[138967] = "Stage 2", -- Zul
+		},
+		[276839] = { -- Collapse
+			[132998] = "Stage 3", -- G'huun
 		},
 	},
 	["UNIT_DIED"] = {
