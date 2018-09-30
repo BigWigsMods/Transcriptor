@@ -25,6 +25,7 @@ local compareStartTime = nil
 local collectPlayerAuras = nil
 local hiddenUnitAuraCollector, hiddenAuraInitList = nil, nil
 local hiddenAuraPermList = {}
+local unitTargetFilter = {}
 local shouldLogFlags = false
 local inEncounter, blockingRelease, limitingRes = false, false, false
 local mineOrPartyOrRaid = 7 -- COMBATLOG_OBJECT_AFFILIATION_MINE + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_RAID
@@ -873,6 +874,7 @@ do
 
 	function sh.UNIT_SPELLCAST_STOP(unit, castId, spellId, ...)
 		if safeUnit(unit) then
+			unitTargetFilter[unit] = nil
 			return format("%s(%s) -%s- [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId), strjoin(":", tostringall(unit, castId, ...)))
 		end
 	end
@@ -899,6 +901,9 @@ do
 	end
 	function sh.UNIT_SPELLCAST_START(unit, ...)
 		if safeUnit(unit) then
+			if bossUnits[unit] then
+				unitTargetFilter[unit] = true
+			end
 			local spellName, _, _, startTime, endTime = UnitCastingInfo(unit)
 			local time = ((endTime or 0) - (startTime or 0)) / 1000
 			return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), spellName or "NIL", time, strjoin(":", tostringall(unit, ...)))
@@ -909,6 +914,12 @@ do
 			local spellName, _, _, startTime, endTime = UnitChannelInfo(unit)
 			local time = ((endTime or 0) - (startTime or 0)) / 1000
 			return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), spellName or "NIL", time, strjoin(":", tostringall(unit, ...)))
+		end
+	end
+
+	function sh.UNIT_TARGET(unit)
+		if unitTargetFilter[unit] then
+			return format("%s#%s - %s#%s", unit, tostring(UnitName(unit)), tostring(UnitName(unit.."target")), tostring(UnitName(unit.."targettarget")))
 		end
 	end
 end
@@ -1122,6 +1133,7 @@ local wowEvents = {
 	"UNIT_POWER_UPDATE",
 	"UPDATE_UI_WIDGET",
 	"UNIT_AURA",
+	"UNIT_TARGET",
 	"INSTANCE_ENCOUNTER_ENGAGE_UNIT",
 	"UNIT_TARGETABLE_CHANGED",
 	"ENCOUNTER_START",
@@ -1163,6 +1175,7 @@ local eventCategories = {
 	UNIT_SPELLCAST_INTERRUPTED = "UNIT_SPELLCAST",
 	UNIT_SPELLCAST_CHANNEL_START = "UNIT_SPELLCAST",
 	UNIT_SPELLCAST_CHANNEL_STOP = "UNIT_SPELLCAST",
+	UNIT_TARGET = "UNIT_SPELLCAST",
 	ZONE_CHANGED = "ZONE_CHANGED",
 	ZONE_CHANGED_INDOORS = "ZONE_CHANGED",
 	ZONE_CHANGED_NEW_AREA = "ZONE_CHANGED",
@@ -1405,6 +1418,7 @@ do
 			shouldLogFlags = TranscriptIgnore.logFlags and true or false
 			wipe(data)
 
+			unitTargetFilter = {}
 			compareStartTime = debugprofilestop()
 			logStartTime = compareStartTime / 1000
 			self:UpdateHiddenAuraBlacklist()
