@@ -110,18 +110,13 @@ end
 -- Utility
 --
 
-function GetMapID(name)
+function GetInstanceID(name)
 	name = name:lower()
 	for i=1,3000 do
-		local tbl = C_Map_GetMapInfo(i)
-		if tbl then
-			local fetchedName = tbl.name
-			if fetchedName then
-				local lowerFetchedName = fetchedName:lower()
-				if find(lowerFetchedName, name, nil, true) then
-					print(fetchedName..": "..i)
-				end
-			end
+		local fetchedName = GetRealZoneText(i)
+		local lowerFetchedName = fetchedName:lower()
+		if find(lowerFetchedName, name, nil, true) then
+			print(fetchedName..": "..i)
 		end
 	end
 end
