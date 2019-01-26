@@ -52,6 +52,17 @@ tbl.specialEvents = {
 		[279748] = { -- Stage 2 End
 			[134546] = "Stage 1", -- Mythrax
 		},
+
+		-- [[ Battle of Dazar'Alor ]]--
+		[287165] = { -- King Rastakhan P1 -> P2 Conversation
+			[145616] = "Stage 2", -- King Rastakhan
+		},
+		[290801] = { -- King Rastakhan P2 -> P3 Conversation [DO NOT TRANSLATE]
+			[145616] = "Stage 3", -- King Rastakhan
+		},
+		[290852] = { -- King Rastakhan P3 -> P4 Conversation [DO NOT TRANSLATE]
+			[145616] = "Stage 4", -- King Rastakhan
+		},
 	},
 	["SPELL_AURA_APPLIED"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -148,6 +159,14 @@ tbl.specialEvents = {
 		-- [[ Uldir ]] --
 		[265217] = { -- Liquefy
 			[134442] = "Intermission", -- Vectis
+		},
+
+		-- [[ Battle of Dazar'Alor ]]--
+		[287751] = { -- Evasive Maneuvers!
+			[144796] = "Stage 2", -- High Tinker Mekkatorque
+		},
+		[287797] = { -- Crash Down
+			[144796] = "Stage 3", -- High Tinker Mekkatorque
 		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
