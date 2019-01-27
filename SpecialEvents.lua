@@ -63,6 +63,9 @@ tbl.specialEvents = {
 		[290852] = { -- King Rastakhan P3 -> P4 Conversation [DO NOT TRANSLATE]
 			[145616] = "Stage 4", -- King Rastakhan
 		},
+		[287282] = { -- Intermission 1 Start
+			[146409] = "Intermission 1", -- Lady Jaina Proudmoore
+		},
 	},
 	["SPELL_AURA_APPLIED"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -130,6 +133,14 @@ tbl.specialEvents = {
 		[265217] = { -- Liquefy
 			[134442] = "Intermission Over", -- Vectis
 		},
+
+		-- [[ Battle of Dazar'Alor ]]--
+		[288199] = { -- Howling Winds
+			[146409] = "Stage 2", -- Lady Jaina Proudmoore
+		},
+		[289985] = { -- Arcane Barrage
+			[146409] = "Stage 3", -- Lady Jaina Proudmoore
+		},
 	},
 	["SPELL_CAST_START"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -167,6 +178,9 @@ tbl.specialEvents = {
 		},
 		[287797] = { -- Crash Down
 			[144796] = "Stage 3", -- High Tinker Mekkatorque
+		},
+		[288719] = { -- Flash Freeze
+			[146409] = "Intermission 2", -- Lady Jaina Proudmoore
 		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
