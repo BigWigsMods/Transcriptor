@@ -874,7 +874,21 @@ do
 		end
 	end
 	sh.UNIT_SPELLCAST_CHANNEL_STOP = sh.UNIT_SPELLCAST_STOP
-	sh.UNIT_SPELLCAST_INTERRUPTED = sh.UNIT_SPELLCAST_STOP
+
+	function sh.UNIT_SPELLCAST_INTERRUPTED(unit, castId, spellId, ...)
+		if safeUnit(unit) then
+			unitTargetFilter[unit] = nil
+
+			if specialEvents.UNIT_SPELLCAST_INTERRUPTED[spellId] then
+				local name = specialEvents.UNIT_SPELLCAST_INTERRUPTED[spellId][MobId(UnitGUID(unit))]
+				if name then
+					InsertSpecialEvent(name)
+				end
+			end
+
+			return format("%s(%s) -%s- [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
+		end
+	end
 
 	function sh.UNIT_SPELLCAST_SUCCEEDED(unit, castId, spellId, ...)
 		if safeUnit(unit) then
