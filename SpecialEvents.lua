@@ -67,6 +67,12 @@ tbl.specialEvents = {
 			[146409] = "Intermission 1", -- Lady Jaina Proudmoore
 		},
 	},
+	["UNIT_SPELLCAST_INTERRUPTED"] = {
+		-- [[ Battle of Dazar'Alor ]]--
+		[288696] = { -- Stage 2 start
+			[146256] = "Stage 2", -- Laminaria (Blockade)
+		},
+	},
 	["SPELL_AURA_APPLIED"] = {
 		--[[ Tomb of Sargeras ]]--
 		[244834] = { -- Nether Gale
