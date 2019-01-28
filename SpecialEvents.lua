@@ -138,7 +138,7 @@ tbl.specialEvents = {
 		[288199] = { -- Howling Winds
 			[146409] = "Stage 2", -- Lady Jaina Proudmoore
 		},
-		[289985] = { -- Arcane Barrage
+		[290001] = { -- Arcane Barrage
 			[146409] = "Stage 3", -- Lady Jaina Proudmoore
 		},
 	},
