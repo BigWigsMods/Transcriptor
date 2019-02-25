@@ -107,7 +107,7 @@ local function InsertSpecialEvent(name)
 	end
 	if compareEmotes then
 		for id,tbl in next, compareEmotes do
-			for npcId, list in next, tbl do
+			for npcName, list in next, tbl do
 				list[#list+1] = {debugprofilestop(), name}
 			end
 		end
@@ -1065,18 +1065,18 @@ function sh.ENCOUNTER_START(...)
 	return strjoin("#", ...)
 end
 
-function sh.CHAT_MSG_RAID_BOSS_EMOTE(msg, unitName, ...)
-	if not compareEmotes then compareEmotes = {} end
+function sh.CHAT_MSG_RAID_BOSS_EMOTE(msg, npcName, ...)
 	local id = msg:match("|Hspell:([^|]+)|h")
 	if id then
 		local spellId = tonumber(id)
 		if spellId then
+			if not compareEmotes then compareEmotes = {} end
 			if not compareEmotes[spellId] then compareEmotes[spellId] = {} end
-			if not compareEmotes[spellId][unitName] then compareEmotes[spellId][unitName] = {compareStartTime} end
-			compareEmotes[spellId][unitName][#compareEmotes[spellId][unitName]+1] = debugprofilestop()
+			if not compareEmotes[spellId][npcName] then compareEmotes[spellId][npcName] = {compareStartTime} end
+			compareEmotes[spellId][npcName][#compareEmotes[spellId][npcName]+1] = debugprofilestop()
 		end
 	end
-	return strjoin("#", msg, unitName, ...)
+	return strjoin("#", msg, npcName, ...)
 end
 
 do
@@ -1793,8 +1793,8 @@ function Transcriptor:StopLog(silent)
 			if compareEmotes then
 				currentLog.TIMERS.EMOTES = {}
 				for id,tbl in next, compareEmotes do
-					for npcId, list in next, tbl do
-						local n = format("%s-%d-npc:%d", GetSpellInfo(id) or "?", id, npcId)
+					for npcName, list in next, tbl do
+						local n = format("%s-%d-npc:%d", GetSpellInfo(id) or "?", id, npcName)
 						local str
 						for i = 2, #list do
 							if not str then
