@@ -1076,7 +1076,7 @@ function sh.CHAT_MSG_RAID_BOSS_EMOTE(msg, npcName, ...)
 			compareEmotes[spellId][npcName][#compareEmotes[spellId][npcName]+1] = debugprofilestop()
 		end
 	end
-	return strjoin("#", msg, npcName, ...)
+	return strjoin("#", msg, npcName, tostringall(...))
 end
 
 do
