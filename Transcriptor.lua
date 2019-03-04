@@ -1794,7 +1794,7 @@ function Transcriptor:StopLog(silent)
 				currentLog.TIMERS.EMOTES = {}
 				for id,tbl in next, compareEmotes do
 					for npcName, list in next, tbl do
-						local n = format("%s-%d-npc:%d", GetSpellInfo(id) or "?", id, npcName)
+						local n = format("%s-%d-npc:%s", GetSpellInfo(id) or "?", id, npcName)
 						local str
 						for i = 2, #list do
 							if not str then
