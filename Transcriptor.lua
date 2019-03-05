@@ -209,16 +209,29 @@ do
 		local auraTbl, castTbl, summonTbl = {}, {}, {}
 		local aurasSorted, castsSorted, summonSorted = {}, {}, {}
 		local ignoreList = {
-			[234264] = true, -- Melted Armor (Goroth)
-			[233430] = true, -- Unbearable Torment (Demonic Inquisition)
-			[234332] = true, -- Hydra Acid (Mistress Sassz'ine)
-			[234995] = true, -- Lunar Suffusion (Sisters)
-			[234996] = true, -- Umbra Suffusion (Sisters)
-			[236726] = true, -- Lunar Barrage (Sisters)
-			[235732] = true, -- Spiritual Barrier (Desolate Host)
-			[235117] = true, -- Unstable Soul (Maiden of Vigilance)
-			[238028] = true, -- Light Remanence (Maiden of Vigilance)
-			[238408] = true, -- Fel Remanence (Maiden of Vigilance)
+			[43681] = true, -- Inactive (PvP)
+			[94028] = true, -- Inactive (PvP)
+			[66186] = true, -- Napalm (IoC PvP)
+			[66195] = true, -- Napalm (IoC PvP)
+			[66268] = true, -- Place Seaforium Bomb (IoC PvP)
+			[66271] = true, -- Carrying Seaforium (IoC PvP)
+			[66456] = true, -- Glaive Throw (IoC PvP)
+			[66518] = true, -- Airship Cannon (IoC PvP)
+			[66541] = true, -- Incendiary Rocket (IoC PvP)
+			[66542] = true, -- Incendiary Rocket (IoC PvP)
+			[66657] = true, -- Parachute (IoC PvP)
+			[66674] = true, -- Place Huge Seaforium Bomb (IoC PvP)
+			[67195] = true, -- Blade Salvo (IoC PvP)
+			[67200] = true, -- Blade Salvo (IoC PvP)
+			[67440] = true, -- Hurl Boulder (IoC PvP)
+			[67441] = true, -- Ram (IoC PvP)
+			[67452] = true, -- Rocket Blast (IoC PvP)
+			[67461] = true, -- Fire Cannon (IoC PvP)
+			[67796] = true, -- Ram (IoC PvP)
+			[67797] = true, -- Steam Rush (IoC PvP)
+			[68077] = true, -- Repair Cannon (IoC PvP)
+			[68298] = true, -- Parachute (IoC PvP)
+			[68377] = true, -- Carrying Huge Seaforium (IoC PvP)
 			[270620] = true, -- Psionic Blast (Zek'voz/Uldir || Mind Controlled player)
 			[272407] = true, -- Oblivion Sphere (Mythrax/Uldir || Orb spawning on player)
 			[263372] = true, -- Power Matrix (G'huun/Uldir || Holding the orb)
@@ -1794,7 +1807,7 @@ function Transcriptor:StopLog(silent)
 				currentLog.TIMERS.EMOTES = {}
 				for id,tbl in next, compareEmotes do
 					for npcName, list in next, tbl do
-						local n = format("%s-%d-npc:%s", GetSpellInfo(id) or "?", id, npcName)
+						local n = format("%s-%d-npc:%d", GetSpellInfo(id) or "?", id, npcName)
 						local str
 						for i = 2, #list do
 							if not str then
