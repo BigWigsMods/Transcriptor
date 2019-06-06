@@ -942,7 +942,7 @@ do
 				unitTargetFilter[unit] = true
 			end
 			if isWoWClassic then -- No UnitCastingInfo in classic
-				return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId) or "NIL", "NIL", strjoin(":", tostringall(unit, ...)))
+				return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId) or "NIL", "NIL", strjoin(":", tostringall(unit, castId, spellId, ...)))
 			else
 				local spellName, _, _, startTime, endTime = UnitCastingInfo(unit)
 				local time = ((endTime or 0) - (startTime or 0)) / 1000
@@ -953,7 +953,7 @@ do
 	function sh.UNIT_SPELLCAST_CHANNEL_START(unit, castId, spellId, ...)
 		if safeUnit(unit) then
 			if isWoWClassic then -- No UnitChannelInfo in classic
-				return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId) or "NIL", "NIL", strjoin(":", tostringall(unit, ...)))
+				return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId) or "NIL", "NIL", strjoin(":", tostringall(unit, castId, spellId, ...)))
 			else
 				local spellName, _, _, startTime, endTime = UnitChannelInfo(unit)
 				local time = ((endTime or 0) - (startTime or 0)) / 1000
