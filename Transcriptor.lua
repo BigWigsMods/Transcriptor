@@ -31,6 +31,13 @@ local shouldLogFlags = false
 local inEncounter, blockingRelease, limitingRes = false, false, false
 local mineOrPartyOrRaid = 7 -- COMBATLOG_OBJECT_AFFILIATION_MINE + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_RAID
 
+local wowVersion, buildRevision, wowBuildDate, tocversion = GetBuildInfo()
+local isWoWClassic
+if tocversion < 20000 then
+	isWoWClassic = true
+end
+
+
 local band = bit.band
 local tinsert = table.insert
 local format, find, strjoin = string.format, string.find, string.join
@@ -42,7 +49,7 @@ local print = print
 
 local C_Scenario, C_DeathInfo_GetSelfResurrectOptions = C_Scenario, C_DeathInfo.GetSelfResurrectOptions
 local IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease = IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease
-local IsAltKeyDown, EJ_GetEncounterInfo, C_EncounterJournal_GetSectionInfo, C_Map_GetMapInfo = IsAltKeyDown, EJ_GetEncounterInfo, C_EncounterJournal.GetSectionInfo, C_Map.GetMapInfo
+local IsAltKeyDown, EJ_GetEncounterInfo, C_EncounterJournal_GetSectionInfo, C_Map_GetMapInfo = IsAltKeyDown, EJ_GetEncounterInfo, C_EncounterJournal and C_EncounterJournal.GetSectionInfo, C_Map.GetMapInfo
 local UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo = UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo
 local UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification = UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification
 local UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth = UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth
@@ -929,21 +936,29 @@ do
 			return format("%s(%s) -%s- [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
 		end
 	end
-	function sh.UNIT_SPELLCAST_START(unit, ...)
+	function sh.UNIT_SPELLCAST_START(unit, castId, spellId, ...)
 		if safeUnit(unit) then
 			if bossUnits[unit] then
 				unitTargetFilter[unit] = true
 			end
-			local spellName, _, _, startTime, endTime = UnitCastingInfo(unit)
-			local time = ((endTime or 0) - (startTime or 0)) / 1000
-			return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), spellName or "NIL", time, strjoin(":", tostringall(unit, ...)))
+			if isWoWClassic then -- No UnitCastingInfo in classic
+				return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId) or "NIL", "NIL", strjoin(":", tostringall(unit, ...)))
+			else
+				local spellName, _, _, startTime, endTime = UnitCastingInfo(unit)
+				local time = ((endTime or 0) - (startTime or 0)) / 1000
+				return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), spellName or "NIL", time, strjoin(":", tostringall(unit, castId, spellId, ...)))
+			end
 		end
 	end
-	function sh.UNIT_SPELLCAST_CHANNEL_START(unit, ...)
+	function sh.UNIT_SPELLCAST_CHANNEL_START(unit, castId, spellId, ...)
 		if safeUnit(unit) then
-			local spellName, _, _, startTime, endTime = UnitChannelInfo(unit)
-			local time = ((endTime or 0) - (startTime or 0)) / 1000
-			return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), spellName or "NIL", time, strjoin(":", tostringall(unit, ...)))
+			if isWoWClassic then -- No UnitChannelInfo in classic
+				return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId) or "NIL", "NIL", strjoin(":", tostringall(unit, ...)))
+			else
+				local spellName, _, _, startTime, endTime = UnitChannelInfo(unit)
+				local time = ((endTime or 0) - (startTime or 0)) / 1000
+				return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), spellName or "NIL", time, strjoin(":", tostringall(unit, castId, spellId, ...)))
+			end
 		end
 	end
 
@@ -1199,6 +1214,50 @@ local wowEvents = {
 	"CHAT_MSG_BG_SYSTEM_NEUTRAL",
 	"ARENA_OPPONENT_UPDATE",
 }
+--Replace events table with one compatible with classic
+if isWoWClassic then
+	wowEvents = {
+		-- Raids
+		"CHAT_MSG_ADDON",
+		"CHAT_MSG_RAID_WARNING",
+		"COMBAT_LOG_EVENT_UNFILTERED",
+		"PLAYER_REGEN_DISABLED",
+		"PLAYER_REGEN_ENABLED",
+		"CHAT_MSG_MONSTER_EMOTE",
+		"CHAT_MSG_MONSTER_SAY",
+		"CHAT_MSG_MONSTER_WHISPER",
+		"CHAT_MSG_MONSTER_YELL",
+		"CHAT_MSG_RAID_BOSS_EMOTE",
+		"CHAT_MSG_RAID_BOSS_WHISPER",
+		"RAID_BOSS_EMOTE",
+		"RAID_BOSS_WHISPER",
+		"PLAYER_TARGET_CHANGED",
+		"UNIT_SPELLCAST_START",
+		"UNIT_SPELLCAST_STOP",
+		"UNIT_SPELLCAST_SUCCEEDED",
+		"UNIT_SPELLCAST_INTERRUPTED",
+		"UNIT_SPELLCAST_CHANNEL_START",
+		"UNIT_SPELLCAST_CHANNEL_STOP",
+		"UNIT_POWER_UPDATE",
+		"UPDATE_UI_WIDGET",
+		"UNIT_AURA",
+		"UNIT_TARGET",
+		"INSTANCE_ENCOUNTER_ENGAGE_UNIT",
+		"UNIT_TARGETABLE_CHANGED",
+		"ENCOUNTER_START",
+		"ENCOUNTER_END",
+		"BOSS_KILL",
+		"ZONE_CHANGED",
+		"ZONE_CHANGED_INDOORS",
+		"ZONE_CHANGED_NEW_AREA",
+		-- Battlegrounds
+		"START_TIMER",
+		"CHAT_MSG_BG_SYSTEM_HORDE",
+		"CHAT_MSG_BG_SYSTEM_ALLIANCE",
+		"CHAT_MSG_BG_SYSTEM_NEUTRAL",
+	}
+end
+
 local eventCategories = {
 	PLAYER_REGEN_DISABLED = "COMBAT",
 	PLAYER_REGEN_ENABLED = "COMBAT",
@@ -1238,6 +1297,7 @@ local eventCategories = {
 	DBM_Announce = "DBM",
 	DBM_TimerStart = "DBM",
 	DBM_TimerStop = "DBM",
+	--DBM_Debug = "DBM_Debug",
 }
 local bwEvents = {
 	"BigWigs_Message",
@@ -1248,6 +1308,7 @@ local dbmEvents = {
 	"DBM_Announce",
 	"DBM_TimerStart",
 	"DBM_TimerStop",
+	--"DBM_Debug",
 }
 
 local function eventHandler(self, event, ...)
@@ -1450,9 +1511,9 @@ do
 		[19] = "5Event",
 		[23] = "5Mythic",
 		[24] = "5Timewalking",
+		[33] = "RaidTimewalking",
 	}
-	local wowVersion, buildRevision = GetBuildInfo() -- Note that both returns here are strings, not numbers.
-	local logNameFormat = "[%s]@[%s] - Zone:%d Difficulty:%d,%s Type:%s " .. format("Version: %s.%s", wowVersion, buildRevision)
+	local logNameFormat = "[%s]@[%s] - Zone:%d Difficulty:%d,%s Type:%s " .. format("Version: %s.%s", wowVersion, buildRevision) -- Note that both returns here are strings, not numbers.
 	function Transcriptor:StartLog(silent)
 		if logging then
 			print(L["You are already logging an encounter."])
