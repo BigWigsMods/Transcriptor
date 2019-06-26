@@ -1236,6 +1236,7 @@ local eventCategories = {
 	BigWigs_StartBar = "BigWigs",
 	--BigWigs_Debug = "BigWigs",
 	DBM_Announce = "DBM",
+	DBM_Debug = "DBM",
 	DBM_TimerStart = "DBM",
 	DBM_TimerStop = "DBM",
 }
@@ -1246,6 +1247,7 @@ local bwEvents = {
 }
 local dbmEvents = {
 	"DBM_Announce",
+	"DBM_Debug",
 	"DBM_TimerStart",
 	"DBM_TimerStop",
 }
