@@ -66,11 +66,34 @@ tbl.specialEvents = {
 		[287282] = { -- Intermission 1 Start
 			[146409] = "Intermission 1", -- Lady Jaina Proudmoore
 		},
+
+		-- [[ The Eternal Palace ]] --
+		[301428] = { -- Intermission Start
+			[150653] = "Intermission",  -- Blackwater Behemoth
+		},
+		[298689] = { -- Intermission Start
+			[152128] = "Intermission",  -- Orgozoa
+		},
+		[297121] = { -- Intermission Over
+			[152364] = "Intermission Over",  -- Radiance of Azshara
+		},
+		[295361] = { -- Cancel All Phases (Encounter Reset)  (Stage 4 start)
+			[150859] = "Stage 4",  -- Za'qul
+		},
+
 	},
 	["UNIT_SPELLCAST_INTERRUPTED"] = {
 		-- [[ Battle of Dazar'Alor ]]--
 		[288696] = { -- Stage 2 start
 			[146256] = "Stage 2", -- Laminaria (Blockade)
+		},
+
+		-- [[ The Eternal Palace ]] --
+		[292083] = { -- Cavitation
+			[150653] = "Intermission Over",  -- Blackwater Behemoth
+		},
+		[298548] = { -- Massive Incubator // Stage 2 start
+			[152128] = "Stage 2",  -- Orgozoa
 		},
 	},
 	["SPELL_AURA_APPLIED"] = {
@@ -101,6 +124,11 @@ tbl.specialEvents = {
 		},
 		[270443] = { -- Corrupting Bite
 			[132998] = "Stage 2", -- G'huun
+		},
+
+		-- [[ The Eternal Palace ]] --
+		[296650] = { -- Hardened Carapace Removed
+			[152236] = "Stage 1", -- Priscilla Ashvane
 		},
 	},
 	["SPELL_AURA_REMOVED"] = {
@@ -147,6 +175,11 @@ tbl.specialEvents = {
 		[290001] = { -- Arcane Barrage
 			[146409] = "Stage 3", -- Lady Jaina Proudmoore
 		},
+
+		-- [[ The Eternal Palace ]] --
+		[296650] = { -- Hardened Carapace Removed
+			[152236] = "Stage 2", -- Priscilla Ashvane
+		},
 	},
 	["SPELL_CAST_START"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -187,6 +220,16 @@ tbl.specialEvents = {
 		},
 		[288719] = { -- Flash Freeze
 			[146409] = "Intermission 2", -- Lady Jaina Proudmoore
+		},
+
+		[295916] = { -- Ancient Tempest
+			[152364] = "Intermission",  -- Radiance of Azshara
+		},
+		[296257] = { -- OpeningFearRealm
+			[150859] = "Stage 2",  -- Za'qul
+		},
+		[304733] = { -- DeliriumsDescent
+			[150859] = "Stage 3",  -- Za'qul
 		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
