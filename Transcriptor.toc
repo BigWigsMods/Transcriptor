@@ -11,7 +11,7 @@
 ## X-License: All Rights Reserved: You are free to fork and modify on GitHub, please ask us about anything else.
 ## X-Website: https://github.com/BigWigsMods/Transcriptor
 ## X-Curse-Project-ID: 14837
-## SavedVariables: TranscriptDB, TranscriptIgnore
+## SavedVariables: TranscriptIgnore, TranscriptDB
 
 libs\LibStub.lua
 libs\CallbackHandler-1.0.lua
