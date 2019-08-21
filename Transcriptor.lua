@@ -25,7 +25,10 @@ local compareAuraApplied = nil
 local compareStartTime = nil
 local collectPlayerAuras = nil
 local hiddenUnitAuraCollector = nil
-local hiddenAuraPermList = {}
+local hiddenAuraPermList = {
+	[5384] = true, -- Feign Death
+	[209997] = true, -- Play Dead (Hunter Pet)
+}
 local unitTargetFilter = {}
 local shouldLogFlags = false
 local inEncounter, blockingRelease, limitingRes = false, false, false
