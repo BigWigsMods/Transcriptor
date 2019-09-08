@@ -243,6 +243,11 @@ do
 			[263416] = true, -- Throw Power Matrix (G'huun/Uldir)
 			[269455] = true, -- Collect Power Matrix (G'huun/Uldir)
 		}
+		local npcIgnoreList = {
+			[154297] = true, -- Ankoan Bladesman
+			[154304] = true, -- Waveblade Shaman
+			[150202] = true, -- Waveblade Hunter
+		}
 		local events = {
 			"SPELL_AURA_[AR][^#]+#(%d+)#([^#]+%-[^#]+)#([^#]+)#([^#]*)#([^#]+)#(%d+)#([^#]+)#", -- SPELL_AURA_[AR] to filter _BROKEN
 			"SPELL_CAST_[^#]+#(%d+)#([^#]+%-[^#]+)#([^#]+)#([^#]*)#([^#]+)#(%d+)#([^#]+)#",
@@ -271,17 +276,20 @@ do
 						local sortedTbl = sortedTables[j]
 						if id and flags and band(flags, mineOrPartyOrRaid) ~= 0 and not ignoreList[id] and not playerSpellBlacklist[id] and #sortedTbl < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
 							if not total[id] or destGUIDType ~= "" then
-								local srcGUIDType = strsplit("-", srcGUID)
-								local destGUIDType = strsplit("-", destGUID)
-								local trim = destGUID and find(destGUID, "^P[le][at]")
-								if srcGUID == destGUID then
-									tbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .."(".. srcGUIDType ..") >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."(".. destGUIDType ..")|r"
-								else
-									tbl[id] = "|cFF3ADF00".. name:gsub("%-.+", "*") .."(".. srcGUIDType ..") >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."(".. destGUIDType ..")|r"
-								end
-								if not total[id] then
-									total[id] = true
-									sortedTbl[#sortedTbl+1] = id
+								local srcGUIDType, _, _, _, _, npcIdStr = strsplit("-", srcGUID)
+								local npcId = tonumber(npcIdStr)
+								if not npcIgnoreList[npcId] then
+									local destGUIDType = strsplit("-", destGUID)
+									local trim = destGUID and find(destGUID, "^P[le][at]")
+									if srcGUID == destGUID then
+										tbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .."(".. srcGUIDType ..") >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."(".. destGUIDType ..")|r"
+									else
+										tbl[id] = "|cFF3ADF00".. name:gsub("%-.+", "*") .."(".. srcGUIDType ..") >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."(".. destGUIDType ..")|r"
+									end
+									if not total[id] then
+										total[id] = true
+										sortedTbl[#sortedTbl+1] = id
+									end
 								end
 							end
 						end
