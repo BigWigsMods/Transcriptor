@@ -180,6 +180,11 @@ tbl.specialEvents = {
 		[296650] = { -- Hardened Carapace Removed
 			[152236] = "Stage 2", -- Priscilla Ashvane
 		},
+
+		-- [[ Ny'alotha, the Waking City ]] --
+		[306995] = { -- Smoke and Mirrors
+			[156818] = "Stage 1", -- Wrathion
+		},
 	},
 	["SPELL_CAST_START"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -231,6 +236,14 @@ tbl.specialEvents = {
 		[304733] = { -- DeliriumsDescent
 			[150859] = "Stage 3",  -- Za'qul
 		},
+
+		-- [[ Ny'alotha, the Waking City ]] --
+		[306735] = { -- Burning Cataclysm
+			[156818] = "Cataclysm", -- Wrathion
+		},
+		[306995] = { -- Smoke and Mirrors
+			[156818] = "Stage 2", -- Wrathion
+		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -244,6 +257,11 @@ tbl.specialEvents = {
 		},
 		[276839] = { -- Collapse
 			[132998] = "Stage 3", -- G'huun
+		},
+
+		-- [[ Ny'alotha, the Waking City ]] --
+		[307453] = { -- The Void Unleashed
+			[157354] = "Stage 3" -- Vexiona
 		},
 	},
 	["UNIT_DIED"] = {
