@@ -677,7 +677,7 @@ do
 	-- HFC/Zakuun - Player boss debuff cast on self "SPELL_AURA_APPLIED#Player-GUID#PLAYER#Player-GUID#PLAYER#189030#Befouled#DEBUFF#"
 	-- ToS/Sisters - Boss pet marked as guardian "SPELL_CAST_SUCCESS#Creature-0-3895-1676-10786-119205-0000063360#Moontalon##nil#236697#Deathly Screech"
 	function sh.COMBAT_LOG_EVENT_UNFILTERED()
-		local timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount = CombatLogGetCurrentEventInfo()
+		local timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, amount = CombatLogGetCurrentEventInfo()
 
 		if (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") and not hiddenAuraPermList[spellId] then
 			hiddenAuraPermList[spellId] = true
@@ -857,9 +857,9 @@ do
 				end
 
 				if shouldLogFlags and (sourceName or destName) and badPlayerFilteredEvents[event] then
-					return strjoin("#", tostringall(event, sourceName and sourceFlags or destFlags, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount))
+					return strjoin("#", tostringall(event, sourceName and sourceFlags or destFlags, sourceGUID, sourceName, destGUID, destName, spellId, spellName, amount))
 				else
-					return strjoin("#", tostringall(event, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount))
+					return strjoin("#", tostringall(event, sourceGUID, sourceName, destGUID, destName, spellId, spellName, amount))
 				end
 			end
 		end
