@@ -121,6 +121,18 @@ end
 -- Utility
 --
 
+function GetMapArtID(name)
+	name = name:lower()
+	for i=1,3000 do
+		local fetchedTbl = C_Map.GetMapInfo(i)
+		if fetchedTbl and fetchedTbl.name then
+			local lowerFetchedName = fetchedTbl.name:lower()
+			if find(lowerFetchedName, name, nil, true) then
+				print(fetchedTbl.name..": "..i)
+			end
+		end
+	end
+end
 function GetInstanceID(name)
 	name = name:lower()
 	for i=1,3000 do

@@ -1,4 +1,4 @@
-## Interface: 80205
+## Interface: 80300
 ## Title: Transcriptor
 ## Notes: Logging utility for boss encounters.
 ## Notes-zhCN: 战斗纪录器
