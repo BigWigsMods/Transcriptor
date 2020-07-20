@@ -173,12 +173,21 @@ do
 	-- Create UI spell display, copied from BasicChatMods
 	local frame, editBox = {}, {}
 	for i = 1, 4 do
-		frame[i] = CreateFrame("Frame", nil, UIParent)
-		frame[i]:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-			edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
-			tile = true, tileSize = 16, edgeSize = 16,
-			insets = {left = 1, right = 1, top = 1, bottom = 1}}
-		)
+		if BackdropTemplateMixin then -- XXX Shadowlands change
+			frame[i] = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
+			frame[i].backdropInfo  = {bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+				edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+				tile = true, tileSize = 16, edgeSize = 16,
+				insets = {left = 1, right = 1, top = 1, bottom = 1}}
+			frame[i]:ApplyBackdrop()
+		else
+			frame[i] = CreateFrame("Frame", nil, UIParent)
+			frame[i]:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+				edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+				tile = true, tileSize = 16, edgeSize = 16,
+				insets = {left = 1, right = 1, top = 1, bottom = 1}}
+			)
+		end
 		frame[i]:SetBackdropColor(0,0,0,1)
 		frame[i]:SetWidth(650)
 		frame[i]:SetHeight(450)
@@ -594,7 +603,7 @@ local sh = {}
 
 --[[
 	TopCenterFrame: widgetSetID = 1, widgetType = 0
-	widgetID = 
+	widgetID =
 		The Black Morass: 507 (health), 527 (waves)
 		The Violet Hold (WotLK): 565 (health), 566 (waves)
 
@@ -1853,7 +1862,7 @@ function Transcriptor:StopLog(silent)
 								end
 							end
 						end
-						currentLog.TIMERS.EMOTES[#currentLog.TIMERS.EMOTES+1] = str 
+						currentLog.TIMERS.EMOTES[#currentLog.TIMERS.EMOTES+1] = str
 					end
 				end
 				table.sort(currentLog.TIMERS.EMOTES)
