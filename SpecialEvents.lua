@@ -185,6 +185,11 @@ tbl.specialEvents = {
 		[306995] = { -- Smoke and Mirrors
 			[156818] = "Stage 1", -- Wrathion
 		},
+
+		-- [[ Castle Nathria ]] --
+		[328921] = { -- Bloodgorge
+			[164406] = "Stage 1", -- Shriekwing
+		},
 	},
 	["SPELL_CAST_START"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -243,6 +248,11 @@ tbl.specialEvents = {
 		},
 		[306995] = { -- Smoke and Mirrors
 			[156818] = "Stage 2", -- Wrathion
+		},
+
+		-- [[ Castle Nathria ]] --
+		[328921] = { -- Bloodgorge
+			[164406] = "Intermission", -- Shriekwing
 		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
