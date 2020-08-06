@@ -43,7 +43,7 @@ local date = date
 local debugprofilestop, wipe = debugprofilestop, wipe
 local print = print
 
-local C_Scenario, C_DeathInfo_GetSelfResurrectOptions = C_Scenario, C_DeathInfo.GetSelfResurrectOptions
+local C_Scenario, C_DeathInfo_GetSelfResurrectOptions, Enum = C_Scenario, C_DeathInfo.GetSelfResurrectOptions, Enum
 local IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease = IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease
 local IsAltKeyDown, EJ_GetEncounterInfo, C_EncounterJournal_GetSectionInfo, C_Map_GetMapInfo = IsAltKeyDown, EJ_GetEncounterInfo, C_EncounterJournal.GetSectionInfo, C_Map.GetMapInfo
 local UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo = UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo
@@ -602,12 +602,13 @@ eventFrame:Hide()
 local sh = {}
 
 --[[
-	TopCenterFrame: widgetSetID = 1, widgetType = 0
+	UIWidget
+
+	see https://wow.gamepedia.com/UPDATE_UI_WIDGET
+
 	widgetID =
 		The Black Morass: 507 (health), 527 (waves)
 		The Violet Hold (WotLK): 565 (health), 566 (waves)
-
-	We don't care about other widgets, for now
 ]]
 do
 	local blackList = {
@@ -617,24 +618,30 @@ do
 		[1315] = true, -- C_UIWidgetManager.GetStatusBarWidgetVisualizationInfo(1315)
 		[1317] = true, -- C_UIWidgetManager.GetStatusBarWidgetVisualizationInfo(1317)
 		[1319] = true, -- C_UIWidgetManager.GetStatusBarWidgetVisualizationInfo(1319)
+
+		--[[ Shadowlands - Castle Nathria ]]--
+		[2436] = true, -- Lady Inerva Darkvein, static icon (widgetType:13)
+		[2437] = true, -- Lady Inerva Darkvein, static icon (widgetType:13)
+		[2438] = true, -- Lady Inerva Darkvein, static icon (widgetType:13)
+		[2439] = true, -- Lady Inerva Darkvein, static icon (widgetType:13)
 	}
-	local GetIconAndTextWidgetVisualizationInfo = C_UIWidgetManager and C_UIWidgetManager.GetIconAndTextWidgetVisualizationInfo
+
+	-- Each widgetType has a different function to get all data for the widget.
+	-- Those function names are consistent with the enum.
+	local widgetFuncs = {}
+	for name,n in pairs(Enum.UIWidgetVisualizationType) do
+		widgetFuncs[n] = C_UIWidgetManager["Get"..name.. "WidgetVisualizationInfo"] or C_UIWidgetManager["Get"..name.."VisualizationInfo"]
+	end
+
 	function sh.UPDATE_UI_WIDGET(tbl)
-		if tbl.widgetSetID == 1 and tbl.widgetType == 0 then
-			local id = tbl.widgetID
-			local dataTbl = GetIconAndTextWidgetVisualizationInfo(id)
-			local txt = format("[%d]", id)
-			if dataTbl.text then
-				txt = format("%s %s", txt, dataTbl.text)
-			end
-			for k, v in next, dataTbl do
-				if k ~= "text" then
-					txt = format("%s, %s:%s", txt, k, tostring(v))
-				end
-			end
-			return txt
-		elseif not blackList[tbl.widgetID] then
-			local txt
+		if blackList[tbl.widgetID] then return end
+
+		-- Store widget data, so we're able to only add changes to the log
+		if not currentLog.WIDGET then currentLog.WIDGET = {} end
+
+		local txt
+		if not currentLog.WIDGET[tbl.widgetID] then -- New widget in this log
+			currentLog.WIDGET[tbl.widgetID] = {}
 			for k, v in next, tbl do
 				if not txt then
 					txt = format("%s:%s", k, v)
@@ -642,8 +649,30 @@ do
 					txt = format("%s, %s:%s", txt, k, v)
 				end
 			end
-			return txt
+		else -- Shorter output with just the id
+			txt = format("%s:%s", "widgetID", tbl.widgetID)
 		end
+
+		if tbl.widgetType and widgetFuncs[tbl.widgetType] then
+			local t = widgetFuncs[tbl.widgetType](tbl.widgetID)
+			if t then
+				for k, v in next, t do
+					if type(v) == "table" then -- We don't care about data in tables
+						v = "table"
+					elseif type(v) == "boolean" then -- Needs to be done manually in Lua 5.1
+						v = tostring(v)
+					end
+
+					-- Only add data to log if it's new or it changed to reduce spam
+					if not currentLog.WIDGET[tbl.widgetID][k] or currentLog.WIDGET[tbl.widgetID][k] ~= v then
+						currentLog.WIDGET[tbl.widgetID][k] = v
+						txt = format("%s, %s:%s", txt, k, v)
+					end
+				end
+			end
+		end
+
+		return txt
 	end
 end
 
