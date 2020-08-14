@@ -273,10 +273,22 @@ tbl.specialEvents = {
 		[307453] = { -- The Void Unleashed
 			[157354] = "Stage 3" -- Vexiona
 		},
+
+		[328497] = { -- Danse Macabre (Instakill event)
+			[1] = "Danse Macabre Begin" -- no caster source
+		}
 	},
 	["UNIT_DIED"] = {
 		--[[ Antorus, the Burning Throne ]]--
 		[122773] = "Decimator Killed", -- Decimator (Worldbreaker)
 		[122778] = "Annihilator Killed", -- Annihilator (Worldbreaker)
+
+		-- [[ Castle Nathria ]] --
+		[165067] = "Margore Killed", -- Margore (Huntsman Altimor)
+		[169457] = "Bargast Killed", -- Bargast (Huntsman Altimor)
+		[169458] = "Hecutis Killed", -- Hecutis (Huntsman Altimor)
+		[166969] = "Baroness Frieda Killed", -- Baroness Frieda (The Council of Blood)
+		[166970] = "Lord Stavros Killed", -- Lord Stavros (The Council of Blood)
+		[166971] = "Castellan Niklaus Killed", -- Castellan Niklaus (The Council of Blood)
 	},
 }
