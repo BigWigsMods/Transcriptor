@@ -130,6 +130,17 @@ tbl.specialEvents = {
 		[296650] = { -- Hardened Carapace Removed
 			[152236] = "Stage 1", -- Priscilla Ashvane
 		},
+
+		-- [[ Castle Nathria ]] --
+		[323402] = { -- Reflection of Guilt
+			[165759] = "Shade Up", -- Kael'thas Sunstrider
+		},
+		[329636] = { -- Hardened Stone Form
+			[168112] = "Intermission" -- General Kaal
+		},
+		[329808] = { -- Hardened Stone Form
+			[168113] = "Intermission" -- General Grashaal
+		},
 	},
 	["SPELL_AURA_REMOVED"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -189,6 +200,15 @@ tbl.specialEvents = {
 		-- [[ Castle Nathria ]] --
 		[328921] = { -- Bloodgorge
 			[164406] = "Stage 1", -- Shriekwing
+		},
+		[323402] = { -- Reflection of Guilt
+			[165759] = "Shade Killed", -- Kael'thas Sunstrider
+		},
+		[329636] = { -- Hardened Stone Form
+			[168112] = "Stage 2" -- General Kaal
+		},
+		[329808] = { -- Hardened Stone Form
+			[168113] = "Stage 3" -- General Grashaal
 		},
 	},
 	["SPELL_CAST_START"] = {
@@ -253,6 +273,15 @@ tbl.specialEvents = {
 		-- [[ Castle Nathria ]] --
 		[328921] = { -- Bloodgorge
 			[164406] = "Intermission", -- Shriekwing
+		},
+		[327887] = { -- Crystal of Phantasms
+			[166644] = "Crystal of Phantasms", -- Artificer Xy'mox
+		},
+		[329770] = { -- Root of Existence
+			[166644] = "Root of Existence", -- Artificer Xy'mox
+		},
+		[328880] = { -- Edge of Annihilation
+			[166644] = "Edge of Annihilation", -- Artificer Xy'mox
 		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
