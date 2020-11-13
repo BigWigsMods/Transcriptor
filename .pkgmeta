@@ -1,5 +1,1 @@
 package-as: Transcriptor
-
-ignore:
-  - README.md
-  - ISSUE_TEMPLATE.md
