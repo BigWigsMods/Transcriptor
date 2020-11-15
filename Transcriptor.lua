@@ -1711,6 +1711,7 @@ function Transcriptor:StopLog(silent)
 					for npcId, list in next, tbl do
 						local n = format("%s-%d-npc:%d", GetSpellInfo(id), id, npcId)
 						local str
+						local zeroCounter = 1
 						for i = 2, #list do
 							if not str then
 								local t = list[i] - list[1]
@@ -1758,7 +1759,25 @@ function Transcriptor:StopLog(silent)
 										end
 									else
 										local t = list[i] - list[i-1]
-										str = format("%s, %.1f", str, t/1000)
+										local shorten = format("%.1f", t/1000)
+										if shorten == "0.0" then
+											local typeNext = type(list[i+1])
+											if typeNext == "number" then
+												local nextT = list[i+1] - list[i]
+												local nextShorten = format("%.1f", nextT/1000)
+												if nextShorten == "0.0" then
+													zeroCounter = zeroCounter + 1
+												else
+													str = format("%s[+%d]", str, zeroCounter)
+													zeroCounter = 1
+												end
+											else
+												str = format("%s[+%d]", str, zeroCounter)
+												zeroCounter = 1
+											end
+										else
+											str = format("%s, %.1f", str, t/1000)
+										end
 									end
 								end
 							end
