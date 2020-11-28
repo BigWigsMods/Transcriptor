@@ -992,7 +992,7 @@ do
 	end
 	function sh.UNIT_SPELLCAST_START(unit, ...)
 		if safeUnit(unit) then
-			if bossUnits[unit] then
+			if bossUnits[unit] or (not inEncounter and wantedUnits[unit]) then
 				unitTargetFilter[unit] = true
 			end
 			local spellName, _, _, startTime, endTime = UnitCastingInfo(unit)
