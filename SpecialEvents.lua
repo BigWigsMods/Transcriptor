@@ -303,8 +303,15 @@ tbl.specialEvents = {
 			[157354] = "Stage 3" -- Vexiona
 		},
 
+		-- [[ Castle Nathria ]] --
 		[328497] = { -- Danse Macabre (Instakill event)
 			[1] = "Danse Macabre Begin" -- no caster source
+		},
+		[329697] = { -- Begin the Chorus
+			[167406] = "Stage 2" -- Denathrius
+		},
+		[326005] = { -- Indignation
+			[167406] = "Stage 3" -- Denathrius
 		}
 	},
 	["UNIT_DIED"] = {
