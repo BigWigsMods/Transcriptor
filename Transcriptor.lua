@@ -29,6 +29,7 @@ local hiddenAuraPermList = {
 	[5384] = true, -- Feign Death
 	[209997] = true, -- Play Dead (Hunter Pet)
 }
+local hiddenAuraEngageList = nil
 local unitTargetFilter = {}
 local shouldLogFlags = false
 local inEncounter, blockingRelease, limitingRes = false, false, false
@@ -1157,10 +1158,10 @@ do
 	local UnitAura = UnitAura
 	function sh.UNIT_AURA(unit)
 		for i = 1, 100 do
-			local name, _, _, _, duration, _, _, _, _, spellId = UnitAura(unit, i, "HARMFUL|HELPFUL")
+			local name, _, _, _, duration, _, _, _, _, spellId = UnitAura(unit, i)
 			if not spellId then
 				break
-			elseif not hiddenUnitAuraCollector[spellId] and not playerSpellBlacklist[spellId] then
+			elseif not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not playerSpellBlacklist[spellId] then
 				if UnitIsVisible(unit) then
 					hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall(spellId, name, duration, unit, UnitName(unit)))
 				else -- If it's not visible it may not show up in CLEU, use this as an indicator of a false positive
@@ -1463,6 +1464,30 @@ local function DBMEventHandler(...)
 end
 
 do
+	-- Ripped from BigWigs
+	local raidList = {
+		"raid1", "raid2", "raid3", "raid4", "raid5", "raid6", "raid7", "raid8", "raid9", "raid10",
+		"raid11", "raid12", "raid13", "raid14", "raid15", "raid16", "raid17", "raid18", "raid19", "raid20",
+		"raid21", "raid22", "raid23", "raid24", "raid25", "raid26", "raid27", "raid28", "raid29", "raid30",
+		"raid31", "raid32", "raid33", "raid34", "raid35", "raid36", "raid37", "raid38", "raid39", "raid40"
+	}
+	local partyList = {"player", "party1", "party2", "party3", "party4"}
+	local GetNumGroupMembers, IsInRaid = GetNumGroupMembers, IsInRaid
+	function Transcriptor:IterateGroup()
+		local num = GetNumGroupMembers() or 0
+		local i = 0
+		local size = num > 0 and num+1 or 2
+		local function iter(t)
+			i = i + 1
+			if i < size then
+				return t[i]
+			end
+		end
+		return iter, IsInRaid() and raidList or partyList
+	end
+end
+
+do
 	local difficultyTbl = {
 		[1] = "5Normal",
 		[2] = "5Heroic",
@@ -1492,6 +1517,25 @@ do
 			ldb.icon = "Interface\\AddOns\\Transcriptor\\icon_on"
 			shouldLogFlags = TranscriptIgnore.logFlags and true or false
 			wipe(data)
+
+			hiddenAuraEngageList = {}
+			do
+				local UnitAura, UnitPosition = UnitAura, UnitPosition
+				local _, _, _, myInstance = UnitPosition("player")
+				for unit in Transcriptor:IterateGroup() do
+					local _, _, _, tarInstanceId = UnitPosition(unit)
+					if tarInstanceId == myInstance then
+						for i = 1, 100 do
+							local _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i)
+							if not spellId then
+								break
+							elseif not hiddenAuraEngageList[spellId] then
+								hiddenAuraEngageList[spellId] = true
+							end
+						end
+					end
+				end
+			end
 
 			unitTargetFilter = {}
 			hiddenUnitAuraCollector = {}
