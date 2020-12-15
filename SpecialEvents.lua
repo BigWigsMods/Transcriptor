@@ -81,6 +81,20 @@ tbl.specialEvents = {
 			[150859] = "Stage 4",  -- Za'qul
 		},
 
+		-- [[ Castle Nathria ]] --
+		[331844] = { -- Focus Anima: Desires
+			[165521] = "Desires Focused" -- Lady Inerva Darkvein
+		},
+		[331870] = { -- Focus Anima: Bottles
+			[165521] = "Bottles Focused" -- Lady Inerva Darkvein
+		},
+		[331872] = { -- Focus Anima: Sins
+			[165521] = "Sins Focused" -- Lady Inerva Darkvein
+		},
+		[331873] = { -- Focus Anima: Desires
+			[165521] = "Adds Focused" -- Lady Inerva Darkvein
+		},
+
 	},
 	["UNIT_SPELLCAST_INTERRUPTED"] = {
 		-- [[ Battle of Dazar'Alor ]]--
