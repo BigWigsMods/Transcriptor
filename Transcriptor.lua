@@ -30,7 +30,6 @@ local hiddenAuraPermList = {
 	[209997] = true, -- Play Dead (Hunter Pet)
 }
 local hiddenAuraEngageList = nil
-local unitTargetFilter = {}
 local shouldLogFlags = false
 local inEncounter, blockingRelease, limitingRes = false, false, false
 local mineOrPartyOrRaid = 7 -- COMBATLOG_OBJECT_AFFILIATION_MINE + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_RAID
@@ -952,7 +951,6 @@ do
 
 	function sh.UNIT_SPELLCAST_STOP(unit, castId, spellId, ...)
 		if safeUnit(unit) then
-			unitTargetFilter[unit] = nil
 			return format("%s(%s) -%s- [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
 		end
 	end
@@ -960,8 +958,6 @@ do
 
 	function sh.UNIT_SPELLCAST_INTERRUPTED(unit, castId, spellId, ...)
 		if safeUnit(unit) then
-			unitTargetFilter[unit] = nil
-
 			if specialEvents.UNIT_SPELLCAST_INTERRUPTED[spellId] then
 				local name = specialEvents.UNIT_SPELLCAST_INTERRUPTED[spellId][MobId(UnitGUID(unit))]
 				if name then
@@ -993,9 +989,6 @@ do
 	end
 	function sh.UNIT_SPELLCAST_START(unit, ...)
 		if safeUnit(unit) then
-			if bossUnits[unit] or (not inEncounter and wantedUnits[unit]) then
-				unitTargetFilter[unit] = true
-			end
 			local spellName, _, _, startTime, endTime = UnitCastingInfo(unit)
 			local time = ((endTime or 0) - (startTime or 0)) / 1000
 			return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), spellName or "NIL", time, strjoin(":", tostringall(unit, ...)))
@@ -1010,8 +1003,8 @@ do
 	end
 
 	function sh.UNIT_TARGET(unit)
-		if unitTargetFilter[unit] then
-			return format("%s#%s - %s#%s", unit, tostring(UnitName(unit)), tostring(UnitName(unit.."target")), tostring(UnitName(unit.."targettarget")))
+		if safeUnit(unit) then
+			return format("%s#%s#Target: %s#TargetOfTarget: %s", unit, tostring(UnitName(unit)), tostring(UnitName(unit.."target")), tostring(UnitName(unit.."targettarget")))
 		end
 	end
 end
@@ -1225,6 +1218,7 @@ local eventCategories = {
 	ENCOUNTER_START = "COMBAT",
 	ENCOUNTER_END = "COMBAT",
 	BOSS_KILL = "COMBAT",
+	INSTANCE_ENCOUNTER_ENGAGE_UNIT = "COMBAT",
 	CHAT_MSG_MONSTER_EMOTE = "MONSTER",
 	CHAT_MSG_MONSTER_SAY = "MONSTER",
 	CHAT_MSG_MONSTER_WHISPER = "MONSTER",
@@ -1537,7 +1531,6 @@ do
 				end
 			end
 
-			unitTargetFilter = {}
 			hiddenUnitAuraCollector = {}
 			compareStartTime = debugprofilestop()
 			logStartTime = compareStartTime / 1000
