@@ -1249,7 +1249,6 @@ local eventCategories = {
 	ARENA_OPPONENT_UPDATE = "PVP",
 	BigWigs_Message = "BigWigs",
 	BigWigs_StartBar = "BigWigs",
-	--BigWigs_Debug = "BigWigs",
 	DBM_Announce = "DBM",
 	DBM_Debug = "DBM",
 	DBM_TimerStart = "DBM",
@@ -1258,7 +1257,6 @@ local eventCategories = {
 local bwEvents = {
 	"BigWigs_Message",
 	"BigWigs_StartBar",
-	--"BigWigs_Debug",
 }
 local dbmEvents = {
 	"DBM_Announce",
@@ -1586,6 +1584,21 @@ end
 function Transcriptor:Get(log) return TranscriptDB[log] end
 function Transcriptor:GetAll() return TranscriptDB end
 function Transcriptor:GetCurrentLogName() return logging and logName end
+function Transcriptor:AddCustomEvent(event, separateCategory, ...)
+	if logging and not TranscriptIgnore[event] then
+		local line = strjoin("#", tostringall(...))
+		if not line then return end
+		local stop = debugprofilestop() / 1000
+		local t = stop - logStartTime
+		local time = date("%H:%M:%S")
+		local text = format("<%.2f %s> [%s] %s", t, time, event, line)
+		currentLog.total[#currentLog.total+1] = text
+		if separateCategory then
+			if type(currentLog[separateCategory]) ~= "table" then currentLog[separateCategory] = {} end
+			tinsert(currentLog[separateCategory], text)
+		end
+	end
+end
 function Transcriptor:IsLogging() return logging end
 function Transcriptor:StopLog(silent)
 	if not logging then
