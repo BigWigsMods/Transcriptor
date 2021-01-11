@@ -38,10 +38,9 @@ local band = bit.band
 local tinsert = table.insert
 local format, find, strjoin = string.format, string.find, string.join
 local tostring, tostringall = tostring, tostringall
-local type, next = type, next
+local type, next, print = type, next, print
 local date = date
 local debugprofilestop, wipe = debugprofilestop, wipe
-local print = print
 
 local C_Scenario, C_DeathInfo_GetSelfResurrectOptions, Enum = C_Scenario, C_DeathInfo.GetSelfResurrectOptions, Enum
 local IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease = IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease
@@ -60,7 +59,7 @@ local GetBestMapForUnit = C_Map.GetBestMapForUnit
 do
 	local origPrint = print
 	function print(msg, ...)
-		return origPrint(format("|cffffff00%s|r", msg), ...)
+		return origPrint(format("|cffffff00%s|r", tostring(msg)), tostringall(...))
 	end
 
 	local origUnitName = UnitName
@@ -1151,12 +1150,32 @@ do
 	local UnitAura = UnitAura
 	function sh.UNIT_AURA(unit)
 		for i = 1, 100 do
-			local name, _, _, _, duration, _, _, _, _, spellId = UnitAura(unit, i)
+			local name, _, _, _, duration, _, _, _, _, spellId, _, bossDebuff = UnitAura(unit, i, "HARMFUL")
 			if not spellId then
-				break
+				return
 			elseif not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not playerSpellBlacklist[spellId] then
 				if UnitIsVisible(unit) then
-					hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall(spellId, name, duration, unit, UnitName(unit)))
+					if bossDebuff then
+						hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BOSS_DEBUFF", spellId, name, duration, unit, UnitName(unit)))
+					else
+						hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall(spellId, name, duration, unit, UnitName(unit)))
+					end
+				else -- If it's not visible it may not show up in CLEU, use this as an indicator of a false positive
+					hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("UNIT_NOT_VISIBLE", spellId, name, duration, unit, UnitName(unit)))
+				end
+			end
+		end
+		for i = 1, 100 do
+			local name, _, _, _, duration, _, _, _, _, spellId, _, bossDebuff = UnitAura(unit, i, "HELPFUL")
+			if not spellId then
+				return
+			elseif not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not playerSpellBlacklist[spellId] then
+				if UnitIsVisible(unit) then
+					if bossDebuff then
+						hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BOSS_BUFF", spellId, name, duration, unit, UnitName(unit)))
+					else
+						hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall(spellId, name, duration, unit, UnitName(unit)))
+					end
 				else -- If it's not visible it may not show up in CLEU, use this as an indicator of a false positive
 					hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("UNIT_NOT_VISIBLE", spellId, name, duration, unit, UnitName(unit)))
 				end
