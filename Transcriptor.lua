@@ -232,6 +232,7 @@ do
 		local total, totalSorted = {}, {}
 		local auraTbl, castTbl, summonTbl = {}, {}, {}
 		local aurasSorted, castsSorted, summonSorted = {}, {}, {}
+		local playerCastList = {}
 		local ignoreList = {
 			[43681] = true, -- Inactive (PvP)
 			[94028] = true, -- Inactive (PvP)
@@ -285,34 +286,47 @@ do
 			summonSorted,
 		}
 		for logName, logTbl in next, TranscriptDB do
-			if type(logTbl) == "table" and logTbl.total then
-				for i=1, #logTbl.total do
-					local text = logTbl.total[i]
+			if type(logTbl) == "table" then
+				if logTbl.total then
+					for i=1, #logTbl.total do
+						local text = logTbl.total[i]
 
-					for j = 1, 3 do
-						local flagsText, srcGUID, name, destGUID, tarName, idText = text:match(events[j])
-						local id = tonumber(idText)
-						local flags = tonumber(flagsText)
-						local tbl = tables[j]
-						local sortedTbl = sortedTables[j]
-						if id and flags and band(flags, mineOrPartyOrRaid) ~= 0 and not ignoreList[id] and not playerSpellBlacklist[id] and #sortedTbl < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
-							if not total[id] or destGUIDType ~= "" then
-								local srcGUIDType, _, _, _, _, npcIdStr = strsplit("-", srcGUID)
-								local npcId = tonumber(npcIdStr)
-								if not npcIgnoreList[npcId] then
-									local destGUIDType = strsplit("-", destGUID)
-									local trim = destGUID and find(destGUID, "^P[le][at]")
-									if srcGUID == destGUID then
-										tbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .."(".. srcGUIDType ..") >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."(".. destGUIDType ..")|r"
-									else
-										tbl[id] = "|cFF3ADF00".. name:gsub("%-.+", "*") .."(".. srcGUIDType ..") >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."(".. destGUIDType ..")|r"
-									end
-									if not total[id] then
-										total[id] = true
-										sortedTbl[#sortedTbl+1] = id
+						for j = 1, 3 do
+							local flagsText, srcGUID, name, destGUID, tarName, idText = text:match(events[j])
+							local id = tonumber(idText)
+							local flags = tonumber(flagsText)
+							local tbl = tables[j]
+							local sortedTbl = sortedTables[j]
+							if id and flags and band(flags, mineOrPartyOrRaid) ~= 0 and not ignoreList[id] and not playerSpellBlacklist[id] and #sortedTbl < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
+								if not total[id] or destGUIDType ~= "" then
+									local srcGUIDType, _, _, _, _, npcIdStr = strsplit("-", srcGUID)
+									local npcId = tonumber(npcIdStr)
+									if not npcIgnoreList[npcId] then
+										local destGUIDType = strsplit("-", destGUID)
+										local trim = destGUID and find(destGUID, "^P[le][at]")
+										if srcGUID == destGUID then
+											tbl[id] = "|cFF81BEF7".. name:gsub("%-.+", "*") .."(".. srcGUIDType ..") >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."(".. destGUIDType ..")|r"
+										else
+											tbl[id] = "|cFF3ADF00".. name:gsub("%-.+", "*") .."(".. srcGUIDType ..") >> ".. (trim and tarName:gsub("%-.+", "*") or tarName) .."(".. destGUIDType ..")|r"
+										end
+										if not total[id] then
+											total[id] = true
+											sortedTbl[#sortedTbl+1] = id
+										end
 									end
 								end
 							end
+						end
+					end
+				end
+				if logTbl.TIMERS and logTbl.TIMERS.PLAYER_SPELLS then
+					for i=1, #logTbl.TIMERS.PLAYER_SPELLS do
+						local text = logTbl.TIMERS.PLAYER_SPELLS[i]
+						local spellId, _, _, player = strsplit("#", text)
+						local id = tonumber(spellId)
+						if id and not playerSpellBlacklist[id] and not playerCastList[id] then
+							playerCastList[id] = player
+							total[id] = true
 						end
 					end
 				end
@@ -341,6 +355,12 @@ do
 			local id = summonSorted[i]
 			local name = GetSpellInfo(id)
 			text = format("%s%d || |cFFFFFF00|Hspell:%d|h%s|h|r || %s\n", text, id, id, name, summonTbl[id])
+		end
+
+		text = text.. "\n-- PLAYER_CASTS\n"
+		for k, v in next, playerCastList do
+			local name = GetSpellInfo(k)
+			text = format("%s%d || |cFFFFFF00|Hspell:%d|h%s|h|r || %s\n", text, k, k, name, v)
 		end
 
 		-- Display newly found spells for analysis
