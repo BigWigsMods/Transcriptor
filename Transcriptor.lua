@@ -1284,6 +1284,7 @@ local eventCategories = {
 	ARENA_OPPONENT_UPDATE = "PVP",
 	BigWigs_Message = "BigWigs",
 	BigWigs_StartBar = "BigWigs",
+	BigWigs_SetStage = "BigWigs",
 	DBM_Announce = "DBM",
 	DBM_Debug = "DBM",
 	DBM_TimerStart = "DBM",
@@ -1292,6 +1293,7 @@ local eventCategories = {
 local bwEvents = {
 	"BigWigs_Message",
 	"BigWigs_StartBar",
+	"BigWigs_SetStage",
 }
 local dbmEvents = {
 	"DBM_Announce",
