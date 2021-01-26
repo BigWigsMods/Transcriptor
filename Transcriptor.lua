@@ -25,6 +25,7 @@ local compareAuraApplied = nil
 local compareStartTime = nil
 local collectPlayerAuras = nil
 local hiddenUnitAuraCollector = nil
+local playerSpellCollector = nil
 local hiddenAuraPermList = {
 	[5384] = true, -- Feign Death
 	[209997] = true, -- Play Dead (Hunter Pet)
@@ -935,6 +936,12 @@ do
 		boss1 = true, boss2 = true, boss3 = true, boss4 = true, boss5 = true,
 		arena1 = true, arena2 = true, arena3 = true, arena4 = true, arena5 = true,
 	}
+	local raidList = {
+		raid1 = true, raid2 = true, raid3 = true, raid4 = true, raid5 = true, raid6 = true, raid7 = true, raid8 = true, raid9 = true, raid10 = true,
+		raid11 = true, raid12 = true, raid13 = true, raid14 = true, raid15 = true, raid16 = true, raid17 = true, raid18 = true, raid19 = true, raid20 = true,
+		raid21 = true, raid22 = true, raid23 = true, raid24 = true, raid25 = true, raid26 = true, raid27 = true, raid28 = true, raid29 = true, raid30 = true,
+		raid31 = true, raid32 = true, raid33 = true, raid34 = true, raid35 = true, raid36 = true, raid37 = true, raid38 = true, raid39 = true, raid40 = true
+	}
 	local function safeUnit(unit)
 		if bossUnits[unit] then -- Accept any boss unit
 			return true
@@ -968,22 +975,31 @@ do
 		end
 	end
 
+	local prevCast = nil
 	function sh.UNIT_SPELLCAST_SUCCEEDED(unit, castId, spellId, ...)
 		if safeUnit(unit) then
-			if not compareUnitSuccess then compareUnitSuccess = {} end
-			if not compareUnitSuccess[spellId] then compareUnitSuccess[spellId] = {} end
-			local npcId = MobId(UnitGUID(unit))
-			if not compareUnitSuccess[spellId][npcId] then compareUnitSuccess[spellId][npcId] = {compareStartTime} end
-			compareUnitSuccess[spellId][npcId][#compareUnitSuccess[spellId][npcId]+1] = debugprofilestop()
+			if castId ~= prevCast then
+				prevCast = castId
+				if not compareUnitSuccess then compareUnitSuccess = {} end
+				if not compareUnitSuccess[spellId] then compareUnitSuccess[spellId] = {} end
+				local npcId = MobId(UnitGUID(unit))
+				if not compareUnitSuccess[spellId][npcId] then compareUnitSuccess[spellId][npcId] = {compareStartTime} end
+				compareUnitSuccess[spellId][npcId][#compareUnitSuccess[spellId][npcId]+1] = debugprofilestop()
 
-			if specialEvents.UNIT_SPELLCAST_SUCCEEDED[spellId] then
-				local name = specialEvents.UNIT_SPELLCAST_SUCCEEDED[spellId][npcId]
-				if name then
-					InsertSpecialEvent(name)
+				if specialEvents.UNIT_SPELLCAST_SUCCEEDED[spellId] then
+					local name = specialEvents.UNIT_SPELLCAST_SUCCEEDED[spellId][npcId]
+					if name then
+						InsertSpecialEvent(name)
+					end
 				end
 			end
 
 			return format("%s(%s) -%s- [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
+		elseif raidList[unit] and not playerSpellBlacklist[spellId] then
+			if not playerSpellCollector[spellId] then
+				playerSpellCollector[spellId] = strjoin("#", tostringall(spellId, GetSpellInfo(spellId), unit, UnitName(unit)))
+			end
+			return format("PLAYER_SPELL(%s) -%s- [[%s]]", UnitName(unit), GetSpellInfo(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
 		end
 	end
 	function sh.UNIT_SPELLCAST_START(unit, ...)
@@ -1549,6 +1565,7 @@ do
 			end
 
 			hiddenUnitAuraCollector = {}
+			playerSpellCollector = {}
 			compareStartTime = debugprofilestop()
 			logStartTime = compareStartTime / 1000
 			local _, instanceType, diff, _, _, _, _, instanceId = GetInstanceInfo()
@@ -2004,6 +2021,11 @@ function Transcriptor:StopLog(silent)
 				currentLog.TIMERS.HIDDEN_AURAS[#currentLog.TIMERS.HIDDEN_AURAS+1] = str
 			end
 		end
+		for id, str in next, playerSpellCollector do
+			if not currentLog.TIMERS then currentLog.TIMERS = {} end
+			if not currentLog.TIMERS.PLAYER_SPELLS then currentLog.TIMERS.PLAYER_SPELLS = {} end
+			currentLog.TIMERS.PLAYER_SPELLS[#currentLog.TIMERS.PLAYER_SPELLS+1] = str
+		end
 
 		--Clear Log Path
 		currentLog = nil
@@ -2017,6 +2039,7 @@ function Transcriptor:StopLog(silent)
 		collectPlayerAuras = nil
 		logStartTime = nil
 		hiddenUnitAuraCollector = nil
+		playerSpellCollector = nil
 
 		return logName
 	end
