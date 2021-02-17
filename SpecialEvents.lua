@@ -318,8 +318,8 @@ tbl.specialEvents = {
 		},
 
 		-- [[ Castle Nathria ]] --
-		[328497] = { -- Danse Macabre (Instakill event)
-			[1] = "Danse Macabre Begin" -- no caster source
+		[347376] = { -- Dance Area Trigger (Danse Macabre trigger)
+			[168870] = "Danse Macabre Begin" -- Dance Controller
 		},
 		[329697] = { -- Begin the Chorus
 			[167406] = "Stage 2" -- Denathrius
