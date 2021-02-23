@@ -218,6 +218,9 @@ tbl.specialEvents = {
 		[323402] = { -- Reflection of Guilt
 			[165759] = "Shade Killed", -- Kael'thas Sunstrider
 		},
+		[331314] = { -- Destructive Impact
+			[164407] = "Impact Removed", -- Sludgefist
+		},
 		[329636] = { -- Hardened Stone Form
 			[168112] = "Stage 2" -- General Kaal
 		},
@@ -283,20 +286,6 @@ tbl.specialEvents = {
 		[306995] = { -- Smoke and Mirrors
 			[156818] = "Stage 2", -- Wrathion
 		},
-
-		-- [[ Castle Nathria ]] --
-		[328921] = { -- Bloodgorge
-			[164406] = "Intermission", -- Shriekwing
-		},
-		[327887] = { -- Crystal of Phantasms
-			[166644] = "Crystal of Phantasms", -- Artificer Xy'mox
-		},
-		[329770] = { -- Root of Existence
-			[166644] = "Root of Existence", -- Artificer Xy'mox
-		},
-		[328880] = { -- Edge of Annihilation
-			[166644] = "Edge of Annihilation", -- Artificer Xy'mox
-		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -318,6 +307,12 @@ tbl.specialEvents = {
 		},
 
 		-- [[ Castle Nathria ]] --
+		[343995] = { -- Bloodgorge
+			[164406] = "Intermission", -- Shriekwing
+		},
+		[181089] = { -- Encounter Event
+			[166644] = "Encounter Event", -- Artificer Xy'mox
+		},
 		[347376] = { -- Dance Area Trigger (Danse Macabre trigger)
 			[168870] = "Danse Macabre Begin" -- Dance Controller
 		},
