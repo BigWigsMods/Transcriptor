@@ -1070,7 +1070,7 @@ function sh.INSTANCE_ENCOUNTER_ENGAGE_UNIT(...)
 end
 
 function sh.UNIT_TARGETABLE_CHANGED(unit)
-	return strjoin("#", tostringall(unit, UnitCanAttack("player", unit), UnitExists(unit), UnitIsVisible(unit), UnitName(unit), UnitGUID(unit), UnitClassification(unit), UnitHealth(unit)))
+	return format("-%s- [CanAttack:%s#Exists:%s#IsVisible:%s#Name:%s#GUID:%s#Classification:%s#Health:%s]", tostringall(unit, UnitCanAttack("player", unit), UnitExists(unit), UnitIsVisible(unit), UnitName(unit), UnitGUID(unit), UnitClassification(unit), (UnitHealth(unit))))
 end
 
 do
