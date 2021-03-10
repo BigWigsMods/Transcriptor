@@ -4,6 +4,7 @@
 ## Notes-zhCN: 战斗纪录器
 ## Notes-zhTW: 戰鬥紀錄器
 ## Notes-koKR: 우두머리 전투 기록 유틸리티입니다.
+## Notes-ruRU: Утилита для логирования битв с боссами.
 ## Author: Funkydude
 ## Version: @project-version@
 ## X-Credits: Kyahx, Rabbit, MysticalOS, nebula169
