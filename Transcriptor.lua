@@ -1464,7 +1464,6 @@ local init = CreateFrame("Frame")
 init:SetScript("OnEvent", function(self, event)
 	if type(TranscriptDB) ~= "table" then TranscriptDB = {} end
 	if type(TranscriptIgnore) ~= "table" then TranscriptIgnore = {} end
-	TranscriptDB.ignoredEvents = nil
 
 	tinsert(menu, { text = L["|cFFFFD200Transcriptor|r - Disabled Events"], fontObject = "GameTooltipHeader", notCheckable = 1 })
 	insertMenuItems(wowEvents)
