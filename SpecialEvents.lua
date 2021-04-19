@@ -321,7 +321,12 @@ tbl.specialEvents = {
 		},
 		[326005] = { -- Indignation
 			[167406] = "Stage 3" -- Denathrius
-		}
+		},
+
+		-- [[ Sanctum of Domination ]] --
+		[347679] = { -- Hungering Mist
+			[175611] = "Mists" -- The Tarragrue
+		},
 	},
 	["UNIT_DIED"] = {
 		--[[ Antorus, the Burning Throne ]]--
