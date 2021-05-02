@@ -324,7 +324,7 @@ do
 						local text = logTbl.TIMERS.PLAYER_SPELLS[i]
 						local spellId, _, _, player = strsplit("#", text)
 						local id = tonumber(spellId)
-						if id and not playerSpellBlacklist[id] and not playerCastList[id] then
+						if id and not playerSpellBlacklist[id] and not playerCastList[id] and not total[id] then
 							playerCastList[id] = player
 							total[id] = true
 						end
