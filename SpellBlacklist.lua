@@ -3194,4 +3194,5 @@ tbl.blacklist = {
 [348139] = true, -- Instructor's Divine Bell
 [349857] = true, -- Dreadfire Vessel
 [351077] = true, -- Second Wind
+[354050] = true, -- Nimble Steps
 }
