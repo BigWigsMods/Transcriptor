@@ -95,6 +95,10 @@ tbl.specialEvents = {
 			[165521] = "Adds Focused" -- Lady Inerva Darkvein
 		},
 
+		-- [[ Sanctum Of Domination ]] --
+		[350745] = { -- Maw Power (Set to 00)  [DNT]
+			[175726] = "Stage 2" -- Skyja
+		},
 	},
 	["UNIT_SPELLCAST_INTERRUPTED"] = {
 		-- [[ Battle of Dazar'Alor ]]--
@@ -154,6 +158,14 @@ tbl.specialEvents = {
 		},
 		[329808] = { -- Hardened Stone Form
 			[168113] = "Intermission" -- General Grashaal
+		},
+
+		-- [[ Sanctum Of Domination ]] --
+		[348805] = { -- Stygian Darkshield
+			[175725] = function() -- Eye of the Jailer
+				tbl.data[1] = 2 -- Stage 2
+				return "Stage 2"
+			end,
 		},
 	},
 	["SPELL_AURA_REMOVED"] = {
@@ -227,6 +239,16 @@ tbl.specialEvents = {
 		[329808] = { -- Hardened Stone Form
 			[168113] = "Stage 3" -- General Grashaal
 		},
+
+		-- [[ Sanctum Of Domination ]] --
+		[348805] = { -- Stygian Darkshield
+			[175725] = function() -- Eye of the Jailer
+				if tbl.data[1] == 2 then -- Only if still in stage 2
+					tbl.data[1] = 1
+					return "Stage 1"
+				end
+			end,
+		},
 	},
 	["SPELL_CAST_START"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -285,6 +307,14 @@ tbl.specialEvents = {
 		},
 		[306995] = { -- Smoke and Mirrors
 			[156818] = "Stage 2", -- Wrathion
+		},
+
+		-- [[ Sanctum Of Domination ]] --
+		[348974] = { -- Immediate Extermination
+			[175725] = function() -- Eye of the Jailer
+				tbl.data[1] = 3
+				return "Stage 3"
+			end,
 		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
