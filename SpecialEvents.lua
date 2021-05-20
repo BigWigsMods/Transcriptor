@@ -357,6 +357,9 @@ tbl.specialEvents = {
 		[347679] = { -- Hungering Mist
 			[175611] = "Mists" -- The Tarragrue
 		},
+		[349985] = { -- Encore of Torment
+			[175727] = "Dance" -- Soulrender Dormazain
+		},
 	},
 	["UNIT_DIED"] = {
 		--[[ Antorus, the Burning Throne ]]--
