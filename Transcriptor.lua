@@ -1022,18 +1022,18 @@ do
 			return format("PLAYER_SPELL(%s) -%s- [[%s]]", UnitName(unit), GetSpellInfo(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
 		end
 	end
-	function sh.UNIT_SPELLCAST_START(unit, ...)
+	function sh.UNIT_SPELLCAST_START(unit, castId, spellId, ...)
 		if safeUnit(unit) then
-			local spellName, _, _, startTime, endTime = UnitCastingInfo(unit)
+			local _, _, _, startTime, endTime = UnitCastingInfo(unit)
 			local time = ((endTime or 0) - (startTime or 0)) / 1000
-			return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), spellName or "NIL", time, strjoin(":", tostringall(unit, ...)))
+			return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId), time, strjoin(":", tostringall(unit, castId, spellId, ...)))
 		end
 	end
-	function sh.UNIT_SPELLCAST_CHANNEL_START(unit, ...)
+	function sh.UNIT_SPELLCAST_CHANNEL_START(unit, castId, spellId, ...)
 		if safeUnit(unit) then
-			local spellName, _, _, startTime, endTime = UnitChannelInfo(unit)
+			local _, _, _, startTime, endTime = UnitChannelInfo(unit)
 			local time = ((endTime or 0) - (startTime or 0)) / 1000
-			return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), spellName or "NIL", time, strjoin(":", tostringall(unit, ...)))
+			return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId), time, strjoin(":", tostringall(unit, castId, spellId, ...)))
 		end
 	end
 
