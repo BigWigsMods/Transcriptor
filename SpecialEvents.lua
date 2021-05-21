@@ -167,6 +167,9 @@ tbl.specialEvents = {
 				return "Stage 2"
 			end,
 		},
+		[352385] = { -- Energizing Link
+			[175731] = "Link Active", -- Guardian of the First Ones
+		},
 	},
 	["SPELL_AURA_REMOVED"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -315,6 +318,15 @@ tbl.specialEvents = {
 				tbl.data[1] = 3
 				return "Stage 3"
 			end,
+		},
+		[351066] = { -- Shatter
+			[175729] = "Shatter (Helm)", -- Remnant of Ner'zhul
+		},
+		[351067] = { -- Shatter
+			[175729] = "Shatter (Gauntlet)", -- Remnant of Ner'zhul
+		},
+		[351073] = { -- Shatter
+			[175729] = "Shatter (Rattlecage)", -- Remnant of Ner'zhul
 		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
