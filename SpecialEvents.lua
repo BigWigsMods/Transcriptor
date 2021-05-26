@@ -252,6 +252,16 @@ tbl.specialEvents = {
 				end
 			end,
 		},
+		[351969] = { -- Realign Fate
+			[175730] = function() -- Fatescribe Roh-Kalo
+				tbl.data[1] = (tbl.data[1] or 1) + 1
+				if tbl.data[1] > 3 then -- Stage 3 after 3x Realign Fate
+					return "Stage 3"
+				else
+					return "Stage 1"
+				end
+			end,
+		},
 	},
 	["SPELL_CAST_START"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -327,6 +337,9 @@ tbl.specialEvents = {
 		},
 		[351073] = { -- Shatter
 			[175729] = "Shatter (Rattlecage)", -- Remnant of Ner'zhul
+		},
+		[351969] = { -- Realign Fate
+			[175730] = "Stage 2", -- Fatescribe Roh-Kalo
 		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
