@@ -262,6 +262,11 @@ tbl.specialEvents = {
 				end
 			end,
 		},
+		[355525] = { -- Forge Weapon
+			[176523] = function() -- Painsmith Raznal
+				return "Intermission "..tbl.data[1].." Over"
+			end,
+		},
 	},
 	["SPELL_CAST_START"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -340,6 +345,12 @@ tbl.specialEvents = {
 		},
 		[351969] = { -- Realign Fate
 			[175730] = "Stage 2", -- Fatescribe Roh-Kalo
+		},
+		[355525] = { -- Forge Weapon
+			[176523] = function() -- Painsmith Raznal
+				tbl.data[1] = (tbl.data[1] or 0) + 1
+				return "Intermission "..tbl.data[1]
+			end,
 		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
