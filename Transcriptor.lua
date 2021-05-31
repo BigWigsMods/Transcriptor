@@ -1330,10 +1330,10 @@ local eventCategories = {
 	DBM_Debug = "DBM",
 	DBM_TimerStart = "DBM",
 	DBM_TimerStop = "DBM",
-	PLAYER_TARGET_CHANGED = "NONE"
-	CHAT_MSG_ADDON = "NONE"
-	CHAT_MSG_RAID_WARNING = "NONE"
-	NAME_PLATE_UNIT_ADDED = "NONE"
+	PLAYER_TARGET_CHANGED = "NONE",
+	CHAT_MSG_ADDON = "NONE",
+	CHAT_MSG_RAID_WARNING = "NONE",
+	NAME_PLATE_UNIT_ADDED = "NONE",
 }
 local bwEvents = {
 	"BigWigs_Message",
