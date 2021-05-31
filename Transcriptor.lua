@@ -1295,6 +1295,7 @@ local eventCategories = {
 	ENCOUNTER_END = "COMBAT",
 	BOSS_KILL = "COMBAT",
 	INSTANCE_ENCOUNTER_ENGAGE_UNIT = "COMBAT",
+	UNIT_TARGETABLE_CHANGED = "COMBAT",
 	CHAT_MSG_MONSTER_EMOTE = "MONSTER",
 	CHAT_MSG_MONSTER_SAY = "MONSTER",
 	CHAT_MSG_MONSTER_WHISPER = "MONSTER",
@@ -1310,7 +1311,6 @@ local eventCategories = {
 	UNIT_SPELLCAST_CHANNEL_START = "UNIT_SPELLCAST",
 	UNIT_SPELLCAST_CHANNEL_STOP = "UNIT_SPELLCAST",
 	UNIT_TARGET = "UNIT_SPELLCAST",
-	UNIT_TARGETABLE_CHANGED = "UNIT_SPELLCAST",
 	ZONE_CHANGED = "ZONE_CHANGED",
 	ZONE_CHANGED_INDOORS = "ZONE_CHANGED",
 	ZONE_CHANGED_NEW_AREA = "ZONE_CHANGED",
@@ -1330,6 +1330,10 @@ local eventCategories = {
 	DBM_Debug = "DBM",
 	DBM_TimerStart = "DBM",
 	DBM_TimerStop = "DBM",
+	PLAYER_TARGET_CHANGED = "NONE"
+	CHAT_MSG_ADDON = "NONE"
+	CHAT_MSG_RAID_WARNING = "NONE"
+	NAME_PLATE_UNIT_ADDED = "NONE"
 }
 local bwEvents = {
 	"BigWigs_Message",
@@ -1361,10 +1365,11 @@ local function eventHandler(self, event, ...)
 	else
 		local text = format("<%.2f %s> [%s] %s", t, time, event, line)
 		currentLog.total[#currentLog.total+1] = text
-		if event == "WORLD_STATE_UI_TIMER_UPDATE" then return end -- Only in total table
 		local cat = eventCategories[event] or event
-		if type(currentLog[cat]) ~= "table" then currentLog[cat] = {} end
-		tinsert(currentLog[cat], text)
+		if cat ~= "NONE" then
+			if type(currentLog[cat]) ~= "table" then currentLog[cat] = {} end
+			tinsert(currentLog[cat], text)
+		end
 	end
 end
 eventFrame:SetScript("OnEvent", eventHandler)
