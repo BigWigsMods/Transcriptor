@@ -23,6 +23,7 @@ local compareEmotes = nil
 local compareStart = nil
 local compareAuraApplied = nil
 local compareStartTime = nil
+local collectNameplates = nil
 local collectPlayerAuras = nil
 local hiddenUnitAuraCollector = nil
 local playerSpellCollector = nil
@@ -69,10 +70,19 @@ do
 	end
 end
 
-local function MobId(guid)
+local function MobId(guid, extra)
 	if not guid then return 1 end
-	local _, _, _, _, _, id = strsplit("-", guid)
-	return tonumber(id) or 1
+	local _, _, _, _, _, strId, unq = strsplit("-", guid)
+	if extra then
+		local id = tonumber(strId)
+		if id then
+			return strId.."-"..unq
+		else
+			return 1
+		end
+	else
+		return tonumber(strId) or 1
+	end
 end
 
 local function InsertSpecialEvent(name)
@@ -770,21 +780,21 @@ do
 			if event == "SPELL_CAST_SUCCESS" and (not sourceName or (band(sourceFlags, mineOrPartyOrRaid) == 0 and not find(sourceGUID, "Player", nil, true))) then
 				if not compareSuccess then compareSuccess = {} end
 				if not compareSuccess[spellId] then compareSuccess[spellId] = {} end
-				local npcId = MobId(sourceGUID)
+				local npcId = MobId(sourceGUID, true)
 				if not compareSuccess[spellId][npcId] then compareSuccess[spellId][npcId] = {compareStartTime} end
 				compareSuccess[spellId][npcId][#compareSuccess[spellId][npcId]+1] = debugprofilestop()
 			end
 			if event == "SPELL_CAST_START" and (not sourceName or (band(sourceFlags, mineOrPartyOrRaid) == 0 and not find(sourceGUID, "Player", nil, true))) then
 				if not compareStart then compareStart = {} end
 				if not compareStart[spellId] then compareStart[spellId] = {} end
-				local npcId = MobId(sourceGUID)
+				local npcId = MobId(sourceGUID, true)
 				if not compareStart[spellId][npcId] then compareStart[spellId][npcId] = {compareStartTime} end
 				compareStart[spellId][npcId][#compareStart[spellId][npcId]+1] = debugprofilestop()
 			end
 			if event == "SPELL_AURA_APPLIED" and (not sourceName or (band(sourceFlags, mineOrPartyOrRaid) == 0 and not find(sourceGUID, "Player", nil, true))) then
 				if not compareAuraApplied then compareAuraApplied = {} end
 				if not compareAuraApplied[spellId] then compareAuraApplied[spellId] = {} end
-				local npcId = MobId(sourceGUID)
+				local npcId = MobId(sourceGUID, true)
 				if not compareAuraApplied[spellId][npcId] then compareAuraApplied[spellId][npcId] = {compareStartTime} end
 				compareAuraApplied[spellId][npcId][#compareAuraApplied[spellId][npcId]+1] = debugprofilestop()
 			end
@@ -1002,12 +1012,13 @@ do
 				prevCast = castId
 				if not compareUnitSuccess then compareUnitSuccess = {} end
 				if not compareUnitSuccess[spellId] then compareUnitSuccess[spellId] = {} end
-				local npcId = MobId(UnitGUID(unit))
+				local npcId = MobId(UnitGUID(unit), true)
 				if not compareUnitSuccess[spellId][npcId] then compareUnitSuccess[spellId][npcId] = {compareStartTime} end
 				compareUnitSuccess[spellId][npcId][#compareUnitSuccess[spellId][npcId]+1] = debugprofilestop()
 
 				if specialEvents.UNIT_SPELLCAST_SUCCEEDED[spellId] then
-					local name = specialEvents.UNIT_SPELLCAST_SUCCEEDED[spellId][npcId]
+					local npcIdBasic = MobId((UnitGUID(unit)))
+					local name = specialEvents.UNIT_SPELLCAST_SUCCEEDED[spellId][npcIdBasic]
 					if name then
 						InsertSpecialEvent(name)
 					end
@@ -1220,6 +1231,15 @@ do
 	end
 end
 
+function sh.NAME_PLATE_UNIT_ADDED(unit)
+	local guid = UnitGUID(unit)
+	if not collectNameplates[guid] then
+		collectNameplates[guid] = true
+		local name = UnitName(unit)
+		return strjoin("#", name, guid)
+	end
+end
+
 local wowEvents = {
 	-- Raids
 	"CHAT_MSG_ADDON",
@@ -1254,6 +1274,7 @@ local wowEvents = {
 	"ZONE_CHANGED",
 	"ZONE_CHANGED_INDOORS",
 	"ZONE_CHANGED_NEW_AREA",
+	"NAME_PLATE_UNIT_ADDED",
 	-- Scenarios
 	"SCENARIO_UPDATE",
 	"SCENARIO_CRITERIA_UPDATE",
@@ -1585,6 +1606,7 @@ do
 				end
 			end
 
+			collectNameplates = {}
 			hiddenUnitAuraCollector = {}
 			playerSpellCollector = {}
 			compareStartTime = debugprofilestop()
@@ -1691,7 +1713,7 @@ function Transcriptor:StopLog(silent)
 				currentLog.TIMERS.SPELL_CAST_SUCCESS = {}
 				for id,tbl in next, compareSuccess do
 					for npcId, list in next, tbl do
-						local n = format("%s-%d-npc:%d", GetSpellInfo(id), id, npcId)
+						local n = format("%s-%d-npc:%s", GetSpellInfo(id), id, npcId)
 						local str
 						for i = 2, #list do
 							if not str then
@@ -1754,7 +1776,7 @@ function Transcriptor:StopLog(silent)
 				currentLog.TIMERS.SPELL_CAST_START = {}
 				for id,tbl in next, compareStart do
 					for npcId, list in next, tbl do
-						local n = format("%s-%d-npc:%d", GetSpellInfo(id), id, npcId)
+						local n = format("%s-%d-npc:%s", GetSpellInfo(id), id, npcId)
 						local str
 						for i = 2, #list do
 							if not str then
@@ -1817,7 +1839,7 @@ function Transcriptor:StopLog(silent)
 				currentLog.TIMERS.SPELL_AURA_APPLIED = {}
 				for id,tbl in next, compareAuraApplied do
 					for npcId, list in next, tbl do
-						local n = format("%s-%d-npc:%d", GetSpellInfo(id), id, npcId)
+						local n = format("%s-%d-npc:%s", GetSpellInfo(id), id, npcId)
 						local str
 						local zeroCounter = 1
 						for i = 2, #list do
@@ -1900,7 +1922,7 @@ function Transcriptor:StopLog(silent)
 				for id,tbl in next, compareUnitSuccess do
 					for npcId, list in next, tbl do
 						if not compareSuccess or not compareSuccess[id] or not compareSuccess[id][npcId] then
-							local n = format("%s-%d-npc:%d", GetSpellInfo(id), id, npcId)
+							local n = format("%s-%d-npc:%s", GetSpellInfo(id), id, npcId)
 							local str
 							for i = 2, #list do
 								if not str then
@@ -2059,6 +2081,7 @@ function Transcriptor:StopLog(silent)
 		compareStartTime = nil
 		collectPlayerAuras = nil
 		logStartTime = nil
+		collectNameplates = nil
 		hiddenUnitAuraCollector = nil
 		playerSpellCollector = nil
 
