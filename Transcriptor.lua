@@ -1199,7 +1199,7 @@ do
 		for i = 1, 100 do
 			local name, _, _, _, duration, _, _, _, _, spellId, _, bossDebuff = UnitAura(unit, i, "HARMFUL")
 			if not spellId then
-				return
+				break
 			elseif not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not playerSpellBlacklist[spellId] then
 				if UnitIsVisible(unit) then
 					if bossDebuff then
@@ -1215,7 +1215,7 @@ do
 		for i = 1, 100 do
 			local name, _, _, _, duration, _, _, _, _, spellId, _, bossDebuff = UnitAura(unit, i, "HELPFUL")
 			if not spellId then
-				return
+				break
 			elseif not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not playerSpellBlacklist[spellId] then
 				if UnitIsVisible(unit) then
 					if bossDebuff then
