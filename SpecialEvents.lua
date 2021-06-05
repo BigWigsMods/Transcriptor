@@ -170,6 +170,22 @@ tbl.specialEvents = {
 		[352385] = { -- Energizing Link
 			[175731] = "Link Active", -- Guardian of the First Ones
 		},
+		[350857] = { -- Banshee Shroud
+			[175732] = function() -- Sylvanas Windrunner
+				if not tbl.data[1] then -- We only want to trigger this once
+					tbl.data[1] = true
+					return "Intermission"
+				end
+			end,
+		},
+		[348146] = { -- Banshee Form
+			[175732] = function() -- Sylvanas Windrunner
+				if not tbl.data[2] then -- We only want to trigger this once
+					tbl.data[2] = true
+					return "Stage 2"
+				end
+			end,
+		},
 	},
 	["SPELL_AURA_REMOVED"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -351,6 +367,9 @@ tbl.specialEvents = {
 				tbl.data[1] = (tbl.data[1] or 0) + 1
 				return "Intermission "..tbl.data[1]
 			end,
+		},
+		[357102] = { -- Raid Portal: Oribos
+			[176533] = "Stage 3", -- Lady Jaina Proudmoore // Sylvanas Windrunner Encounter
 		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
