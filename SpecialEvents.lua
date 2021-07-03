@@ -178,11 +178,27 @@ tbl.specialEvents = {
 				end
 			end,
 		},
+		[352051] = { -- Necrotic Surge
+			[175559] = function() -- Kel'Thuzad
+				if not tbl.data[1] then
+					return "Stage 1"
+				end
+			end,
+		},
 		[348146] = { -- Banshee Form
 			[175732] = function() -- Sylvanas Windrunner
 				if not tbl.data[2] then -- We only want to trigger this once
 					tbl.data[2] = true
 					return "Stage 2"
+				end
+			end,
+		},
+	},
+	["SPELL_AURA_APPLIED_DOSE"] = {
+		[352051] = { -- Necrotic Surge
+			[175559] = function() -- Kel'Thuzad
+				if not tbl.data[1] then
+					return "Stage 1"
 				end
 			end,
 		},
@@ -368,6 +384,9 @@ tbl.specialEvents = {
 				return "Intermission "..tbl.data[1]
 			end,
 		},
+		[352293] = { -- Vengeful Destruction
+			[175559] = "Stage 2", -- Kel'Thuzad
+		},
 		[357102] = { -- Raid Portal: Oribos
 			[176533] = "Stage 3", -- Lady Jaina Proudmoore // Sylvanas Windrunner Encounter
 		},
@@ -428,5 +447,11 @@ tbl.specialEvents = {
 		[166969] = "Baroness Frieda Killed", -- Baroness Frieda (The Council of Blood)
 		[166970] = "Lord Stavros Killed", -- Lord Stavros (The Council of Blood)
 		[166971] = "Castellan Niklaus Killed", -- Castellan Niklaus (The Council of Blood)
+
+		-- [[ Sanctum of Domination ]] --
+		[176929] = function() -- Remnant of Kel'Thuzad
+			tbl.data[1] = true
+			return "Stage 3"
+		end,
 	},
 }
