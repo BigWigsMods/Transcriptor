@@ -170,6 +170,9 @@ tbl.specialEvents = {
 		[352385] = { -- Energizing Link
 			[175731] = "Link Active", -- Guardian of the First Ones
 		},
+		[357739] = { -- Realign Fate
+			[175730] = "Stage 2", -- Fatescribe Roh-Kalo
+		},
 		[350857] = { -- Banshee Shroud
 			[175732] = function() -- Sylvanas Windrunner
 				if not tbl.data[1] then -- We only want to trigger this once
@@ -284,7 +287,7 @@ tbl.specialEvents = {
 				end
 			end,
 		},
-		[351969] = { -- Realign Fate
+		[357739] = { -- Realign Fate
 			[175730] = function() -- Fatescribe Roh-Kalo
 				tbl.data[1] = (tbl.data[1] or 1) + 1
 				if tbl.data[1] > 3 then -- Stage 3 after 3x Realign Fate
@@ -374,9 +377,6 @@ tbl.specialEvents = {
 		},
 		[351073] = { -- Shatter
 			[175729] = "Shatter (Rattlecage)", -- Remnant of Ner'zhul
-		},
-		[351969] = { -- Realign Fate
-			[175730] = "Stage 2", -- Fatescribe Roh-Kalo
 		},
 		[355525] = { -- Forge Weapon
 			[176523] = function() -- Painsmith Raznal
