@@ -168,7 +168,13 @@ tbl.specialEvents = {
 			end,
 		},
 		[352385] = { -- Energizing Link
-			[175731] = "Link Active", -- Guardian of the First Ones
+			[176583] = function() -- Energy Core
+				local t = GetTime()
+				if t - (tbl.data[1] or 0) > 5 then
+					tbl.data[1] = t
+					return "Link Active",
+				end
+			end,
 		},
 		[357739] = { -- Realign Fate
 			[175730] = "Stage 2", -- Fatescribe Roh-Kalo
