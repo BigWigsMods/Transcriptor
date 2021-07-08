@@ -172,7 +172,7 @@ tbl.specialEvents = {
 				local t = GetTime()
 				if t - (tbl.data[1] or 0) > 5 then
 					tbl.data[1] = t
-					return "Link Active",
+					return "Link Active"
 				end
 			end,
 		},
