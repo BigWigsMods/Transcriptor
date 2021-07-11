@@ -369,6 +369,9 @@ tbl.specialEvents = {
 		},
 
 		-- [[ Sanctum Of Domination ]] --
+		[347679] = { -- Hungering Mist
+			[175611] = "Mists" -- The Tarragrue
+		},
 		[348974] = { -- Immediate Extermination
 			[175725] = function() -- Eye of the Jailer
 				tbl.data[1] = 3
@@ -394,7 +397,7 @@ tbl.specialEvents = {
 			[175559] = "Stage 2", -- Kel'Thuzad
 		},
 		[357102] = { -- Raid Portal: Oribos
-			[176533] = "Stage 3", -- Lady Jaina Proudmoore // Sylvanas Windrunner Encounter
+			[176533] = "Stage 2 End", -- Lady Jaina Proudmoore // Sylvanas Windrunner Encounter
 		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
@@ -434,11 +437,16 @@ tbl.specialEvents = {
 		},
 
 		-- [[ Sanctum of Domination ]] --
-		[347679] = { -- Hungering Mist
-			[175611] = "Mists" -- The Tarragrue
-		},
 		[349985] = { -- Encore of Torment
 			[175727] = "Dance" -- Soulrender Dormazain
+		},
+		[357729] = { -- Blasphemy
+			[178072] = function() -- Anduin Wrynn // Sylvanas Windrunner Encounter
+				if not tbl.data[3] then -- We only want to trigger this once
+					tbl.data[3] = true
+					return "Stage 3"
+				end
+			end,
 		},
 	},
 	["UNIT_DIED"] = {
