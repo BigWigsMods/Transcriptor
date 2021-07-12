@@ -31,6 +31,7 @@ local hiddenAuraPermList = {
 	[5384] = true, -- Feign Death
 	[209997] = true, -- Play Dead (Hunter Pet)
 }
+local previousSpecialEvent = nil
 local hiddenAuraEngageList = nil
 local shouldLogFlags = false
 local inEncounter, blockingRelease, limitingRes = false, false, false
@@ -90,38 +91,40 @@ local function InsertSpecialEvent(name)
 		name = name()
 	end
 	if not name then return end
+	local t = debugprofilestop()
+	previousSpecialEvent = {t, name}
 	if compareSuccess then
 		for id,tbl in next, compareSuccess do
 			for npcId, list in next, tbl do
-				list[#list+1] = {debugprofilestop(), name}
+				list[#list+1] = {t, name}
 			end
 		end
 	end
 	if compareStart then
 		for id,tbl in next, compareStart do
 			for npcId, list in next, tbl do
-				list[#list+1] = {debugprofilestop(), name}
+				list[#list+1] = {t, name}
 			end
 		end
 	end
 	if compareAuraApplied then
 		for id,tbl in next, compareAuraApplied do
 			for npcId, list in next, tbl do
-				list[#list+1] = {debugprofilestop(), name}
+				list[#list+1] = {t, name}
 			end
 		end
 	end
 	if compareUnitSuccess then
 		for id,tbl in next, compareUnitSuccess do
 			for npcId, list in next, tbl do
-				list[#list+1] = {debugprofilestop(), name}
+				list[#list+1] = {t, name}
 			end
 		end
 	end
 	if compareEmotes then
 		for id,tbl in next, compareEmotes do
 			for npcName, list in next, tbl do
-				list[#list+1] = {debugprofilestop(), name}
+				list[#list+1] = {t, name}
 			end
 		end
 	end
@@ -781,21 +784,39 @@ do
 				if not compareSuccess then compareSuccess = {} end
 				if not compareSuccess[spellId] then compareSuccess[spellId] = {} end
 				local npcId = MobId(sourceGUID, true)
-				if not compareSuccess[spellId][npcId] then compareSuccess[spellId][npcId] = {compareStartTime} end
+				if not compareSuccess[spellId][npcId] then
+					if previousSpecialEvent then
+						compareSuccess[spellId][npcId] = {{compareStartTime, previousSpecialEvent[1], previousSpecialEvent[2]}}
+					else
+						compareSuccess[spellId][npcId] = {compareStartTime}
+					end
+				end
 				compareSuccess[spellId][npcId][#compareSuccess[spellId][npcId]+1] = debugprofilestop()
 			end
 			if event == "SPELL_CAST_START" and (not sourceName or (band(sourceFlags, mineOrPartyOrRaid) == 0 and not find(sourceGUID, "Player", nil, true))) then
 				if not compareStart then compareStart = {} end
 				if not compareStart[spellId] then compareStart[spellId] = {} end
 				local npcId = MobId(sourceGUID, true)
-				if not compareStart[spellId][npcId] then compareStart[spellId][npcId] = {compareStartTime} end
+				if not compareStart[spellId][npcId] then
+					if previousSpecialEvent then
+						compareStart[spellId][npcId] = {{compareStartTime, previousSpecialEvent[1], previousSpecialEvent[2]}}
+					else
+						compareStart[spellId][npcId] = {compareStartTime}
+					end
+				end
 				compareStart[spellId][npcId][#compareStart[spellId][npcId]+1] = debugprofilestop()
 			end
 			if event == "SPELL_AURA_APPLIED" and (not sourceName or (band(sourceFlags, mineOrPartyOrRaid) == 0 and not find(sourceGUID, "Player", nil, true))) then
 				if not compareAuraApplied then compareAuraApplied = {} end
 				if not compareAuraApplied[spellId] then compareAuraApplied[spellId] = {} end
 				local npcId = MobId(sourceGUID, true)
-				if not compareAuraApplied[spellId][npcId] then compareAuraApplied[spellId][npcId] = {compareStartTime} end
+				if not compareAuraApplied[spellId][npcId] then
+					if previousSpecialEvent then
+						compareAuraApplied[spellId][npcId] = {{compareStartTime, previousSpecialEvent[1], previousSpecialEvent[2]}}
+					else
+						compareAuraApplied[spellId][npcId] = {compareStartTime}
+					end
+				end
 				compareAuraApplied[spellId][npcId][#compareAuraApplied[spellId][npcId]+1] = debugprofilestop()
 			end
 
@@ -1013,7 +1034,13 @@ do
 				if not compareUnitSuccess then compareUnitSuccess = {} end
 				if not compareUnitSuccess[spellId] then compareUnitSuccess[spellId] = {} end
 				local npcId = MobId(UnitGUID(unit), true)
-				if not compareUnitSuccess[spellId][npcId] then compareUnitSuccess[spellId][npcId] = {compareStartTime} end
+				if not compareUnitSuccess[spellId][npcId] then
+					if previousSpecialEvent then
+						compareUnitSuccess[spellId][npcId] = {{compareStartTime, previousSpecialEvent[1], previousSpecialEvent[2]}}
+					else
+						compareUnitSuccess[spellId][npcId] = {compareStartTime}
+					end
+				end
 				compareUnitSuccess[spellId][npcId][#compareUnitSuccess[spellId][npcId]+1] = debugprofilestop()
 
 				if specialEvents.UNIT_SPELLCAST_SUCCEEDED[spellId] then
@@ -1186,7 +1213,13 @@ function sh.CHAT_MSG_RAID_BOSS_EMOTE(msg, npcName, ...)
 		if spellId then
 			if not compareEmotes then compareEmotes = {} end
 			if not compareEmotes[spellId] then compareEmotes[spellId] = {} end
-			if not compareEmotes[spellId][npcName] then compareEmotes[spellId][npcName] = {compareStartTime} end
+			if not compareEmotes[spellId][npcName] then
+				if previousSpecialEvent then
+					compareEmotes[spellId][npcName] = {{compareStartTime, previousSpecialEvent[1], previousSpecialEvent[2]}}
+				else
+					compareEmotes[spellId][npcName] = {compareStartTime}
+				end
+			end
 			compareEmotes[spellId][npcName][#compareEmotes[spellId][npcName]+1] = debugprofilestop()
 		end
 	end
@@ -1614,6 +1647,7 @@ do
 			collectNameplates = {}
 			hiddenUnitAuraCollector = {}
 			playerSpellCollector = {}
+			previousSpecialEvent = nil
 			compareStartTime = debugprofilestop()
 			logStartTime = compareStartTime / 1000
 			local _, instanceType, diff, _, _, _, _, instanceId = GetInstanceInfo()
@@ -1722,8 +1756,15 @@ function Transcriptor:StopLog(silent)
 						local str
 						for i = 2, #list do
 							if not str then
-								local t = list[i] - list[1]
-								str = format("%s = pull:%.1f", n, t/1000)
+								if type(list[1]) == "table" then
+									local sincePull = list[i] - list[1][1]
+									local sincePreviousEvent = list[i] - list[1][2]
+									local previousEventName = list[1][3]
+									str = format("%s = pull:%.1f/%s/%.1f", n, sincePull/1000, previousEventName, sincePreviousEvent/1000)
+								else
+									local sincePull = list[i] - list[1]
+									str = format("%s = pull:%.1f", n, sincePull/1000)
+								end
 							else
 								if type(list[i]) == "table" then
 									if type(list[i-1]) == "number" then
@@ -1785,8 +1826,15 @@ function Transcriptor:StopLog(silent)
 						local str
 						for i = 2, #list do
 							if not str then
-								local t = list[i] - list[1]
-								str = format("%s = pull:%.1f", n, t/1000)
+								if type(list[1]) == "table" then
+									local sincePull = list[i] - list[1][1]
+									local sincePreviousEvent = list[i] - list[1][2]
+									local previousEventName = list[1][3]
+									str = format("%s = pull:%.1f/%s/%.1f", n, sincePull/1000, previousEventName, sincePreviousEvent/1000)
+								else
+									local sincePull = list[i] - list[1]
+									str = format("%s = pull:%.1f", n, sincePull/1000)
+								end
 							else
 								if type(list[i]) == "table" then
 									if type(list[i-1]) == "number" then
@@ -1849,8 +1897,15 @@ function Transcriptor:StopLog(silent)
 						local zeroCounter = 1
 						for i = 2, #list do
 							if not str then
-								local t = list[i] - list[1]
-								str = format("%s = pull:%.1f", n, t/1000)
+								if type(list[1]) == "table" then
+									local sincePull = list[i] - list[1][1]
+									local sincePreviousEvent = list[i] - list[1][2]
+									local previousEventName = list[1][3]
+									str = format("%s = pull:%.1f/%s/%.1f", n, sincePull/1000, previousEventName, sincePreviousEvent/1000)
+								else
+									local sincePull = list[i] - list[1]
+									str = format("%s = pull:%.1f", n, sincePull/1000)
+								end
 							else
 								if type(list[i]) == "table" then
 									if type(list[i-1]) == "number" then
@@ -1931,8 +1986,15 @@ function Transcriptor:StopLog(silent)
 							local str
 							for i = 2, #list do
 								if not str then
-									local t = list[i] - list[1]
-									str = format("%s = pull:%.1f", n, t/1000)
+									if type(list[1]) == "table" then
+										local sincePull = list[i] - list[1][1]
+										local sincePreviousEvent = list[i] - list[1][2]
+										local previousEventName = list[1][3]
+										str = format("%s = pull:%.1f/%s/%.1f", n, sincePull/1000, previousEventName, sincePreviousEvent/1000)
+									else
+										local sincePull = list[i] - list[1]
+										str = format("%s = pull:%.1f", n, sincePull/1000)
+									end
 								else
 									if type(list[i]) == "table" then
 										if type(list[i-1]) == "number" then
@@ -1995,8 +2057,15 @@ function Transcriptor:StopLog(silent)
 						local str
 						for i = 2, #list do
 							if not str then
-								local t = list[i] - list[1]
-								str = format("%s = pull:%.1f", n, t/1000)
+								if type(list[1]) == "table" then
+									local sincePull = list[i] - list[1][1]
+									local sincePreviousEvent = list[i] - list[1][2]
+									local previousEventName = list[1][3]
+									str = format("%s = pull:%.1f/%s/%.1f", n, sincePull/1000, previousEventName, sincePreviousEvent/1000)
+								else
+									local sincePull = list[i] - list[1]
+									str = format("%s = pull:%.1f", n, sincePull/1000)
+								end
 							else
 								if type(list[i]) == "table" then
 									if type(list[i-1]) == "number" then
