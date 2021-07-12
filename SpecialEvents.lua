@@ -190,7 +190,8 @@ tbl.specialEvents = {
 		[352051] = { -- Necrotic Surge
 			[175559] = function() -- Kel'Thuzad
 				if not tbl.data[1] then
-					return "Stage 1"
+					local power = UnitPower("boss1")
+					return ("Stage 1 (%s)"):format(power or "?")
 				end
 			end,
 		},
@@ -207,7 +208,8 @@ tbl.specialEvents = {
 		[352051] = { -- Necrotic Surge
 			[175559] = function() -- Kel'Thuzad
 				if not tbl.data[1] then
-					return "Stage 1"
+					local power = UnitPower("boss1")
+					return ("Stage 1 (%s)"):format(power or "?")
 				end
 			end,
 		},
@@ -465,7 +467,8 @@ tbl.specialEvents = {
 		-- [[ Sanctum of Domination ]] --
 		[176929] = function() -- Remnant of Kel'Thuzad
 			tbl.data[1] = true
-			return "Stage 3"
+			local power = UnitPower("boss1")
+			return ("Stage 3 (%s)"):format(power or "?")
 		end,
 	},
 }
