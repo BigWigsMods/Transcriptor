@@ -99,6 +99,43 @@ tbl.specialEvents = {
 		[350745] = { -- Maw Power (Set to 00)  [DNT]
 			[175726] = "Stage 2" -- Skyja
 		},
+
+		-- [[ Sepulcher of the First Ones ]] --
+		[363976] = { -- Shadestep
+			[181954] = "Intermission" -- Anduin Wrynn
+		},
+		[363021] = { -- Return to Kingsmourne
+			[181954] = function() -- Anduin Wrynn
+				tbl.data[1] = (tbl.data[1] or 1) + 1
+				return "Stage " .. tbl.data[1]
+			end
+		},
+		[34098] = { -- ClearAllDebuffs
+			[181549] = function() -- Prototype of War
+				if (tbl.data[1] or 0) < 2 then
+					tbl.data[1] = 2
+					return "Stage 2"
+				end
+			end,
+			[181551] = function() -- Prototype of Duty
+				if (tbl.data[1] or 0) < 2 then
+					tbl.data[1] = 2
+					return "Stage 2"
+				end
+			end,
+			[181546] = function() -- Prototype of Renewal
+				if (tbl.data[1] or 0) < 3 then
+					tbl.data[1] = 3
+					return "Stage 3"
+				end
+			end,
+			[181548] = function() -- Prototype of Absolution
+				if (tbl.data[1] or 0) < 3 then
+					tbl.data[1] = 3
+					return "Stage 3"
+				end
+			end,
+		},
 	},
 	["UNIT_SPELLCAST_INTERRUPTED"] = {
 		-- [[ Battle of Dazar'Alor ]]--
@@ -203,8 +240,17 @@ tbl.specialEvents = {
 				end
 			end,
 		},
+
+		-- [[ Sepulcher of the First Ones ]] --
+		[361643] = { -- Siphon Reservoir
+			[181224] = "Siphoning" -- Dausegne
+		},
+		[363139] = { -- Decipher Relic
+			[183501] = "Intermission" -- Artificer Xy'mox
+		},
 	},
 	["SPELL_AURA_APPLIED_DOSE"] = {
+		-- [[ Sanctum Of Domination ]] --
 		[352051] = { -- Necrotic Surge
 			[175559] = function() -- Kel'Thuzad
 				if not tbl.data[1] then
@@ -310,6 +356,17 @@ tbl.specialEvents = {
 				return "Intermission "..tbl.data[1].." Over"
 			end,
 		},
+
+		-- [[ Sepulcher of the First Ones ]] --
+		[361651] = { -- Siphoned Barrier
+			[181224] = "Barrier Removed", -- Dausegne
+		},
+		[363139] = { -- Decipher Relic
+			[183501] = function() -- Artificer Xy'mox
+				tbl.data[1] = (tbl.data[1] or 1) + 1
+				return "Stage "..tbl.data[1]
+			end,
+		},
 	},
 	["SPELL_CAST_START"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -400,6 +457,20 @@ tbl.specialEvents = {
 		},
 		[357102] = { -- Raid Portal: Oribos
 			[176533] = "Stage 2 End", -- Lady Jaina Proudmoore // Sylvanas Windrunner Encounter
+		},
+
+		-- [[ Sepulcher of the First Ones ]] --
+		[359770] = { -- Unending Hunger
+			[181395] = "Burrow", -- Skolex
+		},
+		[363130] = { -- Synthesize
+			[182169] = "Synthesize", -- Lihuvim
+		},
+		[359236] = { -- Relocation Form
+			[180906] = "Stage 2", -- Halondrus
+		},
+		[359235] = { -- Reclamation Form
+			[180906] = "Stage 1", -- Halondrus
 		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
