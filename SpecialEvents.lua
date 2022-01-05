@@ -367,6 +367,9 @@ tbl.specialEvents = {
 				return "Stage "..tbl.data[1]
 			end,
 		},
+		[363130] = { -- Synthesize
+			[182169] = "Synthesize Over", -- Lihuvim
+		},
 	},
 	["SPELL_CAST_START"] = {
 		--[[ Tomb of Sargeras ]]--
