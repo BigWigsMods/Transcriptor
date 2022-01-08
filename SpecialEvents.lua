@@ -101,15 +101,6 @@ tbl.specialEvents = {
 		},
 
 		-- [[ Sepulcher of the First Ones ]] --
-		[363976] = { -- Shadestep
-			[181954] = "Intermission" -- Anduin Wrynn
-		},
-		[363021] = { -- Return to Kingsmourne
-			[181954] = function() -- Anduin Wrynn
-				tbl.data[1] = (tbl.data[1] or 1) + 1
-				return "Stage " .. tbl.data[1]
-			end
-		},
 		[34098] = { -- ClearAllDebuffs
 			[181549] = function() -- Prototype of War
 				if (tbl.data[1] or 0) < 2 then
@@ -248,6 +239,9 @@ tbl.specialEvents = {
 		[363139] = { -- Decipher Relic
 			[183501] = "Intermission" -- Artificer Xy'mox
 		},
+		[362505] = { -- Domination's Grasp
+			[181954] = "Intermission" -- Anduin Wrynn
+		},
 	},
 	["SPELL_AURA_APPLIED_DOSE"] = {
 		-- [[ Sanctum Of Domination ]] --
@@ -369,6 +363,12 @@ tbl.specialEvents = {
 		},
 		[363130] = { -- Synthesize
 			[182169] = "Synthesize Over", -- Lihuvim
+		},
+		[362505] = { -- Domination's Grasp
+			[181954] = function() -- Anduin Wrynn
+				tbl.data[1] = (tbl.data[1] or 1) + 1
+				return "Stage " .. tbl.data[1]
+			end
 		},
 	},
 	["SPELL_CAST_START"] = {
