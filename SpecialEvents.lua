@@ -99,34 +99,6 @@ tbl.specialEvents = {
 		[350745] = { -- Maw Power (Set to 00)  [DNT]
 			[175726] = "Stage 2" -- Skyja
 		},
-
-		-- [[ Sepulcher of the First Ones ]] --
-		[34098] = { -- ClearAllDebuffs
-			[181549] = function() -- Prototype of War
-				if (tbl.data[1] or 0) < 2 then
-					tbl.data[1] = 2
-					return "Stage 2"
-				end
-			end,
-			[181551] = function() -- Prototype of Duty
-				if (tbl.data[1] or 0) < 2 then
-					tbl.data[1] = 2
-					return "Stage 2"
-				end
-			end,
-			[181546] = function() -- Prototype of Renewal
-				if (tbl.data[1] or 0) < 3 then
-					tbl.data[1] = 3
-					return "Stage 3"
-				end
-			end,
-			[181548] = function() -- Prototype of Absolution
-				if (tbl.data[1] or 0) < 3 then
-					tbl.data[1] = 3
-					return "Stage 3"
-				end
-			end,
-		},
 	},
 	["UNIT_SPELLCAST_INTERRUPTED"] = {
 		-- [[ Battle of Dazar'Alor ]]--
@@ -474,6 +446,12 @@ tbl.specialEvents = {
 		},
 		[359235] = { -- Reclamation Form
 			[180906] = "Stage 1", -- Halondrus
+		},
+		[361300] = { -- Reconstruction
+			[181549] = function() -- Prototype of War // They all cast it, we only have to track 1 boss
+				tbl.data[1] = (tbl.data[1] or 1) + 1
+				return "Stage "..tbl.data[1]
+			end,
 		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
