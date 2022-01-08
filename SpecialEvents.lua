@@ -205,9 +205,6 @@ tbl.specialEvents = {
 		},
 
 		-- [[ Sepulcher of the First Ones ]] --
-		[361643] = { -- Siphon Reservoir
-			[181224] = "Siphoning" -- Dausegne
-		},
 		[363139] = { -- Decipher Relic
 			[183501] = "Intermission" -- Artificer Xy'mox
 		},
@@ -435,6 +432,9 @@ tbl.specialEvents = {
 		},
 
 		-- [[ Sepulcher of the First Ones ]] --
+		[361630] = { -- Teleport
+			[181224] = "Teleport" -- Dausegne
+		},
 		[359770] = { -- Unending Hunger
 			[181395] = "Burrow", -- Skolex
 		},
