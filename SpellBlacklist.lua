@@ -3262,5 +3262,6 @@ tbl.blacklist = {
 [355338] = true, -- Black Tie Affair
 [355339] = true, -- Black Tie Affair
 [355520] = true, -- Black Tie Affair
+[356511] = true, -- Endless Duty
 [357972] = true, -- Adaptive Armor Fragment
 }
