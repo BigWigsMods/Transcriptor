@@ -321,6 +321,9 @@ tbl.specialEvents = {
 		},
 
 		-- [[ Sepulcher of the First Ones ]] --
+		[360879] = { -- Ancient Defenses
+			[180773] = "Stage 2", -- Vigilant Guardian
+		},
 		[361651] = { -- Siphoned Barrier
 			[181224] = "Barrier Removed", -- Dausegne
 		},
