@@ -208,7 +208,7 @@ tbl.specialEvents = {
 		[363139] = { -- Decipher Relic
 			[183501] = "Intermission" -- Artificer Xy'mox
 		},
-		[362505] = { -- Domination's Grasp
+		[365216] = { -- Domination's Grasp
 			[181954] = "Intermission" -- Anduin Wrynn
 		},
 	},
@@ -336,7 +336,7 @@ tbl.specialEvents = {
 		[363130] = { -- Synthesize
 			[182169] = "Synthesize Over", -- Lihuvim
 		},
-		[362505] = { -- Domination's Grasp
+		[365216] = { -- Domination's Grasp
 			[181954] = function() -- Anduin Wrynn
 				tbl.data[1] = (tbl.data[1] or 1) + 1
 				return "Stage " .. tbl.data[1]
