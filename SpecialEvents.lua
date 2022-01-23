@@ -497,6 +497,14 @@ tbl.specialEvents = {
 		[349985] = { -- Encore of Torment
 			[175727] = "Dance" -- Soulrender Dormazain
 		},
+
+		-- [[ Sepulcher of the First Ones ]] --
+		[367711] = { -- Decipher Relic
+			[183501] = function() -- Artificer Xy'mox
+				tbl.data[1] = (tbl.data[1] or 1) + 1
+				return "Stage "..tbl.data[1]
+			end,
+		},
 		[357729] = { -- Blasphemy
 			[178072] = function() -- Anduin Wrynn // Sylvanas Windrunner Encounter
 				if not tbl.data[3] then -- We only want to trigger this once
