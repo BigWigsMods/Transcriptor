@@ -762,9 +762,9 @@ do
 	function sh.COMBAT_LOG_EVENT_UNFILTERED()
 		local timeStamp, event, caster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, _, extraSpellId, amount = CombatLogGetCurrentEventInfo()
 
-		if (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") and not hiddenAuraPermList[spellId] then
-			hiddenAuraPermList[spellId] = true
-		end
+		--if (event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REMOVED") and not hiddenAuraPermList[spellId] then
+		--	hiddenAuraPermList[spellId] = true
+		--end
 
 		if badEvents[event] or
 		   (event == "UNIT_DIED" and band(destFlags, mineOrPartyOrRaid) ~= 0 and band(destFlags, guardian) == guardian) or -- Guardian deaths, player deaths can explain debuff removal
@@ -782,48 +782,48 @@ do
 
 			if event == "SPELL_CAST_SUCCESS" and (not sourceName or (band(sourceFlags, mineOrPartyOrRaid) == 0 and not find(sourceGUID, "Player", nil, true))) then
 				if not compareSuccess then compareSuccess = {} end
-				if not compareSuccess[spellId] then compareSuccess[spellId] = {} end
+				if not compareSuccess[spellName] then compareSuccess[spellName] = {} end
 				local npcId = MobId(sourceGUID, true)
-				if not compareSuccess[spellId][npcId] then
+				if not compareSuccess[spellName][npcId] then
 					if previousSpecialEvent then
-						compareSuccess[spellId][npcId] = {{compareStartTime, previousSpecialEvent[1], previousSpecialEvent[2]}}
+						compareSuccess[spellName][npcId] = {{compareStartTime, previousSpecialEvent[1], previousSpecialEvent[2]}}
 					else
-						compareSuccess[spellId][npcId] = {compareStartTime}
+						compareSuccess[spellName][npcId] = {compareStartTime}
 					end
 				end
-				compareSuccess[spellId][npcId][#compareSuccess[spellId][npcId]+1] = debugprofilestop()
+				compareSuccess[spellName][npcId][#compareSuccess[spellName][npcId]+1] = debugprofilestop()
 			end
 			if event == "SPELL_CAST_START" and (not sourceName or (band(sourceFlags, mineOrPartyOrRaid) == 0 and not find(sourceGUID, "Player", nil, true))) then
 				if not compareStart then compareStart = {} end
-				if not compareStart[spellId] then compareStart[spellId] = {} end
+				if not compareStart[spellName] then compareStart[spellName] = {} end
 				local npcId = MobId(sourceGUID, true)
-				if not compareStart[spellId][npcId] then
+				if not compareStart[spellName][npcId] then
 					if previousSpecialEvent then
-						compareStart[spellId][npcId] = {{compareStartTime, previousSpecialEvent[1], previousSpecialEvent[2]}}
+						compareStart[spellName][npcId] = {{compareStartTime, previousSpecialEvent[1], previousSpecialEvent[2]}}
 					else
-						compareStart[spellId][npcId] = {compareStartTime}
+						compareStart[spellName][npcId] = {compareStartTime}
 					end
 				end
-				compareStart[spellId][npcId][#compareStart[spellId][npcId]+1] = debugprofilestop()
+				compareStart[spellName][npcId][#compareStart[spellName][npcId]+1] = debugprofilestop()
 			end
 			if event == "SPELL_AURA_APPLIED" and (not sourceName or (band(sourceFlags, mineOrPartyOrRaid) == 0 and not find(sourceGUID, "Player", nil, true))) then
 				if not compareAuraApplied then compareAuraApplied = {} end
-				if not compareAuraApplied[spellId] then compareAuraApplied[spellId] = {} end
+				if not compareAuraApplied[spellName] then compareAuraApplied[spellName] = {} end
 				local npcId = MobId(sourceGUID, true)
-				if not compareAuraApplied[spellId][npcId] then
+				if not compareAuraApplied[spellName][npcId] then
 					if previousSpecialEvent then
-						compareAuraApplied[spellId][npcId] = {{compareStartTime, previousSpecialEvent[1], previousSpecialEvent[2]}}
+						compareAuraApplied[spellName][npcId] = {{compareStartTime, previousSpecialEvent[1], previousSpecialEvent[2]}}
 					else
-						compareAuraApplied[spellId][npcId] = {compareStartTime}
+						compareAuraApplied[spellName][npcId] = {compareStartTime}
 					end
 				end
-				compareAuraApplied[spellId][npcId][#compareAuraApplied[spellId][npcId]+1] = debugprofilestop()
+				compareAuraApplied[spellName][npcId][#compareAuraApplied[spellName][npcId]+1] = debugprofilestop()
 			end
 
 			if sourceName and badPlayerFilteredEvents[event] and band(sourceFlags, mineOrPartyOrRaid) ~= 0 then
-				if not collectPlayerAuras then collectPlayerAuras = {} end
-				if not collectPlayerAuras[spellId] then collectPlayerAuras[spellId] = {} end
-				if not collectPlayerAuras[spellId][event] then collectPlayerAuras[spellId][event] = true end
+				--if not collectPlayerAuras then collectPlayerAuras = {} end
+				--if not collectPlayerAuras[spellId] then collectPlayerAuras[spellId] = {} end
+				--if not collectPlayerAuras[spellId][event] then collectPlayerAuras[spellId][event] = true end
 			end
 
 			if event == "UNIT_DIED" then
@@ -839,23 +839,22 @@ do
 			end
 
 			if event == "SPELL_DAMAGE" or event == "SPELL_MISSED" then
-				if dmgPrdcCache.spellId then
+				if dmgPrdcCache.spellName then
 					if dmgPrdcCache.count == 1 then
-						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.event, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.destGUID, dmgPrdcCache.destName, dmgPrdcCache.spellId, dmgPrdcCache.spellName)
+						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.event, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.destGUID, dmgPrdcCache.destName, dmgPrdcCache.spellName)
 					else
-						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_PERIODIC_DAMAGE[CONDENSED]#%s#%s#%d Targets#%d#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.count, dmgPrdcCache.spellId, dmgPrdcCache.spellName)
+						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_PERIODIC_DAMAGE[CONDENSED]#%s#%s Targets#%d#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.count, dmgPrdcCache.spellName)
 					end
-					dmgPrdcCache.spellId = nil
+					dmgPrdcCache.spellName = nil
 				end
 
-				if spellId == dmgCache.spellId then
+				if spellName == dmgCache.spellName then
 					if timeStamp - dmgCache.timeStamp > 0.2 then
 						if dmgCache.count == 1 then
-							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.event, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.destGUID, dmgCache.destName, dmgCache.spellId, dmgCache.spellName)
+							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%s", dmgCache.timeStop, dmgCache.time, dmgCache.event, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.destGUID, dmgCache.destName, dmgCache.spellName)
 						else
-							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_DAMAGE[CONDENSED]#%s#%s#%d Targets#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.count, dmgCache.spellId, dmgCache.spellName)
+							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_DAMAGE[CONDENSED]#%s#%s#%d Targets#%s", dmgCache.timeStop, dmgCache.time, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.count, dmgCache.spellName)
 						end
-						dmgCache.spellId = spellId
 						dmgCache.sourceGUID = sourceGUID
 						dmgCache.sourceName = sourceName or "nil"
 						dmgCache.spellName = spellName
@@ -870,14 +869,13 @@ do
 						dmgCache.count = dmgCache.count + 1
 					end
 				else
-					if dmgCache.spellId then
+					if dmgCache.spellName then
 						if dmgCache.count == 1 then
-							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.event, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.destGUID, dmgCache.destName, dmgCache.spellId, dmgCache.spellName)
+							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%s", dmgCache.timeStop, dmgCache.time, dmgCache.event, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.destGUID, dmgCache.destName, dmgCache.spellName)
 						else
-							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_DAMAGE[CONDENSED]#%s#%s#%d Targets#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.count, dmgCache.spellId, dmgCache.spellName)
+							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_DAMAGE[CONDENSED]#%s#%s#%d Targets#%s", dmgCache.timeStop, dmgCache.time, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.count, dmgCache.spellName)
 						end
 					end
-					dmgCache.spellId = spellId
 					dmgCache.sourceGUID = sourceGUID
 					dmgCache.sourceName = sourceName or "nil"
 					dmgCache.spellName = spellName
@@ -890,23 +888,22 @@ do
 					dmgCache.destName = destName
 				end
 			elseif event == "SPELL_PERIODIC_DAMAGE" or event == "SPELL_PERIODIC_MISSED" then
-				if dmgCache.spellId then
+				if dmgCache.spellName then
 					if dmgCache.count == 1 then
-						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.event, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.destGUID, dmgCache.destName, dmgCache.spellId, dmgCache.spellName)
+						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%s", dmgCache.timeStop, dmgCache.time, dmgCache.event, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.destGUID, dmgCache.destName, dmgCache.spellName)
 					else
-						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_DAMAGE[CONDENSED]#%s#%s#%d Targets#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.count, dmgCache.spellId, dmgCache.spellName)
+						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_DAMAGE[CONDENSED]#%s#%s#%d Targets#%s", dmgCache.timeStop, dmgCache.time, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.count, dmgCache.spellName)
 					end
-					dmgCache.spellId = nil
+					dmgCache.spellName = nil
 				end
 
-				if spellId == dmgPrdcCache.spellId then
+				if spellName == dmgPrdcCache.spellName then
 					if timeStamp - dmgPrdcCache.timeStamp > 0.2 then
 						if dmgPrdcCache.count == 1 then
-							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.event, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.destGUID, dmgPrdcCache.destName, dmgPrdcCache.spellId, dmgPrdcCache.spellName)
+							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.event, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.destGUID, dmgPrdcCache.destName, dmgPrdcCache.spellName)
 						else
-							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_PERIODIC_DAMAGE[CONDENSED]#%s#%s#%d Targets#%d#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.count, dmgPrdcCache.spellId, dmgPrdcCache.spellName)
+							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_PERIODIC_DAMAGE[CONDENSED]#%s#%s#%d Targets#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.count, dmgPrdcCache.spellName)
 						end
-						dmgPrdcCache.spellId = spellId
 						dmgPrdcCache.sourceGUID = sourceGUID
 						dmgPrdcCache.sourceName = sourceName or "nil"
 						dmgPrdcCache.spellName = spellName
@@ -921,14 +918,13 @@ do
 						dmgPrdcCache.count = dmgPrdcCache.count + 1
 					end
 				else
-					if dmgPrdcCache.spellId then
+					if dmgPrdcCache.spellName then
 						if dmgPrdcCache.count == 1 then
-							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.event, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.destGUID, dmgPrdcCache.destName, dmgPrdcCache.spellId, dmgPrdcCache.spellName)
+							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.event, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.destGUID, dmgPrdcCache.destName, dmgPrdcCache.spellName)
 						else
-							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_PERIODIC_DAMAGE[CONDENSED]#%s#%s#%d Targets#%d#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.count, dmgPrdcCache.spellId, dmgPrdcCache.spellName)
+							currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_PERIODIC_DAMAGE[CONDENSED]#%s#%s#%d Targets#%d#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.count, dmgPrdcCache.spellName)
 						end
 					end
-					dmgPrdcCache.spellId = spellId
 					dmgPrdcCache.sourceGUID = sourceGUID
 					dmgPrdcCache.sourceName = sourceName or "nil"
 					dmgPrdcCache.spellName = spellName
@@ -941,20 +937,20 @@ do
 					dmgPrdcCache.destName = destName
 				end
 			else
-				if dmgCache.spellId then
+				if dmgCache.spellName then
 					if dmgCache.count == 1 then
-						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.event, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.destGUID, dmgCache.destName, dmgCache.spellId, dmgCache.spellName)
+						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%s", dmgCache.timeStop, dmgCache.time, dmgCache.event, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.destGUID, dmgCache.destName, dmgCache.spellName)
 					else
-						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_DAMAGE[CONDENSED]#%s#%s#%d Targets#%d#%s", dmgCache.timeStop, dmgCache.time, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.count, dmgCache.spellId, dmgCache.spellName)
+						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_DAMAGE[CONDENSED]#%s#%s#%d Targets#%s", dmgCache.timeStop, dmgCache.time, dmgCache.sourceGUID, dmgCache.sourceName, dmgCache.count, dmgCache.spellName)
 					end
-					dmgCache.spellId = nil
-				elseif dmgPrdcCache.spellId then
+					dmgCache.spellName = nil
+				elseif dmgPrdcCache.spellName then
 					if dmgPrdcCache.count == 1 then
-						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%d#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.event, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.destGUID, dmgPrdcCache.destName, dmgPrdcCache.spellId, dmgPrdcCache.spellName)
+						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s#%s#%s#%s#%s#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.event, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.destGUID, dmgPrdcCache.destName, dmgPrdcCache.spellName)
 					else
-						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_PERIODIC_DAMAGE[CONDENSED]#%s#%s#%d Targets#%d#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.count, dmgPrdcCache.spellId, dmgPrdcCache.spellName)
+						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_PERIODIC_DAMAGE[CONDENSED]#%s#%s#%d Targets#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.count, dmgPrdcCache.spellName)
 					end
-					dmgPrdcCache.spellId = nil
+					dmgPrdcCache.spellName = nil
 				end
 
 				if shouldLogFlags and (sourceName or destName) and badPlayerFilteredEvents[event] then
@@ -1297,7 +1293,7 @@ local wowEvents = {
 	"UNIT_SPELLCAST_CHANNEL_STOP",
 	"UNIT_POWER_UPDATE",
 	"UPDATE_UI_WIDGET",
-	"UNIT_AURA",
+	--"UNIT_AURA",
 	"UNIT_TARGET",
 	"INSTANCE_ENCOUNTER_ENGAGE_UNIT",
 	"UNIT_TARGETABLE_CHANGED",
@@ -1626,23 +1622,23 @@ do
 			wipe(data)
 
 			hiddenAuraEngageList = {}
-			do
-				local UnitAura, UnitPosition = UnitAura, UnitPosition
-				local _, _, _, myInstance = UnitPosition("player")
-				for unit in Transcriptor:IterateGroup() do
-					local _, _, _, tarInstanceId = UnitPosition(unit)
-					if tarInstanceId == myInstance then
-						for i = 1, 100 do
-							local _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i)
-							if not spellId then
-								break
-							elseif not hiddenAuraEngageList[spellId] then
-								hiddenAuraEngageList[spellId] = true
-							end
-						end
-					end
-				end
-			end
+			--do
+			--	local UnitAura, UnitPosition = UnitAura, UnitPosition
+			--	local _, _, _, myInstance = UnitPosition("player")
+			--	for unit in Transcriptor:IterateGroup() do
+			--		local _, _, _, tarInstanceId = UnitPosition(unit)
+			--		if tarInstanceId == myInstance then
+			--			for i = 1, 100 do
+			--				local _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i)
+			--				if not spellId then
+			--					break
+			--				elseif not hiddenAuraEngageList[spellId] then
+			--					hiddenAuraEngageList[spellId] = true
+			--				end
+			--			end
+			--		end
+			--	end
+			--end
 
 			collectNameplates = {}
 			hiddenUnitAuraCollector = {}
@@ -1750,9 +1746,9 @@ function Transcriptor:StopLog(silent)
 			currentLog.TIMERS = {}
 			if compareSuccess then
 				currentLog.TIMERS.SPELL_CAST_SUCCESS = {}
-				for id,tbl in next, compareSuccess do
+				for spellName,tbl in next, compareSuccess do
 					for npcId, list in next, tbl do
-						local n = format("%s-%d-npc:%s", GetSpellInfo(id), id, npcId)
+						local n = format("%s-npc:%s", spellName, npcId)
 						local str
 						for i = 2, #list do
 							if not str then
@@ -1820,9 +1816,9 @@ function Transcriptor:StopLog(silent)
 			end
 			if compareStart then
 				currentLog.TIMERS.SPELL_CAST_START = {}
-				for id,tbl in next, compareStart do
+				for spellName,tbl in next, compareStart do
 					for npcId, list in next, tbl do
-						local n = format("%s-%d-npc:%s", GetSpellInfo(id), id, npcId)
+						local n = format("%s-npc:%s", spellName, npcId)
 						local str
 						for i = 2, #list do
 							if not str then
@@ -1890,9 +1886,9 @@ function Transcriptor:StopLog(silent)
 			end
 			if compareAuraApplied then
 				currentLog.TIMERS.SPELL_AURA_APPLIED = {}
-				for id,tbl in next, compareAuraApplied do
+				for spellName,tbl in next, compareAuraApplied do
 					for npcId, list in next, tbl do
-						local n = format("%s-%d-npc:%s", GetSpellInfo(id), id, npcId)
+						local n = format("%s-npc:%s", spellName, npcId)
 						local str
 						local zeroCounter = 1
 						for i = 2, #list do
