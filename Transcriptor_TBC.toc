@@ -20,5 +20,5 @@ libs\LibDataBroker-1.1.lua
 
 SpellBlacklist.lua
 SpecialEvents.lua
-Transcriptor_Classic.lua
+Transcriptor_TBC.lua
 
