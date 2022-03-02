@@ -985,6 +985,8 @@ do
 	}
 	local bossUnits = {
 		boss1 = true, boss2 = true, boss3 = true, boss4 = true, boss5 = true,
+		boss6 = true, boss7 = true, boss8 = true, boss9 = true, boss10 = true,
+		boss11 = true, boss12 = true, boss13 = true, boss14 = true, boss15 = true,
 		arena1 = true, arena2 = true, arena3 = true, arena4 = true, arena5 = true,
 	}
 	local raidList = {
@@ -1114,6 +1116,8 @@ end
 do
 	local allowedPowerUnits = {
 		boss1 = true, boss2 = true, boss3 = true, boss4 = true, boss5 = true,
+		boss6 = true, boss7 = true, boss8 = true, boss9 = true, boss10 = true,
+		boss11 = true, boss12 = true, boss13 = true, boss14 = true, boss15 = true,
 		arena1 = true, arena2 = true, arena3 = true, arena4 = true, arena5 = true,
 		arenapet1 = true, arenapet2 = true, arenapet3 = true, arenapet4 = true, arenapet5 = true
 	}
