@@ -336,11 +336,17 @@ tbl.specialEvents = {
 		[363130] = { -- Synthesize
 			[182169] = "Synthesize Over", -- Lihuvim
 		},
+		[360115] = { -- Reclaim
+			[180906] = "Reclaim", -- Halondrus
+		},
 		[365216] = { -- Domination's Grasp
 			[181954] = function() -- Anduin Wrynn
 				tbl.data[1] = (tbl.data[1] or 1) + 1
 				return "Stage " .. tbl.data[1]
 			end
+		},
+		[360516] = { -- Infiltration
+			[181398] = "Infiltration Over" -- Malganis
 		},
 	},
 	["SPELL_CAST_START"] = {
@@ -455,6 +461,18 @@ tbl.specialEvents = {
 				tbl.data[1] = (tbl.data[1] or 1) + 1
 				return "Stage "..tbl.data[1]
 			end,
+		},
+		[360300] = { -- Swarm of Decay // Unto Darkness
+			[181398] = "Unto Darkness", -- Mal'Ganis
+		},
+		[360717] = { -- Infiltration of Dread
+			[181398] = "Infiltration", -- Mal'Ganis
+		},
+		[363533] = { -- Massive Bang
+			[182777] = "Massive Bang", -- Rygelon
+		},
+		[364114] = { -- Shatter Sphere
+			[182777] = "Shatter Sphere", -- Rygelon
 		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
