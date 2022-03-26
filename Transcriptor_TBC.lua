@@ -1741,7 +1741,7 @@ function Transcriptor:StopLog(silent)
 		end
 		if DBM and DBM.UnregisterCallback then
 			for i, event in next, dbmEvents do
-				DBM:UnregisterCallback(event)
+				DBM:UnregisterCallback(event, DBMEventHandler)
 			end
 		end
 		--Notify Stop
