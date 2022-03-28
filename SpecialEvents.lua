@@ -337,9 +337,9 @@ tbl.specialEvents = {
 			[182169] = "Synthesize Over", -- Lihuvim
 		},
 		[360115] = { -- Reclaim
-			[180906] = "Reclaim", -- Halondrus
+		[180906] = "Reclaim Broken", -- Halondrus
 		},
-		[365216] = { -- Domination's Grasp
+		[362505] = { -- Domination's Grasp
 			[181954] = function() -- Anduin Wrynn
 				tbl.data[1] = (tbl.data[1] or 1) + 1
 				return "Stage " .. tbl.data[1]
@@ -474,6 +474,12 @@ tbl.specialEvents = {
 		[364114] = { -- Shatter Sphere
 			[182777] = "Shatter Sphere", -- Rygelon
 		},
+		[367851] = { -- Relentless Domination
+			[180990] = "Stage 1 Over", -- Jailer
+		},
+		[367290] = { -- Unholy Attunement
+			[180990] = "Stage 2 Over", -- Jailer
+		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -530,6 +536,12 @@ tbl.specialEvents = {
 					return "Stage 3"
 				end
 			end,
+		},
+		[363332] = { -- Unbreaking Grasp
+			[180990] = "Stage 3", -- Jailer
+		},
+		[368383] = { -- Diverted Life Shield
+			[180990] = "Stage 4", -- Jailer
 		},
 	},
 	["UNIT_DIED"] = {
