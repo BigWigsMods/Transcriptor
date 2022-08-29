@@ -1,10 +1,16 @@
 ## Interface: 90207
 ## Title: Transcriptor
 ## Notes: Logging utility for boss encounters.
+## Notes-deDE: Logging utility for boss encounters.
+## Notes-ruRU: Утилита для логирования битв с боссами.
 ## Notes-zhCN: 战斗纪录器
 ## Notes-zhTW: 戰鬥紀錄器
 ## Notes-koKR: 우두머리 전투 기록 유틸리티입니다.
-## Notes-ruRU: Утилита для логирования битв с боссами.
+## Notes-frFR: Logging utility for boss encounters.
+## Notes-esES: Logging utility for boss encounters.
+## Notes-esMX: Logging utility for boss encounters.
+## Notes-itIT: Logging utility for boss encounters.
+## Notes-ptBR: Logging utility for boss encounters.
 ## Author: Funkydude
 ## Version: @project-version@
 ## X-Credits: Kyahx, Rabbit, MysticalOS, nebula169
