@@ -1,8 +1,8 @@
 ---
-name: Issue for Retail/Live
-about: Create a report about current WoW.
+name: Issue for Wrath of the Lich King Classic
+about: Create a report about Wrath of the Lich King Classic WoW.
 title: ''
-labels: retail
+labels: wotlkc
 assignees: ''
 ---
 
