@@ -1,4 +1,4 @@
-## Interface: 90205
+## Interface: 90207
 ## Title: Transcriptor
 ## Notes: Logging utility for boss encounters.
 ## Notes-zhCN: 战斗纪录器
