@@ -1,0 +1,24 @@
+## Interface: 30400
+## Title: Transcriptor
+## Notes: Logging utility for boss encounters.
+## Notes-zhCN: 战斗纪录器
+## Notes-zhTW: 戰鬥紀錄器
+## Notes-koKR: 우두머리 전투 기록 유틸리티입니다.
+## Notes-ruRU: Утилита для логирования битв с боссами.
+## Author: Funkydude
+## Version: @project-version@
+## X-Credits: Kyahx, Rabbit, MysticalOS, nebula169
+## X-Category: Development Tools
+## X-License: All Rights Reserved: You are free to fork and modify on GitHub, please ask us about anything else.
+## X-Website: https://github.com/BigWigsMods/Transcriptor
+## X-Curse-Project-ID: 14837
+## SavedVariables: TranscriptIgnore, TranscriptDB
+
+libs\LibStub.lua
+libs\CallbackHandler-1.0.lua
+libs\LibDataBroker-1.1.lua
+
+SpellBlacklist.lua
+SpecialEvents.lua
+Transcriptor_TBC.lua
+
