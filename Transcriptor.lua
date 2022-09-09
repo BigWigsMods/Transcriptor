@@ -657,6 +657,8 @@ do
 		[2437] = true, -- Lady Inerva Darkvein, static icon (widgetType:13)
 		[2438] = true, -- Lady Inerva Darkvein, static icon (widgetType:13)
 		[2439] = true, -- Lady Inerva Darkvein, static icon (widgetType:13)
+
+		[3457] = true, -- Stone Soup
 	}
 
 	-- Each widgetType has a different function to get all data for the widget.
