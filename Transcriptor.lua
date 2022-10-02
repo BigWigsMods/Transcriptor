@@ -1013,7 +1013,11 @@ do
 
 	function sh.UNIT_SPELLCAST_STOP(unit, castId, spellId, ...)
 		if safeUnit(unit) then
-			return format("%s(%s) -%s- [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
+			local maxHP = UnitHealthMax(unit)
+			local maxPower = UnitPowerMax(unit)
+			local hp = maxHP == 0 and maxHP or (UnitHealth(unit) / maxHP * 100)
+			local power = maxPower == 0 and maxPower or (UnitPower(unit) / maxPower * 100)
+			return format("%s<%.1f%%-%.1f%%>{Target:%s} -%s- [[%s]]", UnitName(unit), hp, power, UnitName(unit.."target"), GetSpellInfo(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
 		end
 	end
 	sh.UNIT_SPELLCAST_CHANNEL_STOP = sh.UNIT_SPELLCAST_STOP
@@ -1027,7 +1031,11 @@ do
 				end
 			end
 
-			return format("%s(%s) -%s- [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
+			local maxHP = UnitHealthMax(unit)
+			local maxPower = UnitPowerMax(unit)
+			local hp = maxHP == 0 and maxHP or (UnitHealth(unit) / maxHP * 100)
+			local power = maxPower == 0 and maxPower or (UnitPower(unit) / maxPower * 100)
+			return format("%s<%.1f%%-%.1f%%>{Target:%s} -%s- [[%s]]", UnitName(unit), hp, power, UnitName(unit.."target"), GetSpellInfo(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
 		end
 	end
 
@@ -1057,7 +1065,11 @@ do
 				end
 			end
 
-			return format("%s(%s) -%s- [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
+			local maxHP = UnitHealthMax(unit)
+			local maxPower = UnitPowerMax(unit)
+			local hp = maxHP == 0 and maxHP or (UnitHealth(unit) / maxHP * 100)
+			local power = maxPower == 0 and maxPower or (UnitPower(unit) / maxPower * 100)
+			return format("%s<%.1f%%-%.1f%%>{Target:%s} -%s- [[%s]]", UnitName(unit), hp, power, UnitName(unit.."target"), GetSpellInfo(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
 		elseif raidList[unit] and not playerSpellBlacklist[spellId] then
 			if not playerSpellCollector[spellId] then
 				playerSpellCollector[spellId] = strjoin("#", tostringall(spellId, GetSpellInfo(spellId), unit, UnitName(unit)))
@@ -1069,14 +1081,24 @@ do
 		if safeUnit(unit) then
 			local _, _, _, startTime, endTime = UnitCastingInfo(unit)
 			local time = ((endTime or 0) - (startTime or 0)) / 1000
-			return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId), time, strjoin(":", tostringall(unit, castId, spellId, ...)))
+
+			local maxHP = UnitHealthMax(unit)
+			local maxPower = UnitPowerMax(unit)
+			local hp = maxHP == 0 and maxHP or (UnitHealth(unit) / maxHP * 100)
+			local power = maxPower == 0 and maxPower or (UnitPower(unit) / maxPower * 100)
+			return format("%s<%.1f%%-%.1f%%>{Target:%s} -%s- [[%s]]", UnitName(unit), hp, power, UnitName(unit.."target"), GetSpellInfo(spellId), time, strjoin(":", tostringall(unit, castId, spellId, ...)))
 		end
 	end
 	function sh.UNIT_SPELLCAST_CHANNEL_START(unit, castId, spellId, ...)
 		if safeUnit(unit) then
 			local _, _, _, startTime, endTime = UnitChannelInfo(unit)
 			local time = ((endTime or 0) - (startTime or 0)) / 1000
-			return format("%s(%s) - %s - %ss [[%s]]", UnitName(unit), UnitName(unit.."target"), GetSpellInfo(spellId), time, strjoin(":", tostringall(unit, castId, spellId, ...)))
+
+			local maxHP = UnitHealthMax(unit)
+			local maxPower = UnitPowerMax(unit)
+			local hp = maxHP == 0 and maxHP or (UnitHealth(unit) / maxHP * 100)
+			local power = maxPower == 0 and maxPower or (UnitPower(unit) / maxPower * 100)
+			return format("%s<%.1f%%-%.1f%%>{Target:%s} -%s- [[%s]]", UnitName(unit), hp, power, UnitName(unit.."target"), GetSpellInfo(spellId), time, strjoin(":", tostringall(unit, castId, spellId, ...)))
 		end
 	end
 
