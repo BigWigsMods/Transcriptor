@@ -51,7 +51,7 @@ local IsAltKeyDown, EJ_GetEncounterInfo, C_EncounterJournal_GetSectionInfo, C_Ma
 local UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo = UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo
 local UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification = UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification
 local UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth = UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth
-local UnitLevel, UnitCreatureType = UnitLevel, UnitCreatureType
+local UnitLevel, UnitCreatureType, UnitPercentHealthFromGUID, UnitTokenFromGUID = UnitLevel, UnitCreatureType, UnitPercentHealthFromGUID, UnitTokenFromGUID
 local GetInstanceInfo = GetInstanceInfo
 local GetZoneText, GetRealZoneText, GetSubZoneText, GetSpellInfo = GetZoneText, GetRealZoneText, GetSubZoneText, GetSpellInfo
 local GetBestMapForUnit = C_Map.GetBestMapForUnit
@@ -959,6 +959,16 @@ do
 						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] SPELL_PERIODIC_DAMAGE[CONDENSED]#%s#%s#%d Targets#%d#%s", dmgPrdcCache.timeStop, dmgPrdcCache.time, dmgPrdcCache.sourceGUID, dmgPrdcCache.sourceName, dmgPrdcCache.count, dmgPrdcCache.spellId, dmgPrdcCache.spellName)
 					end
 					dmgPrdcCache.spellId = nil
+				end
+
+				if (event == "SPELL_CAST_START" or event == "SPELL_CAST_SUCCESS") and UnitTokenFromGUID and sourceName and sourceGUID then
+					local unit = UnitTokenFromGUID(sourceGUID)
+					if unit then
+						local hp = UnitPercentHealthFromGUID(sourceGUID)
+						local maxPower = UnitPowerMax(unit)
+						local power = maxPower == 0 and maxPower or (UnitPower(unit) / maxPower * 100)
+						sourceName = format("%s<%.1f%%-%.1f%%>", sourceName, hp*100, power)
+					end
 				end
 
 				if shouldLogFlags and (sourceName or destName) and badPlayerFilteredEvents[event] then
