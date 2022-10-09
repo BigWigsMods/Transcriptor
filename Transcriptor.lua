@@ -5,12 +5,14 @@ local playerSpellBlacklist
 local badSourcelessPlayerSpellList
 local specialEvents
 local data = {}
+local TIMERS_BLOCKLIST
 
 do
 	local n, tbl = ...
 	playerSpellBlacklist = tbl.blacklist
 	specialEvents = tbl.specialEvents
 	tbl.data = data
+	TIMERS_BLOCKLIST = tbl.TIMERS_BLOCKLIST or {} -- TimersBlocklist.lua
 end
 
 local logName = nil
@@ -1790,239 +1792,10 @@ function Transcriptor:StopLog(silent)
 			currentLog.TIMERS = {}
 			if compareSuccess then
 				currentLog.TIMERS.SPELL_CAST_SUCCESS = {}
-				for id,tbl in next, compareSuccess do
+				for spellId,tbl in next, compareSuccess do
 					for npcId, list in next, tbl do
-						local n = format("%s-%d-npc:%s", GetSpellInfo(id), id, npcId)
-						local str
-						for i = 2, #list do
-							if not str then
-								if type(list[1]) == "table" then
-									local sincePull = list[i] - list[1][1]
-									local sincePreviousEvent = list[i] - list[1][2]
-									local previousEventName = list[1][3]
-									str = format("%s = pull:%.1f/%s/%.1f", n, sincePull/1000, previousEventName, sincePreviousEvent/1000)
-								else
-									local sincePull = list[i] - list[1]
-									str = format("%s = pull:%.1f", n, sincePull/1000)
-								end
-							else
-								if type(list[i]) == "table" then
-									if type(list[i-1]) == "number" then
-										local t = list[i][1]-list[i-1]
-										str = format("%s, %s/%.1f", str, list[i][2], t/1000)
-									elseif type(list[i-1]) == "table" then
-										local t = list[i][1]-list[i-1][1]
-										str = format("%s, %s/%.1f", str, list[i][2], t/1000)
-									else
-										str = format("%s, %s", str, list[i][2])
-									end
-								else
-									if type(list[i-1]) == "table" then
-										if type(list[i-2]) == "table" then
-											if type(list[i-3]) == "table" then
-												if type(list[i-4]) == "table" then
-													local counter = 5
-													while type(list[i-counter]) == "table" do
-														counter = counter + 1
-													end
-													local tStage = list[i] - list[i-1][1]
-													local t = list[i] - list[i-counter]
-													str = format("%s, TooManyStages/%.1f/%.1f", str, tStage/1000, t/1000)
-												else
-													local tStage = list[i] - list[i-1][1]
-													local tStagePrevious = list[i] - list[i-2][1]
-													local tStagePreviousMore = list[i] - list[i-3][1]
-													local t = list[i] - list[i-4]
-													str = format("%s, %.1f/%.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, tStagePreviousMore/1000, t/1000)
-												end
-											else
-												local tStage = list[i] - list[i-1][1]
-												local tStagePrevious = list[i] - list[i-2][1]
-												local t = list[i] - list[i-3]
-												str = format("%s, %.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, t/1000)
-											end
-										else
-											local tStage = list[i] - list[i-1][1]
-											local t = list[i] - list[i-2]
-											str = format("%s, %.1f/%.1f", str, tStage/1000, t/1000)
-										end
-									else
-										local t = list[i] - list[i-1]
-										str = format("%s, %.1f", str, t/1000)
-									end
-								end
-							end
-						end
-						currentLog.TIMERS.SPELL_CAST_SUCCESS[#currentLog.TIMERS.SPELL_CAST_SUCCESS+1] = str
-					end
-				end
-				table.sort(currentLog.TIMERS.SPELL_CAST_SUCCESS)
-			end
-			if compareStart then
-				currentLog.TIMERS.SPELL_CAST_START = {}
-				for id,tbl in next, compareStart do
-					for npcId, list in next, tbl do
-						local n = format("%s-%d-npc:%s", GetSpellInfo(id), id, npcId)
-						local str
-						for i = 2, #list do
-							if not str then
-								if type(list[1]) == "table" then
-									local sincePull = list[i] - list[1][1]
-									local sincePreviousEvent = list[i] - list[1][2]
-									local previousEventName = list[1][3]
-									str = format("%s = pull:%.1f/%s/%.1f", n, sincePull/1000, previousEventName, sincePreviousEvent/1000)
-								else
-									local sincePull = list[i] - list[1]
-									str = format("%s = pull:%.1f", n, sincePull/1000)
-								end
-							else
-								if type(list[i]) == "table" then
-									if type(list[i-1]) == "number" then
-										local t = list[i][1]-list[i-1]
-										str = format("%s, %s/%.1f", str, list[i][2], t/1000)
-									elseif type(list[i-1]) == "table" then
-										local t = list[i][1]-list[i-1][1]
-										str = format("%s, %s/%.1f", str, list[i][2], t/1000)
-									else
-										str = format("%s, %s", str, list[i][2])
-									end
-								else
-									if type(list[i-1]) == "table" then
-										if type(list[i-2]) == "table" then
-											if type(list[i-3]) == "table" then
-												if type(list[i-4]) == "table" then
-													local counter = 5
-													while type(list[i-counter]) == "table" do
-														counter = counter + 1
-													end
-													local tStage = list[i] - list[i-1][1]
-													local t = list[i] - list[i-counter]
-													str = format("%s, TooManyStages/%.1f/%.1f", str, tStage/1000, t/1000)
-												else
-													local tStage = list[i] - list[i-1][1]
-													local tStagePrevious = list[i] - list[i-2][1]
-													local tStagePreviousMore = list[i] - list[i-3][1]
-													local t = list[i] - list[i-4]
-													str = format("%s, %.1f/%.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, tStagePreviousMore/1000, t/1000)
-												end
-											else
-												local tStage = list[i] - list[i-1][1]
-												local tStagePrevious = list[i] - list[i-2][1]
-												local t = list[i] - list[i-3]
-												str = format("%s, %.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, t/1000)
-											end
-										else
-											local tStage = list[i] - list[i-1][1]
-											local t = list[i] - list[i-2]
-											str = format("%s, %.1f/%.1f", str, tStage/1000, t/1000)
-										end
-									else
-										local t = list[i] - list[i-1]
-										str = format("%s, %.1f", str, t/1000)
-									end
-								end
-							end
-						end
-						currentLog.TIMERS.SPELL_CAST_START[#currentLog.TIMERS.SPELL_CAST_START+1] = str
-					end
-				end
-				table.sort(currentLog.TIMERS.SPELL_CAST_START)
-			end
-			if compareAuraApplied then
-				currentLog.TIMERS.SPELL_AURA_APPLIED = {}
-				for id,tbl in next, compareAuraApplied do
-					for npcId, list in next, tbl do
-						local n = format("%s-%d-npc:%s", GetSpellInfo(id), id, npcId)
-						local str
-						local zeroCounter = 1
-						for i = 2, #list do
-							if not str then
-								if type(list[1]) == "table" then
-									local sincePull = list[i] - list[1][1]
-									local sincePreviousEvent = list[i] - list[1][2]
-									local previousEventName = list[1][3]
-									str = format("%s = pull:%.1f/%s/%.1f", n, sincePull/1000, previousEventName, sincePreviousEvent/1000)
-								else
-									local sincePull = list[i] - list[1]
-									str = format("%s = pull:%.1f", n, sincePull/1000)
-								end
-							else
-								if type(list[i]) == "table" then
-									if type(list[i-1]) == "number" then
-										local t = list[i][1]-list[i-1]
-										str = format("%s, %s/%.1f", str, list[i][2], t/1000)
-									elseif type(list[i-1]) == "table" then
-										local t = list[i][1]-list[i-1][1]
-										str = format("%s, %s/%.1f", str, list[i][2], t/1000)
-									else
-										str = format("%s, %s", str, list[i][2])
-									end
-								else
-									if type(list[i-1]) == "table" then
-										if type(list[i-2]) == "table" then
-											if type(list[i-3]) == "table" then
-												if type(list[i-4]) == "table" then
-													local counter = 5
-													while type(list[i-counter]) == "table" do
-														counter = counter + 1
-													end
-													local tStage = list[i] - list[i-1][1]
-													local t = list[i] - list[i-counter]
-													str = format("%s, TooManyStages/%.1f/%.1f", str, tStage/1000, t/1000)
-												else
-													local tStage = list[i] - list[i-1][1]
-													local tStagePrevious = list[i] - list[i-2][1]
-													local tStagePreviousMore = list[i] - list[i-3][1]
-													local t = list[i] - list[i-4]
-													str = format("%s, %.1f/%.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, tStagePreviousMore/1000, t/1000)
-												end
-											else
-												local tStage = list[i] - list[i-1][1]
-												local tStagePrevious = list[i] - list[i-2][1]
-												local t = list[i] - list[i-3]
-												str = format("%s, %.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, t/1000)
-											end
-										else
-											local tStage = list[i] - list[i-1][1]
-											local t = list[i] - list[i-2]
-											str = format("%s, %.1f/%.1f", str, tStage/1000, t/1000)
-										end
-									else
-										local t = list[i] - list[i-1]
-										local shorten = format("%.1f", t/1000)
-										if shorten == "0.0" then
-											local typeNext = type(list[i+1])
-											if typeNext == "number" then
-												local nextT = list[i+1] - list[i]
-												local nextShorten = format("%.1f", nextT/1000)
-												if nextShorten == "0.0" then
-													zeroCounter = zeroCounter + 1
-												else
-													str = format("%s[+%d]", str, zeroCounter)
-													zeroCounter = 1
-												end
-											else
-												str = format("%s[+%d]", str, zeroCounter)
-												zeroCounter = 1
-											end
-										else
-											str = format("%s, %.1f", str, t/1000)
-										end
-									end
-								end
-							end
-						end
-						currentLog.TIMERS.SPELL_AURA_APPLIED[#currentLog.TIMERS.SPELL_AURA_APPLIED+1] = str
-					end
-				end
-				table.sort(currentLog.TIMERS.SPELL_AURA_APPLIED)
-			end
-			if compareUnitSuccess then
-				currentLog.TIMERS.UNIT_SPELLCAST_SUCCEEDED = {}
-				for id,tbl in next, compareUnitSuccess do
-					for npcId, list in next, tbl do
-						if not compareSuccess or not compareSuccess[id] or not compareSuccess[id][npcId] then
-							local n = format("%s-%d-npc:%s", GetSpellInfo(id), id, npcId)
+						if not TIMERS_BLOCKLIST[spellId] or not TIMERS_BLOCKLIST[spellId][tonumber(npcId)] then
+							local n = format("%s-%d-npc:%s", GetSpellInfo(spellId), spellId, npcId)
 							local str
 							for i = 2, #list do
 								if not str then
@@ -2083,6 +1856,243 @@ function Transcriptor:StopLog(silent)
 									end
 								end
 							end
+						end
+						currentLog.TIMERS.SPELL_CAST_SUCCESS[#currentLog.TIMERS.SPELL_CAST_SUCCESS+1] = str
+					end
+				end
+				table.sort(currentLog.TIMERS.SPELL_CAST_SUCCESS)
+			end
+			if compareStart then
+				currentLog.TIMERS.SPELL_CAST_START = {}
+				for spellId,tbl in next, compareStart do
+					for npcId, list in next, tbl do
+						if not TIMERS_BLOCKLIST[spellId] or not TIMERS_BLOCKLIST[spellId][tonumber(npcId)] then
+							local n = format("%s-%d-npc:%s", GetSpellInfo(spellId), spellId, npcId)
+							local str
+							for i = 2, #list do
+								if not str then
+									if type(list[1]) == "table" then
+										local sincePull = list[i] - list[1][1]
+										local sincePreviousEvent = list[i] - list[1][2]
+										local previousEventName = list[1][3]
+										str = format("%s = pull:%.1f/%s/%.1f", n, sincePull/1000, previousEventName, sincePreviousEvent/1000)
+									else
+										local sincePull = list[i] - list[1]
+										str = format("%s = pull:%.1f", n, sincePull/1000)
+									end
+								else
+									if type(list[i]) == "table" then
+										if type(list[i-1]) == "number" then
+											local t = list[i][1]-list[i-1]
+											str = format("%s, %s/%.1f", str, list[i][2], t/1000)
+										elseif type(list[i-1]) == "table" then
+											local t = list[i][1]-list[i-1][1]
+											str = format("%s, %s/%.1f", str, list[i][2], t/1000)
+										else
+											str = format("%s, %s", str, list[i][2])
+										end
+									else
+										if type(list[i-1]) == "table" then
+											if type(list[i-2]) == "table" then
+												if type(list[i-3]) == "table" then
+													if type(list[i-4]) == "table" then
+														local counter = 5
+														while type(list[i-counter]) == "table" do
+															counter = counter + 1
+														end
+														local tStage = list[i] - list[i-1][1]
+														local t = list[i] - list[i-counter]
+														str = format("%s, TooManyStages/%.1f/%.1f", str, tStage/1000, t/1000)
+													else
+														local tStage = list[i] - list[i-1][1]
+														local tStagePrevious = list[i] - list[i-2][1]
+														local tStagePreviousMore = list[i] - list[i-3][1]
+														local t = list[i] - list[i-4]
+														str = format("%s, %.1f/%.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, tStagePreviousMore/1000, t/1000)
+													end
+												else
+													local tStage = list[i] - list[i-1][1]
+													local tStagePrevious = list[i] - list[i-2][1]
+													local t = list[i] - list[i-3]
+													str = format("%s, %.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, t/1000)
+												end
+											else
+												local tStage = list[i] - list[i-1][1]
+												local t = list[i] - list[i-2]
+												str = format("%s, %.1f/%.1f", str, tStage/1000, t/1000)
+											end
+										else
+											local t = list[i] - list[i-1]
+											str = format("%s, %.1f", str, t/1000)
+										end
+									end
+								end
+							end
+						end
+						currentLog.TIMERS.SPELL_CAST_START[#currentLog.TIMERS.SPELL_CAST_START+1] = str
+					end
+				end
+				table.sort(currentLog.TIMERS.SPELL_CAST_START)
+			end
+			if compareAuraApplied then
+				currentLog.TIMERS.SPELL_AURA_APPLIED = {}
+				for spellId,tbl in next, compareAuraApplied do
+					for npcId, list in next, tbl do
+						if not TIMERS_BLOCKLIST[spellId] or not TIMERS_BLOCKLIST[spellId][tonumber(npcId)] then
+							local n = format("%s-%d-npc:%s", GetSpellInfo(spellId), spellId, npcId)
+							local str
+							local zeroCounter = 1
+							for i = 2, #list do
+								if not str then
+									if type(list[1]) == "table" then
+										local sincePull = list[i] - list[1][1]
+										local sincePreviousEvent = list[i] - list[1][2]
+										local previousEventName = list[1][3]
+										str = format("%s = pull:%.1f/%s/%.1f", n, sincePull/1000, previousEventName, sincePreviousEvent/1000)
+									else
+										local sincePull = list[i] - list[1]
+										str = format("%s = pull:%.1f", n, sincePull/1000)
+									end
+								else
+									if type(list[i]) == "table" then
+										if type(list[i-1]) == "number" then
+											local t = list[i][1]-list[i-1]
+											str = format("%s, %s/%.1f", str, list[i][2], t/1000)
+										elseif type(list[i-1]) == "table" then
+											local t = list[i][1]-list[i-1][1]
+											str = format("%s, %s/%.1f", str, list[i][2], t/1000)
+										else
+											str = format("%s, %s", str, list[i][2])
+										end
+									else
+										if type(list[i-1]) == "table" then
+											if type(list[i-2]) == "table" then
+												if type(list[i-3]) == "table" then
+													if type(list[i-4]) == "table" then
+														local counter = 5
+														while type(list[i-counter]) == "table" do
+															counter = counter + 1
+														end
+														local tStage = list[i] - list[i-1][1]
+														local t = list[i] - list[i-counter]
+														str = format("%s, TooManyStages/%.1f/%.1f", str, tStage/1000, t/1000)
+													else
+														local tStage = list[i] - list[i-1][1]
+														local tStagePrevious = list[i] - list[i-2][1]
+														local tStagePreviousMore = list[i] - list[i-3][1]
+														local t = list[i] - list[i-4]
+														str = format("%s, %.1f/%.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, tStagePreviousMore/1000, t/1000)
+													end
+												else
+													local tStage = list[i] - list[i-1][1]
+													local tStagePrevious = list[i] - list[i-2][1]
+													local t = list[i] - list[i-3]
+													str = format("%s, %.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, t/1000)
+												end
+											else
+												local tStage = list[i] - list[i-1][1]
+												local t = list[i] - list[i-2]
+												str = format("%s, %.1f/%.1f", str, tStage/1000, t/1000)
+											end
+										else
+											local t = list[i] - list[i-1]
+											local shorten = format("%.1f", t/1000)
+											if shorten == "0.0" then
+												local typeNext = type(list[i+1])
+												if typeNext == "number" then
+													local nextT = list[i+1] - list[i]
+													local nextShorten = format("%.1f", nextT/1000)
+													if nextShorten == "0.0" then
+														zeroCounter = zeroCounter + 1
+													else
+														str = format("%s[+%d]", str, zeroCounter)
+														zeroCounter = 1
+													end
+												else
+													str = format("%s[+%d]", str, zeroCounter)
+													zeroCounter = 1
+												end
+											else
+												str = format("%s, %.1f", str, t/1000)
+											end
+										end
+									end
+								end
+							end
+						end
+						currentLog.TIMERS.SPELL_AURA_APPLIED[#currentLog.TIMERS.SPELL_AURA_APPLIED+1] = str
+					end
+				end
+				table.sort(currentLog.TIMERS.SPELL_AURA_APPLIED)
+			end
+			if compareUnitSuccess then
+				currentLog.TIMERS.UNIT_SPELLCAST_SUCCEEDED = {}
+				for spellId,tbl in next, compareUnitSuccess do
+					for npcId, list in next, tbl do
+						if not compareSuccess or not compareSuccess[spellId] or not compareSuccess[spellId][npcId] then
+							if not TIMERS_BLOCKLIST[spellId] or not TIMERS_BLOCKLIST[spellId][tonumber(npcId)] then
+								local n = format("%s-%d-npc:%s", GetSpellInfo(spellId), spellId, npcId)
+								local str
+								for i = 2, #list do
+									if not str then
+										if type(list[1]) == "table" then
+											local sincePull = list[i] - list[1][1]
+											local sincePreviousEvent = list[i] - list[1][2]
+											local previousEventName = list[1][3]
+											str = format("%s = pull:%.1f/%s/%.1f", n, sincePull/1000, previousEventName, sincePreviousEvent/1000)
+										else
+											local sincePull = list[i] - list[1]
+											str = format("%s = pull:%.1f", n, sincePull/1000)
+										end
+									else
+										if type(list[i]) == "table" then
+											if type(list[i-1]) == "number" then
+												local t = list[i][1]-list[i-1]
+												str = format("%s, %s/%.1f", str, list[i][2], t/1000)
+											elseif type(list[i-1]) == "table" then
+												local t = list[i][1]-list[i-1][1]
+												str = format("%s, %s/%.1f", str, list[i][2], t/1000)
+											else
+												str = format("%s, %s", str, list[i][2])
+											end
+										else
+											if type(list[i-1]) == "table" then
+												if type(list[i-2]) == "table" then
+													if type(list[i-3]) == "table" then
+														if type(list[i-4]) == "table" then
+															local counter = 5
+															while type(list[i-counter]) == "table" do
+																counter = counter + 1
+															end
+															local tStage = list[i] - list[i-1][1]
+															local t = list[i] - list[i-counter]
+															str = format("%s, TooManyStages/%.1f/%.1f", str, tStage/1000, t/1000)
+														else
+															local tStage = list[i] - list[i-1][1]
+															local tStagePrevious = list[i] - list[i-2][1]
+															local tStagePreviousMore = list[i] - list[i-3][1]
+															local t = list[i] - list[i-4]
+															str = format("%s, %.1f/%.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, tStagePreviousMore/1000, t/1000)
+														end
+													else
+														local tStage = list[i] - list[i-1][1]
+														local tStagePrevious = list[i] - list[i-2][1]
+														local t = list[i] - list[i-3]
+														str = format("%s, %.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, t/1000)
+													end
+												else
+													local tStage = list[i] - list[i-1][1]
+													local t = list[i] - list[i-2]
+													str = format("%s, %.1f/%.1f", str, tStage/1000, t/1000)
+												end
+											else
+												local t = list[i] - list[i-1]
+												str = format("%s, %.1f", str, t/1000)
+											end
+										end
+									end
+								end
+							end
 							currentLog.TIMERS.UNIT_SPELLCAST_SUCCEEDED[#currentLog.TIMERS.UNIT_SPELLCAST_SUCCEEDED+1] = str
 						end
 					end
@@ -2091,9 +2101,9 @@ function Transcriptor:StopLog(silent)
 			end
 			if compareEmotes then
 				currentLog.TIMERS.EMOTES = {}
-				for id,tbl in next, compareEmotes do
+				for spellId,tbl in next, compareEmotes do
 					for npcName, list in next, tbl do
-						local n = format("%s-%d-npc:%s", GetSpellInfo(id) or "?", id, npcName)
+						local n = format("%s-%d-npc:%s", GetSpellInfo(spellId) or "?", spellId, npcName)
 						local str
 						for i = 2, #list do
 							if not str then
@@ -2163,22 +2173,22 @@ function Transcriptor:StopLog(silent)
 		if collectPlayerAuras then
 			if not currentLog.TIMERS then currentLog.TIMERS = {} end
 			currentLog.TIMERS.PLAYER_AURAS = {}
-			for id,tbl in next, collectPlayerAuras do
-				local n = format("%d-%s", id, (GetSpellInfo(id)))
+			for spellId,tbl in next, collectPlayerAuras do
+				local n = format("%d-%s", spellId, (GetSpellInfo(spellId)))
 				currentLog.TIMERS.PLAYER_AURAS[n] = {}
 				for event in next, tbl do
 					currentLog.TIMERS.PLAYER_AURAS[n][#currentLog.TIMERS.PLAYER_AURAS[n]+1] = event
 				end
 			end
 		end
-		for id, str in next, hiddenUnitAuraCollector do
-			if not hiddenAuraPermList[id] then
+		for spellId, str in next, hiddenUnitAuraCollector do
+			if not hiddenAuraPermList[spellId] then
 				if not currentLog.TIMERS then currentLog.TIMERS = {} end
 				if not currentLog.TIMERS.HIDDEN_AURAS then currentLog.TIMERS.HIDDEN_AURAS = {} end
 				currentLog.TIMERS.HIDDEN_AURAS[#currentLog.TIMERS.HIDDEN_AURAS+1] = str
 			end
 		end
-		for id, str in next, playerSpellCollector do
+		for _, str in next, playerSpellCollector do
 			if not currentLog.TIMERS then currentLog.TIMERS = {} end
 			if not currentLog.TIMERS.PLAYER_SPELLS then currentLog.TIMERS.PLAYER_SPELLS = {} end
 			currentLog.TIMERS.PLAYER_SPELLS[#currentLog.TIMERS.PLAYER_SPELLS+1] = str
