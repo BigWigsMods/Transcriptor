@@ -8,8 +8,8 @@ local data = {}
 
 do
 	local n, tbl = ...
-	playerSpellBlacklist = tbl.blacklist
-	specialEvents = tbl.specialEvents
+	playerSpellBlacklist = tbl.blacklist or {}
+	specialEvents = tbl.specialEvents or {}
 	tbl.data = data
 end
 

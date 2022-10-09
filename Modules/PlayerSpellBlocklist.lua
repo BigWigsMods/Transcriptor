@@ -1,5 +1,12 @@
-local n, tbl = ...
-tbl.blacklist = {
+local addonTbl
+do
+	local _
+	_, addonTbl = ...
+end
+
+-- Block specific player spells from appearing in the logs.
+-- This list is generated in game and there is not much point filling it in manually.
+addonTbl.PLAYER_SPELL_BLOCKLIST = {
 [17] = true, -- Power Word: Shield
 [53] = true, -- Backstab
 [66] = true, -- Invisibility

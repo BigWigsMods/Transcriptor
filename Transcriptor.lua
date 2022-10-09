@@ -1,18 +1,18 @@
 
 local Transcriptor = {}
 
-local playerSpellBlacklist
-local badSourcelessPlayerSpellList
-local specialEvents
-local data = {}
+local PLAYER_SPELL_BLOCKLIST
+local TIMERS_SPECIAL_EVENTS
+local TIMERS_SPECIAL_EVENTS_DATA
 local TIMERS_BLOCKLIST
+local badSourcelessPlayerSpellList
 
 do
-	local n, tbl = ...
-	playerSpellBlacklist = tbl.blacklist
-	specialEvents = tbl.specialEvents
-	tbl.data = data
-	TIMERS_BLOCKLIST = tbl.TIMERS_BLOCKLIST or {} -- TimersBlocklist.lua
+	local _, addonTbl = ...
+	PLAYER_SPELL_BLOCKLIST = addonTbl.PLAYER_SPELL_BLOCKLIST or {}
+	TIMERS_SPECIAL_EVENTS = addonTbl.TIMERS_SPECIAL_EVENTS or {}
+	TIMERS_SPECIAL_EVENTS_DATA = addonTbl.TIMERS_SPECIAL_EVENTS_DATA or {}
+	TIMERS_BLOCKLIST = addonTbl.TIMERS_BLOCKLIST or {} -- TimersBlocklist.lua
 end
 
 local logName = nil
@@ -45,7 +45,7 @@ local format, find, strjoin = string.format, string.find, string.join
 local tostring, tostringall = tostring, tostringall
 local type, next, print = type, next, print
 local date = date
-local debugprofilestop, wipe = debugprofilestop, wipe
+local debugprofilestop, wipe = debugprofilestop, table.wipe
 
 local C_Scenario, C_DeathInfo_GetSelfResurrectOptions, Enum = C_Scenario, C_DeathInfo.GetSelfResurrectOptions, Enum
 local IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease = IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease
@@ -312,7 +312,7 @@ do
 							local flags = tonumber(flagsText)
 							local tbl = tables[j]
 							local sortedTbl = sortedTables[j]
-							if id and flags and band(flags, mineOrPartyOrRaid) ~= 0 and not ignoreList[id] and not playerSpellBlacklist[id] and #sortedTbl < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
+							if id and flags and band(flags, mineOrPartyOrRaid) ~= 0 and not ignoreList[id] and not PLAYER_SPELL_BLOCKLIST[id] and #sortedTbl < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
 								if not total[id] or destGUIDType ~= "" then
 									local srcGUIDType, _, _, _, _, npcIdStr = strsplit("-", srcGUID)
 									local npcId = tonumber(npcIdStr)
@@ -339,7 +339,7 @@ do
 						local text = logTbl.TIMERS.PLAYER_SPELLS[i]
 						local spellId, _, _, player = strsplit("#", text)
 						local id = tonumber(spellId)
-						if id and not playerSpellBlacklist[id] and not playerCastList[id] and not total[id] then
+						if id and not PLAYER_SPELL_BLOCKLIST[id] and not playerCastList[id] and not total[id] then
 							playerCastList[id] = player
 							total[id] = true
 						end
@@ -384,7 +384,7 @@ do
 		frame[1]:SetPoint("BOTTOMRIGHT", UIParent, "CENTER")
 		frame[1]:Show()
 
-		for k, v in next, playerSpellBlacklist do
+		for k, v in next, PLAYER_SPELL_BLOCKLIST do
 			if GetSpellInfo(k) then -- Filter out removed spells when a new patch hits
 				total[k] = true
 			end
@@ -393,15 +393,18 @@ do
 			totalSorted[#totalSorted+1] = k
 		end
 		sort(totalSorted)
-		text = "local n, tbl = ...\ntbl.blacklist = {\n"
+		local exportText = "local addonTbl\ndo\n\tlocal _\n\t_, addonTbl = ...\nend\n\n"
+		exportText = exportText .."-- Block specific player spells from appearing in the logs.\n"
+		exportText = exportText .."-- This list is generated in game and there is not much point filling it in manually.\naddonTbl.PLAYER_SPELL_BLOCKLIST = {\n"
+
 		for i = 1, #totalSorted do
 			local id = totalSorted[i]
 			local name = GetSpellInfo(id)
-			text = format("%s[%d] = true, -- %s\n", text, id, name)
+			exportText = format("%s\t[%d] = true, -- %s\n", exportText, id, name)
 		end
-		text = text .. "}"
+		exportText = exportText .."}\n"
 		-- Display full blacklist for copying into Transcriptor
-		editBox[2]:SetText(text)
+		editBox[2]:SetText(exportText)
 		frame[2]:ClearAllPoints()
 		frame[2]:SetPoint("BOTTOMLEFT", UIParent, "CENTER")
 		frame[2]:Show()
@@ -775,14 +778,14 @@ do
 		if badEvents[event] or
 		   (event == "UNIT_DIED" and band(destFlags, mineOrPartyOrRaid) ~= 0 and band(destFlags, guardian) == guardian) or -- Guardian deaths, player deaths can explain debuff removal
 		   (sourceName and badPlayerEvents[event] and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or
-		   (sourceName and badPlayerFilteredEvents[event] and playerSpellBlacklist[spellId] and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or
+		   (sourceName and badPlayerFilteredEvents[event] and PLAYER_SPELL_BLOCKLIST[spellId] and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or
 		   (not sourceName and destName and badPlayerFilteredEvents[event] and badSourcelessPlayerSpellList[spellId] and band(destFlags, mineOrPartyOrRaid) ~= 0) or
 		   -- Temporary (hopefully) hacks, due to srcFlags not correctly attributing as mineOrPartyOrRaid
 		   (spellId == 120694 and sourceName == "Beast" and band(destFlags, mineOrPartyOrRaid) ~= 0) -- Dire Beast from summoned creature to player
 		then
 			return
 		else
-			--if (sourceName and badPlayerFilteredEvents[event] and playerSpellBlacklist[spellId] and band(sourceFlags, mineOrPartyOrRaid) == 0) then
+			--if (sourceName and badPlayerFilteredEvents[event] and PLAYER_SPELL_BLOCKLIST[spellId] and band(sourceFlags, mineOrPartyOrRaid) == 0) then
 			--	print("Transcriptor:", sourceName..":"..MobId(sourceGUID), "used spell", spellName..":"..spellId, "in event", event, "but isn't in our group.")
 			--end
 
@@ -833,12 +836,12 @@ do
 			end
 
 			if event == "UNIT_DIED" then
-				local name = specialEvents.UNIT_DIED[MobId(destGUID)]
+				local name = TIMERS_SPECIAL_EVENTS.UNIT_DIED[MobId(destGUID)]
 				if name then
 					InsertSpecialEvent(name)
 				end
-			elseif specialEvents[event] and specialEvents[event][spellId] then
-				local name = specialEvents[event][spellId][MobId(sourceGUID)]
+			elseif TIMERS_SPECIAL_EVENTS[event] and TIMERS_SPECIAL_EVENTS[event][spellId] then
+				local name = TIMERS_SPECIAL_EVENTS[event][spellId][MobId(sourceGUID)]
 				if name then
 					InsertSpecialEvent(name)
 				end
@@ -1037,8 +1040,8 @@ do
 
 	function sh.UNIT_SPELLCAST_INTERRUPTED(unit, castId, spellId, ...)
 		if safeUnit(unit) then
-			if specialEvents.UNIT_SPELLCAST_INTERRUPTED[spellId] then
-				local name = specialEvents.UNIT_SPELLCAST_INTERRUPTED[spellId][MobId(UnitGUID(unit))]
+			if TIMERS_SPECIAL_EVENTS.UNIT_SPELLCAST_INTERRUPTED[spellId] then
+				local name = TIMERS_SPECIAL_EVENTS.UNIT_SPELLCAST_INTERRUPTED[spellId][MobId(UnitGUID(unit))]
 				if name then
 					InsertSpecialEvent(name)
 				end
@@ -1069,9 +1072,9 @@ do
 				end
 				compareUnitSuccess[spellId][npcId][#compareUnitSuccess[spellId][npcId]+1] = debugprofilestop()
 
-				if specialEvents.UNIT_SPELLCAST_SUCCEEDED[spellId] then
+				if TIMERS_SPECIAL_EVENTS.UNIT_SPELLCAST_SUCCEEDED[spellId] then
 					local npcIdBasic = MobId((UnitGUID(unit)))
-					local name = specialEvents.UNIT_SPELLCAST_SUCCEEDED[spellId][npcIdBasic]
+					local name = TIMERS_SPECIAL_EVENTS.UNIT_SPELLCAST_SUCCEEDED[spellId][npcIdBasic]
 					if name then
 						InsertSpecialEvent(name)
 					end
@@ -1083,7 +1086,7 @@ do
 			local hp = maxHP == 0 and maxHP or (UnitHealth(unit) / maxHP * 100)
 			local power = maxPower == 0 and maxPower or (UnitPower(unit) / maxPower * 100)
 			return format("%s<%.1f%%-%.1f%%>{Target:%s} -%s- [[%s]]", UnitName(unit), hp, power, UnitName(unit.."target"), GetSpellInfo(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
-		elseif raidList[unit] and not playerSpellBlacklist[spellId] then
+		elseif raidList[unit] and not PLAYER_SPELL_BLOCKLIST[spellId] then
 			if not playerSpellCollector[spellId] then
 				playerSpellCollector[spellId] = strjoin("#", tostringall(spellId, GetSpellInfo(spellId), unit, UnitName(unit)))
 			end
@@ -1244,7 +1247,7 @@ end
 
 function sh.ENCOUNTER_START(...)
 	compareStartTime = debugprofilestop()
-	wipe(data)
+	wipe(TIMERS_SPECIAL_EVENTS_DATA)
 	return strjoin("#", ...)
 end
 
@@ -1275,7 +1278,7 @@ do
 			local name, _, _, _, duration, _, _, _, _, spellId, _, bossDebuff = UnitAura(unit, i, "HARMFUL")
 			if not spellId then
 				break
-			elseif not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not playerSpellBlacklist[spellId] then
+			elseif not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not PLAYER_SPELL_BLOCKLIST[spellId] then
 				if UnitIsVisible(unit) then
 					if bossDebuff then
 						hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BOSS_DEBUFF", spellId, name, duration, unit, UnitName(unit)))
@@ -1291,7 +1294,7 @@ do
 			local name, _, _, _, duration, _, _, _, _, spellId, _, bossDebuff = UnitAura(unit, i, "HELPFUL")
 			if not spellId then
 				break
-			elseif not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not playerSpellBlacklist[spellId] then
+			elseif not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not PLAYER_SPELL_BLOCKLIST[spellId] then
 				if UnitIsVisible(unit) then
 					if bossDebuff then
 						hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BOSS_BUFF", spellId, name, duration, unit, UnitName(unit)))
@@ -1665,7 +1668,7 @@ do
 			ldb.text = L["|cffFF0000Recording|r"]
 			ldb.icon = "Interface\\AddOns\\Transcriptor\\icon_on"
 			shouldLogFlags = TranscriptIgnore.logFlags and true or false
-			wipe(data)
+			wipe(TIMERS_SPECIAL_EVENTS_DATA)
 
 			hiddenAuraEngageList = {}
 			do

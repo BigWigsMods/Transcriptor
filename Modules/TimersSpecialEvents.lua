@@ -1,17 +1,20 @@
-local tbl
+local addonTbl
+local dataTbl = {}
 do
 	local _
-	_, tbl = ...
+	_, addonTbl = ...
+	addonTbl.TIMERS_SPECIAL_EVENTS_DATA = dataTbl
 end
 
-tbl.specialEvents = {
+-- Insert special events into
+addonTbl.TIMERS_SPECIAL_EVENTS = {
 	["UNIT_SPELLCAST_SUCCEEDED"] = {
 		--[[ Tomb of Sargeras ]]--
 		[239423] = { -- Dread Shark
 			[115767] = function() -- Mistress Sassz'ine
-				tbl.data[1] = (tbl.data[1] or 1) + 1
+				dataTbl[1] = (dataTbl[1] or 1) + 1
 
-				local stage = tbl.data[1]
+				local stage = dataTbl[1]
 				local _, _, diff = GetInstanceInfo()
 				if diff == 16 then -- Mythic
 					if stage == 3 then
@@ -132,7 +135,7 @@ tbl.specialEvents = {
 		},
 		[244894] = { -- Corrupt Aegis
 			[121975] = function() -- Aggramar
-				return "Intermission ".. (tbl.data[1] or 1)
+				return "Intermission ".. (dataTbl[1] or 1)
 			end,
 		},
 
@@ -163,15 +166,15 @@ tbl.specialEvents = {
 		-- [[ Sanctum Of Domination ]] --
 		[348805] = { -- Stygian Darkshield
 			[175725] = function() -- Eye of the Jailer
-				tbl.data[1] = 2 -- Stage 2
+				dataTbl[1] = 2 -- Stage 2
 				return "Stage 2"
 			end,
 		},
 		[352385] = { -- Energizing Link
 			[176583] = function() -- Energy Core
 				local t = GetTime()
-				if t - (tbl.data[1] or 0) > 5 then
-					tbl.data[1] = t
+				if t - (dataTbl[1] or 0) > 5 then
+					dataTbl[1] = t
 					return "Link Active"
 				end
 			end,
@@ -181,15 +184,15 @@ tbl.specialEvents = {
 		},
 		[350857] = { -- Banshee Shroud
 			[175732] = function() -- Sylvanas Windrunner
-				if not tbl.data[1] then -- We only want to trigger this once
-					tbl.data[1] = true
+				if not dataTbl[1] then -- We only want to trigger this once
+					dataTbl[1] = true
 					return "Intermission"
 				end
 			end,
 		},
 		[352051] = { -- Necrotic Surge
 			[175559] = function() -- Kel'Thuzad
-				if not tbl.data[1] then
+				if not dataTbl[1] then
 					local power = UnitPower("boss1")
 					return ("Stage 1 (%s)"):format(power or "?")
 				end
@@ -197,8 +200,8 @@ tbl.specialEvents = {
 		},
 		[348146] = { -- Banshee Form
 			[175732] = function() -- Sylvanas Windrunner
-				if not tbl.data[2] then -- We only want to trigger this once
-					tbl.data[2] = true
+				if not dataTbl[2] then -- We only want to trigger this once
+					dataTbl[2] = true
 					return "Stage 2"
 				end
 			end,
@@ -216,7 +219,7 @@ tbl.specialEvents = {
 		-- [[ Sanctum Of Domination ]] --
 		[352051] = { -- Necrotic Surge
 			[175559] = function() -- Kel'Thuzad
-				if not tbl.data[1] then
+				if not dataTbl[1] then
 					local power = UnitPower("boss1")
 					return ("Stage 1 (%s)"):format(power or "?")
 				end
@@ -247,8 +250,8 @@ tbl.specialEvents = {
 		},
 		[244894] = { -- Corrupt Aegis
 			[121975] = function() -- Aggramar
-				tbl.data[1] = (tbl.data[1] or 1) + 1
-				return "Stage ".. tbl.data[1]
+				dataTbl[1] = (dataTbl[1] or 1) + 1
+				return "Stage ".. dataTbl[1]
 			end,
 		},
 
@@ -298,16 +301,16 @@ tbl.specialEvents = {
 		-- [[ Sanctum Of Domination ]] --
 		[348805] = { -- Stygian Darkshield
 			[175725] = function() -- Eye of the Jailer
-				if tbl.data[1] == 2 then -- Only if still in stage 2
-					tbl.data[1] = 1
+				if dataTbl[1] == 2 then -- Only if still in stage 2
+					dataTbl[1] = 1
 					return "Stage 1"
 				end
 			end,
 		},
 		[357739] = { -- Realign Fate
 			[175730] = function() -- Fatescribe Roh-Kalo
-				tbl.data[1] = (tbl.data[1] or 1) + 1
-				if tbl.data[1] > 3 then -- Stage 3 after 3x Realign Fate
+				dataTbl[1] = (dataTbl[1] or 1) + 1
+				if dataTbl[1] > 3 then -- Stage 3 after 3x Realign Fate
 					return "Stage 3"
 				else
 					return "Stage 1"
@@ -316,7 +319,7 @@ tbl.specialEvents = {
 		},
 		[355525] = { -- Forge Weapon
 			[176523] = function() -- Painsmith Raznal
-				return "Intermission "..tbl.data[1].." Over"
+				return "Intermission "..dataTbl[1].." Over"
 			end,
 		},
 
@@ -329,8 +332,8 @@ tbl.specialEvents = {
 		},
 		[363139] = { -- Decipher Relic
 			[183501] = function() -- Artificer Xy'mox
-				tbl.data[1] = (tbl.data[1] or 1) + 1
-				return "Stage "..tbl.data[1]
+				dataTbl[1] = (dataTbl[1] or 1) + 1
+				return "Stage "..dataTbl[1]
 			end,
 		},
 		[363130] = { -- Synthesize
@@ -341,8 +344,8 @@ tbl.specialEvents = {
 		},
 		[362505] = { -- Domination's Grasp
 			[181954] = function() -- Anduin Wrynn
-				tbl.data[1] = (tbl.data[1] or 1) + 1
-				return "Stage " .. tbl.data[1]
+				dataTbl[1] = (dataTbl[1] or 1) + 1
+				return "Stage " .. dataTbl[1]
 			end
 		},
 		[360516] = { -- Infiltration
@@ -414,7 +417,7 @@ tbl.specialEvents = {
 		},
 		[348974] = { -- Immediate Extermination
 			[175725] = function() -- Eye of the Jailer
-				tbl.data[1] = 3
+				dataTbl[1] = 3
 				return "Stage 3"
 			end,
 		},
@@ -429,8 +432,8 @@ tbl.specialEvents = {
 		},
 		[355525] = { -- Forge Weapon
 			[176523] = function() -- Painsmith Raznal
-				tbl.data[1] = (tbl.data[1] or 0) + 1
-				return "Intermission "..tbl.data[1]
+				dataTbl[1] = (dataTbl[1] or 0) + 1
+				return "Intermission "..dataTbl[1]
 			end,
 		},
 		[352293] = { -- Vengeful Destruction
@@ -458,8 +461,8 @@ tbl.specialEvents = {
 		},
 		[361300] = { -- Reconstruction
 			[181549] = function() -- Prototype of War // They all cast it, we only have to track 1 boss
-				tbl.data[1] = (tbl.data[1] or 1) + 1
-				return "Stage "..tbl.data[1]
+				dataTbl[1] = (dataTbl[1] or 1) + 1
+				return "Stage "..dataTbl[1]
 			end,
 		},
 		[360300] = { -- Swarm of Decay // Unto Darkness
@@ -525,14 +528,14 @@ tbl.specialEvents = {
 		-- [[ Sepulcher of the First Ones ]] --
 		[367711] = { -- Decipher Relic
 			[183501] = function() -- Artificer Xy'mox
-				tbl.data[1] = (tbl.data[1] or 1) + 1
-				return "Stage "..tbl.data[1]
+				dataTbl[1] = (dataTbl[1] or 1) + 1
+				return "Stage "..dataTbl[1]
 			end,
 		},
 		[357729] = { -- Blasphemy
 			[178072] = function() -- Anduin Wrynn // Sylvanas Windrunner Encounter
-				if not tbl.data[3] then -- We only want to trigger this once
-					tbl.data[3] = true
+				if not dataTbl[3] then -- We only want to trigger this once
+					dataTbl[3] = true
 					return "Stage 3"
 				end
 			end,
@@ -559,7 +562,7 @@ tbl.specialEvents = {
 
 		-- [[ Sanctum of Domination ]] --
 		[176929] = function() -- Remnant of Kel'Thuzad
-			tbl.data[1] = true
+			dataTbl[1] = true
 			local power = UnitPower("boss1")
 			return ("Stage 3 (%s)"):format(power or "?")
 		end,

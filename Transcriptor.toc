@@ -25,8 +25,7 @@ libs\LibStub.lua
 libs\CallbackHandler-1.0.lua
 libs\LibDataBroker-1.1.lua
 
+Modules\PlayerSpellBlocklist.lua
 Modules\TimersBlocklist.lua
-SpellBlacklist.lua
-SpecialEvents.lua
+Modules\TimersSpecialEvents.lua
 Transcriptor.lua
-
