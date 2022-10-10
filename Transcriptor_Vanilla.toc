@@ -21,8 +21,8 @@
 ## X-Wago-ID: 0mKOx1Gx
 ## SavedVariables: TranscriptIgnore, TranscriptDB
 
-libs\LibStub.lua
-libs\CallbackHandler-1.0.lua
-libs\LibDataBroker-1.1.lua
+Libs\LibStub.lua
+Libs\CallbackHandler-1.0.lua
+Libs\LibDataBroker-1.1.lua
 
 Transcriptor_Vanilla.lua

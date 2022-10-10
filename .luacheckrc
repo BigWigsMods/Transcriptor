@@ -2,23 +2,18 @@ std = "lua51"
 max_line_length = false
 codes = true
 exclude_files = {
-	"**/libs",
+	"**/Libs",
 }
 ignore = {
-	--"111/SLASH_BASICMINIMAP[12]", -- slash handlers
-	"111/GetMapArtID",
-	"111/GetInstanceID",
 	"111/GetBossID",
+	"111/GetInstanceID",
+	"111/GetMapArtID",
 	"111/GetSectionID",
 	"111/SLASH_GETSPELLS1",
-	"111/TranscriptDB",
-	"111/TranscriptIgnore",
 	"111/SLASH_TRANSCRIPTOR[123]",
+	"11[123]/TranscriptDB",
+	"11[123]/TranscriptIgnore",
 	"112/SlashCmdList",
-	"112/TranscriptIgnore",
-	"112/TranscriptDB",
-	"113/TranscriptDB",
-	"113/TranscriptIgnore",
 	"212/self",
 }
 files["**/Transcriptor_TBC.lua"].ignore = {
