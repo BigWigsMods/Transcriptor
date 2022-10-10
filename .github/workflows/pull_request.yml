@@ -13,4 +13,4 @@ jobs:
       - name: Run luacheck
         uses: BigWigsMods/actions/luacheck@master
         with:
-          args: -qo 011
+          args: -q
