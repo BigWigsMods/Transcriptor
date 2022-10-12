@@ -4,13 +4,13 @@ local Transcriptor = {}
 local playerSpellBlacklist
 local badSourcelessPlayerSpellList
 local specialEvents
-local data = {}
+local data
 
 do
 	local n, tbl = ...
 	playerSpellBlacklist = tbl.blacklist or {}
-	specialEvents = tbl.specialEvents or {}
-	tbl.data = data
+	specialEvents = tbl.TIMERS_SPECIAL_EVENTS or {} -- TimersSpecialEvents.lua
+	data = tbl.TIMERS_SPECIAL_EVENTS_DATA or {} -- TimersSpecialEvents.lua
 end
 
 local logName = nil

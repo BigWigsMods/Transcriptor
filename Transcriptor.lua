@@ -9,9 +9,9 @@ local badSourcelessPlayerSpellList
 
 do
 	local _, addonTbl = ...
-	PLAYER_SPELL_BLOCKLIST = addonTbl.PLAYER_SPELL_BLOCKLIST or {}
-	TIMERS_SPECIAL_EVENTS = addonTbl.TIMERS_SPECIAL_EVENTS or {}
-	TIMERS_SPECIAL_EVENTS_DATA = addonTbl.TIMERS_SPECIAL_EVENTS_DATA or {}
+	PLAYER_SPELL_BLOCKLIST = addonTbl.PLAYER_SPELL_BLOCKLIST or {} -- PlayerSpellBlocklist.lua
+	TIMERS_SPECIAL_EVENTS = addonTbl.TIMERS_SPECIAL_EVENTS or {} -- TimersSpecialEvents.lua
+	TIMERS_SPECIAL_EVENTS_DATA = addonTbl.TIMERS_SPECIAL_EVENTS_DATA or {} -- TimersSpecialEvents.lua
 	TIMERS_BLOCKLIST = addonTbl.TIMERS_BLOCKLIST or {} -- TimersBlocklist.lua
 end
 

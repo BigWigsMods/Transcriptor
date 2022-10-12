@@ -25,4 +25,5 @@ Libs\LibStub.lua
 Libs\CallbackHandler-1.0.lua
 Libs\LibDataBroker-1.1.lua
 
+Modules\TimersSpecialEvents.lua
 Transcriptor_TBC.lua
