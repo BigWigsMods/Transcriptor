@@ -67,9 +67,6 @@ addonTbl.TIMERS_BLOCKLIST = {
 	[390710] = { -- Greatstaff's Wrath
 		[191436] = true, -- Greatstaff of the Broodkeeper (Buffs/Debuffs on Each different staff)
 	},
-	[390710] = { -- Greatstaff's Wrath
-		[191436] = true, -- Greatstaff of the Broodkeeper (Buffs/Debuffs on Each different staff)
-	},
 	[375889] = { -- Greatstaff's Wrath
 		[191448] = true, -- Greatstaff of the Broodkeeper (Buffs/Debuffs on Each different staff)
 	},
