@@ -11,6 +11,67 @@ end
 ]]
 addonTbl.TIMERS_BLOCKLIST = {
 	[181113] = { -- Encounter Spawn
-
+		[189233] = true, -- Caustic Spiderling (Small Adds on Sennarth, The Cold Breath)
 	},
+
+	-- [[ Vault of the Incarnates ]] --
+	-- Eranog
+	[370597] = { -- Kill Order
+		[187638] = true, -- Flaming Tarasek (Small Adds)
+	},
+	[370342] = { -- Eruption
+		[187593] = true, -- Collapsing Flame (Small Adds)
+	},
+	[373327] = { -- Destruction
+		[187593] = true, -- Collapsing Flame (Small Adds)
+	},
+
+	-- Sennarth, The Cold Breath
+	[374327] = { -- Caustic Blood
+		[189233] = true, -- Caustic Spiderling (Small Adds)
+	},
+	[372045] = { -- Caustic Eruption
+		[189233] = true, -- Caustic Spiderling (Small Adds)
+	},
+
+	-- Dathea, Ascended
+	[384273] = { -- Storm Bolt
+		[194647] = true, -- Thunder Caller (Small adds)
+	},
+	[388988] = { -- Crosswinds
+		[191856] = true, -- Raging Tempest (Tornadoes Moving Individual)
+	},
+
+	-- Broodkeeper Diurna
+	[388949] = { -- Frozen Shroud
+		[196679] = true, -- Frozen Shroud (Units on each player after cast from boss)
+	},
+	[380483] = { -- Empowered Greatstaff's Wrath
+		[193109] = true, -- Empowered Greatstaff of the Broodkeeper (Buffs/Debuffs on Each different staff)
+	},
+	[379413] = { -- Empowered Greatstaff's Wrath
+		[193106] = true, -- Empowered Greatstaff of the Broodkeeper (Buffs/Debuffs on Each different staff)
+	},
+	[390711] = { -- Empowered Greatstaff's Wrath
+		[193106] = true, -- Empowered Greatstaff of the Broodkeeper (Buffs/Debuffs on Each different staff)
+	},
+	[380176] = { -- Empowered Greatstaff of the Broodkeeper
+		[193106] = true, -- Empowered Greatstaff of the Broodkeeper (Buffs/Debuffs on Each different staff)
+	},
+	[375842] = { -- Greatstaff of the Broodkeeper
+		[191436] = true, -- Greatstaff of the Broodkeeper (Buffs/Debuffs on Each different staff)
+	},
+	[375882] = { -- Greatstaff's Wrath
+		[191436] = true, -- Greatstaff of the Broodkeeper (Buffs/Debuffs on Each different staff)
+	},
+	[390710] = { -- Greatstaff's Wrath
+		[191436] = true, -- Greatstaff of the Broodkeeper (Buffs/Debuffs on Each different staff)
+	},
+	[390710] = { -- Greatstaff's Wrath
+		[191436] = true, -- Greatstaff of the Broodkeeper (Buffs/Debuffs on Each different staff)
+	},
+	[375889] = { -- Greatstaff's Wrath
+		[191448] = true, -- Greatstaff of the Broodkeeper (Buffs/Debuffs on Each different staff)
+	},
+
 }
