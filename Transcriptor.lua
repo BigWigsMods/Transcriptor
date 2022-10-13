@@ -1801,9 +1801,10 @@ function Transcriptor:StopLog(silent)
 			if compareSuccess then
 				currentLog.TIMERS.SPELL_CAST_SUCCESS = {}
 				for spellId,tbl in next, compareSuccess do
-					for npcId, list in next, tbl do
+					for npcPartialGUID, list in next, tbl do
+						local npcId = strsplit("-", npcPartialGUID)
 						if not TIMERS_BLOCKLIST[spellId] or not TIMERS_BLOCKLIST[spellId][tonumber(npcId)] then
-							local n = format("%s-%d-npc:%s", GetSpellInfo(spellId), spellId, npcId)
+							local n = format("%s-%d-npc:%s", GetSpellInfo(spellId), spellId, npcPartialGUID)
 							local str
 							for i = 2, #list do
 								if not str then
@@ -1873,9 +1874,10 @@ function Transcriptor:StopLog(silent)
 			if compareStart then
 				currentLog.TIMERS.SPELL_CAST_START = {}
 				for spellId,tbl in next, compareStart do
-					for npcId, list in next, tbl do
+					for npcPartialGUID, list in next, tbl do
+						local npcId = strsplit("-", npcPartialGUID)
 						if not TIMERS_BLOCKLIST[spellId] or not TIMERS_BLOCKLIST[spellId][tonumber(npcId)] then
-							local n = format("%s-%d-npc:%s", GetSpellInfo(spellId), spellId, npcId)
+							local n = format("%s-%d-npc:%s", GetSpellInfo(spellId), spellId, npcPartialGUID)
 							local str
 							for i = 2, #list do
 								if not str then
@@ -1945,9 +1947,10 @@ function Transcriptor:StopLog(silent)
 			if compareAuraApplied then
 				currentLog.TIMERS.SPELL_AURA_APPLIED = {}
 				for spellId,tbl in next, compareAuraApplied do
-					for npcId, list in next, tbl do
+					for npcPartialGUID, list in next, tbl do
+						local npcId = strsplit("-", npcPartialGUID)
 						if not TIMERS_BLOCKLIST[spellId] or not TIMERS_BLOCKLIST[spellId][tonumber(npcId)] then
-							local n = format("%s-%d-npc:%s", GetSpellInfo(spellId), spellId, npcId)
+							local n = format("%s-%d-npc:%s", GetSpellInfo(spellId), spellId, npcPartialGUID)
 							local str
 							local zeroCounter = 1
 							for i = 2, #list do
@@ -2036,10 +2039,11 @@ function Transcriptor:StopLog(silent)
 			if compareUnitSuccess then
 				currentLog.TIMERS.UNIT_SPELLCAST_SUCCEEDED = {}
 				for spellId,tbl in next, compareUnitSuccess do
-					for npcId, list in next, tbl do
-						if not compareSuccess or not compareSuccess[spellId] or not compareSuccess[spellId][npcId] then
+					for npcPartialGUID, list in next, tbl do
+						if not compareSuccess or not compareSuccess[spellId] or not compareSuccess[spellId][npcPartialGUID] then
+							local npcId = strsplit("-", npcPartialGUID)
 							if not TIMERS_BLOCKLIST[spellId] or not TIMERS_BLOCKLIST[spellId][tonumber(npcId)] then
-								local n = format("%s-%d-npc:%s", GetSpellInfo(spellId), spellId, npcId)
+								local n = format("%s-%d-npc:%s", GetSpellInfo(spellId), spellId, npcPartialGUID)
 								local str
 								for i = 2, #list do
 									if not str then
