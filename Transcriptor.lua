@@ -1785,7 +1785,7 @@ function Transcriptor:StopLog(silent)
 			BigWigsLoader.SendMessage(eventFrame, "BigWigs_OnPluginDisable", eventFrame)
 		end
 		if DBM and DBM.UnregisterCallback then
-			for i = 1, dbmEvents do
+			for i = 1, #dbmEvents do
 				local event = dbmEvents[i]
 				DBM:UnregisterCallback(event, DBMEventHandler)
 			end
