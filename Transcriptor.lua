@@ -40,7 +40,7 @@ local inEncounter, blockingRelease, limitingRes = false, false, false
 local mineOrPartyOrRaid = 7 -- COMBATLOG_OBJECT_AFFILIATION_MINE + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_RAID
 
 local band = bit.band
-local tinsert, tsort, twipe = table.insert, table.sort, table.wipe
+local tinsert, tsort, twipe, tconcat = table.insert, table.sort, table.wipe, table.concat
 local format, find, strjoin, strsplit, gsub, strmatch = string.format, string.find, string.join, string.split, string.gsub, string.match
 local tostring, tostringall, date = tostring, tostringall, date
 local type, next, print = type, next, print
@@ -56,6 +56,7 @@ local UnitLevel, UnitCreatureType, UnitPercentHealthFromGUID, UnitTokenFromGUID 
 local GetInstanceInfo = GetInstanceInfo
 local GetZoneText, GetRealZoneText, GetSubZoneText, GetSpellInfo = GetZoneText, GetRealZoneText, GetSubZoneText, GetSpellInfo
 local GetBestMapForUnit = C_Map.GetBestMapForUnit
+local C_GossipInfo_GetOptions = C_GossipInfo.GetOptions
 
 -- GLOBALS: TranscriptDB BigWigsLoader DBM CLOSE SlashCmdList SLASH_TRANSCRIPTOR1 SLASH_TRANSCRIPTOR2 SLASH_TRANSCRIPTOR3 EasyMenu CloseDropDownMenus
 -- GLOBALS: GetMapID GetBossID GetSectionID
@@ -1318,6 +1319,20 @@ function sh.NAME_PLATE_UNIT_ADDED(unit)
 	end
 end
 
+function sh.GOSSIP_SHOW()
+	local guid = UnitGUID("npc")
+	if guid then
+		local gossipOptions = C_GossipInfo_GetOptions()
+		if gossipOptions[1] then
+			local gossipTbl = {}
+			for i = 1, #gossipOptions do
+				gossipTbl[i] = strjoin(":", gossipOptions[i].gossipOptionID, gossipOptions[i].name or "")
+			end
+			return strjoin("#", guid, tconcat(gossipTbl, ","))
+		end
+	end
+end
+
 local wowEvents = {
 	-- Raids
 	"CHAT_MSG_ADDON",
@@ -1353,6 +1368,7 @@ local wowEvents = {
 	"ZONE_CHANGED_INDOORS",
 	"ZONE_CHANGED_NEW_AREA",
 	"NAME_PLATE_UNIT_ADDED",
+	"GOSSIP_SHOW",
 	-- Scenarios
 	"SCENARIO_UPDATE",
 	"SCENARIO_CRITERIA_UPDATE",
@@ -1412,6 +1428,7 @@ local eventCategories = {
 	CHAT_MSG_ADDON = "NONE",
 	CHAT_MSG_RAID_WARNING = "NONE",
 	NAME_PLATE_UNIT_ADDED = "NONE",
+	GOSSIP_SHOW = "NONE",
 }
 local bwEvents = {
 	"BigWigs_Message",
