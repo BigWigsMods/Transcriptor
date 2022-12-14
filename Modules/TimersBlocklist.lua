@@ -70,5 +70,19 @@ addonTbl.TIMERS_BLOCKLIST = {
 	[375889] = { -- Greatstaff's Wrath
 		[191448] = true, -- Greatstaff of the Broodkeeper (Buffs/Debuffs on Each different staff)
 	},
-
+	[385547] = { -- Ascension
+		[194990] = true, -- Stormseeker Acolyte (Trash)
+	},
+	[385553] = { -- Storm Bolt
+		[194990] = true, -- Stormseeker Acolyte (Trash)
+	},
+	[388631] = { -- Volatile
+		[194999] = true, -- Volatile Spark (Small Adds)
+	},
+	[388635] = { -- Burst
+		[194999] = true, -- Volatile Spark (Small Adds)
+	},
+	[400259] = {
+		[194999] = true, -- Volatile Spark (Small Adds)
+	}
 }
