@@ -7,10 +7,6 @@ end
 -- Block specific player spells from appearing in the logs.
 -- This list is generated in game and there is not much point filling it in manually.
 addonTbl.PLAYER_SPELL_BLOCKLIST = {
-	[392375] = true, -- Earthen Weapon
-	[272131] = true, -- Eye of Gul'dan
-	[385560] = true, -- Windforce Strikes
-	[327942] = true, -- Windfury Totem
 	[17] = true, -- Power Word: Shield
 	[53] = true, -- Backstab
 	[66] = true, -- Invisibility
@@ -3272,4 +3268,6 @@ addonTbl.PLAYER_SPELL_BLOCKLIST = {
 	[355520] = true, -- Black Tie Affair
 	[356511] = true, -- Endless Duty
 	[357972] = true, -- Adaptive Armor Fragment
+	[385560] = true, -- Windforce Strikes
+	[392375] = true, -- Earthen Weapon
 }
