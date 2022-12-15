@@ -64,7 +64,7 @@ local C_GossipInfo_GetOptions = C_GossipInfo.GetOptions
 do
 	local origPrint = print
 	function print(msg, ...)
-		return origPrint(format("|cffffff00%s|r", tostring(msg)), tostringall(...))
+		return origPrint(format("|cFF33FF99Transcriptor|r: %s", tostring(msg)), tostringall(...))
 	end
 
 	local origUnitName = UnitName
