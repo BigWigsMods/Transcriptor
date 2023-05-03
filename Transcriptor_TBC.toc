@@ -11,6 +11,7 @@
 ## Notes-esMX: Logging utility for boss encounters.
 ## Notes-itIT: Logging utility for boss encounters.
 ## Notes-ptBR: Logging utility for boss encounters.
+## IconTexture: Interface\AddOns\Transcriptor\icon_on
 ## Author: Funkydude
 ## Version: @project-version@
 ## X-Credits: Kyahx, Rabbit, MysticalOS, nebula169
