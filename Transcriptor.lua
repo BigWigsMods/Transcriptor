@@ -1420,6 +1420,28 @@ local eventCategories = {
 	BigWigs_Message = "BigWigs",
 	BigWigs_StartBar = "BigWigs",
 	BigWigs_SetStage = "BigWigs",
+	BigWigs_PauseBar = "BigWigs",
+	BigWigs_ResumeBar = "BigWigs",
+	BigWigs_SetRaidIcon = "BigWigs",
+	BigWigs_RemoveRaidIcon = "BigWigs",
+	BigWigs_VictorySound = "BigWigs",
+	BigWigs_BossComm = "BigWigs",
+	BigWigs_StopBars = "BigWigs",
+	BigWigs_ShowAltPower = "BigWigs",
+	BigWigs_HideAltPower = "BigWigs",
+	BigWigs_ShowProximity = "BigWigs",
+	BigWigs_HideProximity = "BigWigs",
+	BigWigs_ShowInfoBox = "BigWigs",
+	BigWigs_HideInfoBox = "BigWigs",
+	BigWigs_SetInfoBoxLine = "BigWigs",
+	BigWigs_SetInfoBoxTitle = "BigWigs",
+	BigWigs_SetInfoBoxBar = "BigWigs",
+	BigWigs_EnableHostileNameplates = "BigWigs",
+	BigWigs_DisableHostileNameplates = "BigWigs",
+	BigWigs_AddNameplateIcon = "BigWigs",
+	BigWigs_RemoveNameplateIcon = "BigWigs",
+	BigWigs_StartNameplateTimer = "BigWigs",
+	BigWigs_StopNameplateTimer = "BigWigs",
 	DBM_Announce = "DBM",
 	DBM_Debug = "DBM",
 	DBM_TimerStart = "DBM",
@@ -1434,6 +1456,28 @@ local bwEvents = {
 	"BigWigs_Message",
 	"BigWigs_StartBar",
 	"BigWigs_SetStage",
+	"BigWigs_PauseBar",
+	"BigWigs_ResumeBar",
+	"BigWigs_SetRaidIcon",
+	"BigWigs_RemoveRaidIcon",
+	"BigWigs_VictorySound",
+	"BigWigs_BossComm",
+	"BigWigs_StopBars",
+	"BigWigs_ShowAltPower",
+	"BigWigs_HideAltPower",
+	"BigWigs_ShowProximity",
+	"BigWigs_HideProximity",
+	"BigWigs_ShowInfoBox",
+	"BigWigs_HideInfoBox",
+	"BigWigs_SetInfoBoxLine",
+	"BigWigs_SetInfoBoxTitle",
+	"BigWigs_SetInfoBoxBar",
+	"BigWigs_EnableHostileNameplates",
+	"BigWigs_DisableHostileNameplates",
+	"BigWigs_AddNameplateIcon",
+	"BigWigs_RemoveNameplateIcon",
+	"BigWigs_StartNameplateTimer",
+	"BigWigs_StopNameplateTimer",
 }
 local dbmEvents = {
 	"DBM_Announce",
@@ -1624,8 +1668,12 @@ init:RegisterEvent("PLAYER_LOGIN")
 --
 
 local function BWEventHandler(event, module, ...)
-	if module and module.baseName == "BigWigs_CommonAuras" then return end
-	eventHandler(eventFrame, event, module and module.moduleName, ...)
+	if type(module) == "table" then
+		if module.baseName == "BigWigs_CommonAuras" then return end
+		eventHandler(eventFrame, event, module.moduleName, ...)
+	else
+		eventHandler(eventFrame, event, module, ...)
+	end
 end
 
 local function DBMEventHandler(...)
