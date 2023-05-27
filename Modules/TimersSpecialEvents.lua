@@ -116,6 +116,11 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		[298548] = { -- Massive Incubator // Stage 2 start
 			[152128] = "Stage 2",  -- Orgozoa
 		},
+
+		-- [[ Vault of the Incarnates ]] --
+		[372539] = { -- Apex of Ice / Stage 2
+			[187967] = "Apex Interrupted",  -- Sennarth, The Cold Breath
+		},
 	},
 	["SPELL_AURA_APPLIED"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -214,6 +219,28 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		[365216] = { -- Domination's Grasp
 			[181954] = "Intermission" -- Anduin Wrynn
 		},
+
+		-- [[ Vault of the Incarnates ]] --
+		[374779] = { -- Primal Barrier
+			[184986] = "Stage 2" -- Kurog Grimtotem
+		},
+		[396243] = { -- Primal Barrier
+			[184986] = "Full Power" -- Kurog Grimtotem
+		},
+		[375879] = { -- Broodkeepers Fury
+			[190245] = "Stage 2" -- Broodkeeper Diurna
+		},
+
+		-- [[ Aberrus ]] --
+		[401419]= { -- Siphon Energy
+			[201320] = "Siphon Applied" -- Rashok
+		},
+		[403284]= { -- Void Empowerment
+			[201754] = "Stage 1 End" -- Sarkareth
+		},
+		[410654]= { -- Void Empowerment
+			[201754] = "Stage 2 End" -- Sarkareth
+		}
 	},
 	["SPELL_AURA_APPLIED_DOSE"] = {
 		-- [[ Sanctum Of Domination ]] --
@@ -351,6 +378,35 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		[360516] = { -- Infiltration
 			[181398] = "Infiltration Over" -- Malganis
 		},
+
+		-- [[ Vault of the Incarnates ]] --
+		[370307] = { -- Collapsing Army
+			[184972] = "Army Over" -- Eranog
+		},
+		[374779] = { -- Primal Barrier
+			[184986] = function() -- Kurog Grimtotem
+				dataTbl[1] = (dataTbl[1] or 0) + 1
+				if dataTbl[1] == 2 then -- Stage 3 after 2nd Stage 2
+					return "Stage 3"
+				else
+					return "Stage 1"
+				end
+			end,
+		},
+
+		-- [[ Aberrus ]] --
+		[401419]= { -- Siphon Energy
+			[201320] = "Siphon Removed" -- Rashok
+		},
+		[407088]= { -- Empowered Shadows
+			[203812] = "Stage 3" -- Voice From Beyond removes it from Neltharion
+		},
+		[410625]= { -- End Existence
+			[201754] = "Stage 2" -- Sarkareth
+		},
+		[410654]= { -- Void Empowerment
+			[201754] = "Stage 3" -- Sarkareth
+		}
 	},
 	["SPELL_CAST_START"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -483,6 +539,31 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		[367290] = { -- Unholy Attunement
 			[180990] = "Stage 2 Over", -- Jailer
 		},
+
+		-- [[ Vault of the Incarnates ]] --
+		[370307] = { -- Collapsing Army
+			[184972] = "Army" -- Eranog
+		},
+		[372539] = { -- Apex of Ice
+			[187967] = "Apex Start" -- Sennarth, The Cold Breath
+		},
+		[387849] = { -- Coalescing Storm
+			[189813] = "Storm" -- Dathea, Ascended
+		},
+
+		-- [[ Aberrus ]] --
+		[401316] = { -- Hellsteel Carnage
+			[201261] = "Armor Drop 1" -- Kazzara, the Hellforged
+		},
+		[401318] = { -- Hellsteel Carnage
+			[201261] = "Armor Drop 2" -- Kazzara, the Hellforged
+		},
+		[401319] = { -- Hellsteel Carnage
+			[201261] = "Armor Drop 3" -- Kazzara, the Hellforged
+		},
+		[403057] = { -- Surrender to Corruption
+			[201668] = "Stage 2", -- Echo of Neltharion
+		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -546,6 +627,30 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		[368383] = { -- Diverted Life Shield
 			[180990] = "Stage 4", -- Jailer
 		},
+
+		-- [[ Vault of the Incarnates ]] --
+		[382434] = { -- Storm Nova
+			[189492] = function() -- Raszageth the Storm-Eater
+				dataTbl[1] = true
+				return "Intermission 1"
+			end,
+		},
+		[381249] = { -- Electric Scales
+			[189492] = function() -- Raszageth the Storm-Eater
+				if dataTbl[1] then -- Only Stage 2 after Intermission has started
+					dataTbl[1] = nil
+					return "Stage 2"
+				end
+			end,
+		},
+		[390463] = { -- Storm Nova
+			[189492] = "Stage 3", -- Raszageth the Storm-Eater
+		},
+
+		-- [[ Aberrus ]] --
+		[406730] = { -- Crucible Instability
+			[201773] = "Stage 2" -- Eternal Blaze
+		}
 	},
 	["UNIT_DIED"] = {
 		--[[ Antorus, the Burning Throne ]]--
