@@ -184,28 +184,33 @@ function GetSectionID(name)
 	end
 end
 
+--------------------------------------------------------------------------------
+-- Spell blocklist parser: /getspells
+--
+
 do
 	-- Create UI spell display, copied from BasicChatMods
 	local frame, editBox = {}, {}
 	for i = 1, 4 do
-		frame[i] = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
-		frame[i]:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-			edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
-			tile = true, tileSize = 16, edgeSize = 16,
-			insets = {left = 1, right = 1, top = 1, bottom = 1}}
-		)
-		frame[i]:SetBackdropColor(0,0,0,1)
+		frame[i] = CreateFrame("Frame", nil, UIParent, "SettingsFrameTemplate")
 		frame[i]:SetWidth(650)
 		frame[i]:SetHeight(450)
 		frame[i]:Hide()
 		frame[i]:SetFrameStrata("DIALOG")
+		frame[i].NineSlice.Text:SetText(
+			i==1 and "Transcriptor Spells" or
+			i==2 and "Transcriptor Spells Full DB" or
+			i==3 and "Transcriptor Sourceless Spells" or
+			i==4 and "Transcriptor Sourceless Spells Full DB"
+		)
 
-		local scrollArea = CreateFrame("ScrollFrame", "TranscriptorDevScrollArea"..i, frame[i], "UIPanelScrollFrameTemplate")
-		scrollArea:SetPoint("TOPLEFT", frame[i], "TOPLEFT", 8, -5)
-		scrollArea:SetPoint("BOTTOMRIGHT", frame[i], "BOTTOMRIGHT", -30, 5)
+		local scrollArea = CreateFrame("ScrollFrame", nil, frame[i], "ScrollFrameTemplate")
+		scrollArea:SetPoint("TOPLEFT", frame[i], "TOPLEFT", 8, -30)
+		scrollArea:SetPoint("BOTTOMRIGHT", frame[i], "BOTTOMRIGHT", -25, 5)
 
 		editBox[i] = CreateFrame("EditBox", nil, frame[i])
 		editBox[i]:SetMultiLine(true)
+		editBox[i]:SetMaxLetters(0)
 		editBox[i]:EnableMouse(true)
 		editBox[i]:SetAutoFocus(false)
 		editBox[i]:SetFontObject(ChatFontNormal)
@@ -227,9 +232,6 @@ do
 		end
 
 		scrollArea:SetScrollChild(editBox[i])
-
-		local close = CreateFrame("Button", nil, frame[i], "UIPanelCloseButton")
-		close:SetPoint("TOPRIGHT", frame[i], "TOPRIGHT", 0, 25)
 	end
 
 	local function GetLogSpells()
@@ -263,18 +265,17 @@ do
 			[68077] = true, -- Repair Cannon (IoC PvP)
 			[68298] = true, -- Parachute (IoC PvP)
 			[68377] = true, -- Carrying Huge Seaforium (IoC PvP)
-			[270620] = true, -- Psionic Blast (Zek'voz/Uldir || Mind Controlled player)
-			[272407] = true, -- Oblivion Sphere (Mythrax/Uldir || Orb spawning on player)
-			[263372] = true, -- Power Matrix (G'huun/Uldir || Holding the orb)
-			[263436] = true, -- Imperfect Physiology (G'huun/Uldir || After the orb)
-			[263373] = true, -- Deposit Power Matrix (G'huun/Uldir)
-			[263416] = true, -- Throw Power Matrix (G'huun/Uldir)
-			[269455] = true, -- Collect Power Matrix (G'huun/Uldir)
 		}
 		local npcIgnoreList = {
 			[154297] = true, -- Ankoan Bladesman
 			[154304] = true, -- Waveblade Shaman
 			[150202] = true, -- Waveblade Hunter
+			[201647] = true, -- Ebon Lieutenant
+			[201383] = true, -- Ebon Lieutenant
+			[201382] = true, -- Highmountain Seer
+			[201268] = true, -- Highmountain Seer
+			[201646] = true, -- Highmountain Seer
+			[201578] = true, -- Highmountain Seer
 		}
 		local events = {
 			"SPELL_AURA_[AR][^#]+#(%d+)#([^#]+%-[^#]+)#([^#]+)#([^#]*)#([^#]+)#(%d+)#[^#]+#", -- SPELL_AURA_[AR] to filter _BROKEN
@@ -303,12 +304,12 @@ do
 							local flags = tonumber(flagsText)
 							local tbl = tables[j]
 							local sortedTbl = sortedTables[j]
-							if spellId and flags and band(flags, mineOrPartyOrRaid) ~= 0 and not ignoreList[spellId] and not PLAYER_SPELL_BLOCKLIST[spellId] and #sortedTbl < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
+							if spellId and flags and band(flags, mineOrPartyOrRaid) ~= 0 and not ignoreList[spellId] and not PLAYER_SPELL_BLOCKLIST[spellId] then -- Check total to avoid duplicates
 								if not total[spellId] or destGUID ~= "" then
 									local srcGUIDType, _, _, _, _, npcIdStr = strsplit("-", srcGUID)
 									local npcId = tonumber(npcIdStr)
 									if not npcIgnoreList[npcId] then
-										local destGUIDType = strsplit("-", destGUID)
+										local destGUIDType, _, _, _, _, destNpcIdStr = strsplit("-", destGUID)
 										if find(destGUID, "^P[le][at]") then -- Only players/pets, don't remove "-" from NPC names
 											destName = gsub(destName, "%-.+", "*") -- Replace server name with *
 										end
@@ -316,9 +317,11 @@ do
 											srcName = gsub(srcName, "%-.+", "*") -- Replace server name with *
 										end
 										srcName = gsub(srcName, "%(.+", "") -- Remove health/mana
-										if srcGUID == destGUID then
+										if find(srcGUID, "^P[le][at]") and find(destGUID, "^P[le][at]") then
 											tbl[spellId] = "|cFF81BEF7".. srcName .."(".. srcGUIDType ..") >> ".. destName .."(".. destGUIDType ..")|r"
 										else
+											if srcGUIDType == "Creature" then srcGUIDType = srcGUIDType .."[".. npcIdStr .."]" end
+											if destGUIDType == "Creature" then destGUIDType = destGUIDType .."[".. destNpcIdStr .."]" end
 											tbl[spellId] = "|cFF3ADF00".. srcName .."(".. srcGUIDType ..") >> ".. destName .."(".. destGUIDType ..")|r"
 										end
 										if not total[spellId] then
@@ -473,7 +476,7 @@ do
 						local srcFlags = tonumber(flagsText)
 						local tbl = tables[j]
 						local sortedTbl = sortedTables[j]
-						if srcName == "nil" and spellId and srcFlags and band(srcFlags, mineOrPartyOrRaid) ~= 0 and not ignoreList[spellId] and not badSourcelessPlayerSpellList[spellId] and not total[spellId] and #sortedTbl < 15 then -- Check total to avoid duplicates and lock to a max of 15 for sanity
+						if srcName == "nil" and spellId and srcFlags and band(srcFlags, mineOrPartyOrRaid) ~= 0 and not ignoreList[spellId] and not badSourcelessPlayerSpellList[spellId] and not total[spellId] then -- Check total to avoid duplicates
 							if find(destGUID, "^P[le][at]") then -- Only players/pets, don't remove "-" from NPC names
 								tbl[spellId] = gsub(destName, "%-.+", "*") -- Replace server name with *
 							else
