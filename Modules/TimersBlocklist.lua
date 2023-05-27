@@ -70,19 +70,28 @@ addonTbl.TIMERS_BLOCKLIST = {
 	[375889] = { -- Greatstaff's Wrath
 		[191448] = true, -- Greatstaff of the Broodkeeper (Buffs/Debuffs on Each different staff)
 	},
+	[375716] = { -- Ice Barrage
+		[191206] = true, -- Primalist Mage (Small Adds Broodkeeper)
+	},
 	[385547] = { -- Ascension
-		[194990] = true, -- Stormseeker Acolyte (Trash)
+		[194990] = true, -- Stormseeker Acolyte (Small Adds Raszageth)
 	},
 	[385553] = { -- Storm Bolt
-		[194990] = true, -- Stormseeker Acolyte (Trash)
+		[194990] = true, -- Stormseeker Acolyte (Small Adds Raszageth)
 	},
 	[388631] = { -- Volatile
-		[194999] = true, -- Volatile Spark (Small Adds)
+		[194999] = true, -- Volatile Spark (Small Adds Raszageth)
 	},
 	[388635] = { -- Burst
-		[194999] = true, -- Volatile Spark (Small Adds)
+		[194999] = true, -- Volatile Spark (Small Adds Raszageth)
 	},
-	[400259] = {
-		[194999] = true, -- Volatile Spark (Small Adds)
+	[400259] = { -- -ClearAllDebuffs-
+		[194999] = true, -- Volatile Spark (Small Adds Raszageth)
+	},
+	[388638] = { -- Volatile Current
+		[194999] = true, -- Volatile Spark (Small Adds Raszageth)
+	},
+	[385559] = { -- Windforce Strikes
+		[194991] = true, -- Oathsworn Vanguard (Small Adds Raszageth)
 	}
 }
