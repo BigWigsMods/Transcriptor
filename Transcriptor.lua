@@ -231,8 +231,9 @@ do
 		scrollArea:SetScrollChild(editBox[i])
 	end
 
-	local function GetLogSpells()
+	local function GetLogSpells(slashCommandText)
 		if InCombatLockdown() or UnitAffectingCombat("player") or IsFalling() then return end
+		if slashCommandText == "logflags" then TranscriptIgnore.logFlags = true print("Player flags will be added to all future logs.") return end
 
 		local total, totalSorted = {}, {}
 		local auraTbl, castTbl, summonTbl, extraAttacksTbl, empowerTbl = {}, {}, {}, {}, {}
@@ -398,7 +399,15 @@ do
 		end
 
 		-- Display newly found spells for analysis
-		editBox[1]:SetText(text)
+		if not TranscriptIgnore.logFlags then
+			editBox[1]:SetText("For this feature to work, player flags must be added to the logs.\nYou can enable additional logging by typing:\n/getspells logflags")
+		else
+			if not text:find("%d%d%d") then
+				editBox[1]:SetText("Nothing was found.\nYou might be looking at logs that didn't have player flags recorded.")
+			else
+				editBox[1]:SetText(text)
+			end
+		end
 		frame[1]:ClearAllPoints()
 		frame[1]:SetPoint("RIGHT", UIParent, "CENTER")
 		frame[1]:Show()
