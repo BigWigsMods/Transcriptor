@@ -5,7 +5,6 @@ local PLAYER_SPELL_BLOCKLIST
 local TIMERS_SPECIAL_EVENTS
 local TIMERS_SPECIAL_EVENTS_DATA
 local TIMERS_BLOCKLIST
-local badSourcelessPlayerSpellList
 
 do
 	local _, addonTbl = ...
@@ -191,17 +190,15 @@ end
 do
 	-- Create UI spell display, copied from BasicChatMods
 	local frame, editBox = {}, {}
-	for i = 1, 4 do
+	for i = 1, 2 do
 		frame[i] = CreateFrame("Frame", nil, UIParent, "SettingsFrameTemplate")
 		frame[i]:SetWidth(650)
-		frame[i]:SetHeight(450)
+		frame[i]:SetHeight(650)
 		frame[i]:Hide()
 		frame[i]:SetFrameStrata("DIALOG")
 		frame[i].NineSlice.Text:SetText(
 			i==1 and "Transcriptor Spells" or
-			i==2 and "Transcriptor Spells Full DB" or
-			i==3 and "Transcriptor Sourceless Spells" or
-			i==4 and "Transcriptor Sourceless Spells Full DB"
+			i==2 and "Transcriptor Spells Full DB"
 		)
 
 		local scrollArea = CreateFrame("ScrollFrame", nil, frame[i], "ScrollFrameTemplate")
@@ -217,7 +214,7 @@ do
 		editBox[i]:SetWidth(620)
 		editBox[i]:SetHeight(450)
 		editBox[i]:SetScript("OnEscapePressed", function(f) f:GetParent():GetParent():Hide() f:SetText("") end)
-		if i % 2 ~= 0 then
+		if i == 1 then
 			editBox[i]:SetScript("OnHyperlinkLeave", GameTooltip_Hide)
 			editBox[i]:SetScript("OnHyperlinkEnter", function(_, link)
 				if link and find(link, "spell", nil, true) then
@@ -403,7 +400,7 @@ do
 		-- Display newly found spells for analysis
 		editBox[1]:SetText(text)
 		frame[1]:ClearAllPoints()
-		frame[1]:SetPoint("BOTTOMRIGHT", UIParent, "CENTER")
+		frame[1]:SetPoint("RIGHT", UIParent, "CENTER")
 		frame[1]:Show()
 
 		for k in next, PLAYER_SPELL_BLOCKLIST do
@@ -428,140 +425,10 @@ do
 		-- Display full blacklist for copying into Transcriptor
 		editBox[2]:SetText(exportText)
 		frame[2]:ClearAllPoints()
-		frame[2]:SetPoint("BOTTOMLEFT", UIParent, "CENTER")
+		frame[2]:SetPoint("LEFT", UIParent, "CENTER")
 		frame[2]:Show()
-
-		---------------------------------------------------------------------------------
-		-- SOURCELESS
-		---------------------------------------------------------------------------------
-
-		total, totalSorted = {}, {}
-		auraTbl, castTbl, summonTbl = {}, {}, {}
-		aurasSorted, castsSorted, summonSorted = {}, {}, {}
-		ignoreList = {
-			[236283] = true, -- Belac's Prisoner
-			[236516] = true, -- Twilight Volley
-			[236519] = true, -- Moon Burn
-			[237351] = true, -- Lunar Barrage
-			[240706] = true, -- Arcane Ward
-			[241032] = true, -- Desolation of the Moon
-			[241169] = true, -- Umbra Destruction
-			[236011] = true, -- Tormented Cries
-			[236241] = true, -- Soul Rot
-			[236459] = true, -- Soulbind
-			[235534] = true, -- Creator's Grace
-			[235538] = true, -- Demon's Vigor
-			[236420] = true, -- Aegwynn's Ward
-			[240209] = true, -- Unstable Soul
-			[240249] = true, -- Molten Fel
-			[243267] = true, -- Velen's Light
-			[231768] = true, -- Drenching Waters
-			[231770] = true, -- Drenched
-			[232732] = true, -- Slicing Tornado
-			[232913] = true, -- Befouling Ink
-			[234621] = true, -- Devouring Maw
-			[236329] = true, -- Star Burn
-			[243294] = true, -- Fel Slicer
-			[238442] = true, -- Spear of Anguish
-			[241593] = true, -- Aegwynn's Ward
-			[236555] = true, -- Deceiver's Veil
-			[241721] = true, -- Illidan's Sightless Gaze
-			[241822] = true, -- Choking Shadow
-			[242696] = true, -- Deceiver's Veil
-			[230345] = true, -- Crashing Comet
-			[230348] = true, -- Fel Pool
-			[233901] = true, -- Suffocating Dark
-		}
-		local eventsNoSource = {
-			"SPELL_AURA_[AR][^#]+#(%d+)##([^#]+)#([^#]+%-[^#]+)#([^#]+)#(%d+)#[^#]+#", -- SPELL_AURA_[AR] to filter _BROKEN
-			"SPELL_CAST_[^#]+#(%d+)##([^#]+)#([^#]+%-[^#]+)#([^#]+)#(%d+)#[^#]+#",
-			"SPELL_SUMMON#(%d+)##([^#]+)#([^#]+%-[^#]+)#([^#]+)#(%d+)#[^#]+#"
-		}
-		tables = {
-			auraTbl,
-			castTbl,
-			summonTbl,
-		}
-		sortedTables = {
-			aurasSorted,
-			castsSorted,
-			summonSorted,
-		}
-		for _, logTbl in next, TranscriptDB do
-			if type(logTbl) == "table" and logTbl.total then
-				for i=1, #logTbl.total do
-					local logEntry = logTbl.total[i]
-
-					for j = 1, 3 do
-						local flagsText, srcName, destGUID, destName, idText = strmatch(logEntry, eventsNoSource[j])
-						local spellId = tonumber(idText)
-						local srcFlags = tonumber(flagsText)
-						local tbl = tables[j]
-						local sortedTbl = sortedTables[j]
-						if srcName == "nil" and spellId and srcFlags and band(srcFlags, mineOrPartyOrRaid) ~= 0 and not ignoreList[spellId] and not badSourcelessPlayerSpellList[spellId] and not total[spellId] then -- Check total to avoid duplicates
-							if find(destGUID, "^P[le][at]") then -- Only players/pets, don't remove "-" from NPC names
-								tbl[spellId] = gsub(destName, "%-.+", "*") -- Replace server name with *
-							else
-								tbl[spellId] = destName
-							end
-							total[spellId] = true
-							sortedTbl[#sortedTbl+1] = spellId
-						end
-					end
-				end
-			end
-		end
-
-		tsort(aurasSorted)
-		text = "-- AURAS\n"
-		for i = 1, #aurasSorted do
-			local id = aurasSorted[i]
-			local name = GetSpellInfo(id)
-			text = format("%s%d || |cFFFFFF00|Hspell:%d|h%s|h|r || %s\n", text, id, id, name, auraTbl[id])
-		end
-
-		tsort(castsSorted)
-		text = text.. "\n-- CASTS\n"
-		for i = 1, #castsSorted do
-			local id = castsSorted[i]
-			local name = GetSpellInfo(id)
-			text = format("%s%d || |cFFFFFF00|Hspell:%d|h%s|h|r || %s\n", text, id, id, name, castTbl[id])
-		end
-
-		tsort(summonSorted)
-		text = text.. "\n-- SUMMONS\n"
-		for i = 1, #summonSorted do
-			local id = summonSorted[i]
-			local name = GetSpellInfo(id)
-			text = format("%s%d || |cFFFFFF00|Hspell:%d|h%s|h|r || %s\n", text, id, id, name, summonTbl[id])
-		end
-
-		-- Display newly found spells for analysis
-		editBox[3]:SetText(text)
-		frame[3]:ClearAllPoints()
-		frame[3]:SetPoint("TOPRIGHT", UIParent, "CENTER")
-		frame[3]:Show()
-
-		for k in next, badSourcelessPlayerSpellList do
-			total[k] = true
-		end
-		for k in next, total do
-			totalSorted[#totalSorted+1] = k
-		end
-		tsort(totalSorted)
-		text = ""
-		for i = 1, #totalSorted do
-			local id = totalSorted[i]
-			local name = GetSpellInfo(id)
-			text = format("%s[%d] = true, -- %s\n", text, id, name)
-		end
-
-		-- Display full blacklist for copying into Transcriptor
-		editBox[4]:SetText(text)
-		frame[4]:ClearAllPoints()
-		frame[4]:SetPoint("TOPLEFT", UIParent, "CENTER")
-		frame[4]:Show()
 	end
+
 	SlashCmdList.GETSPELLS = GetLogSpells
 	SLASH_GETSPELLS1 = "/getspells"
 end
@@ -745,9 +612,6 @@ do
 end
 
 do
-	badSourcelessPlayerSpellList = {
-		[81782] = true, -- Power Word: Barrier
-	}
 	local badPlayerFilteredEvents = {
 		["SPELL_CAST_SUCCESS"] = true,
 		["SPELL_AURA_APPLIED"] = true,
@@ -806,13 +670,12 @@ do
 		end
 
 		if badEvents[event] or
-		   (event == "UNIT_DIED" and band(destFlags, mineOrPartyOrRaid) ~= 0 and band(destFlags, guardian) == guardian) or -- Guardian deaths, player deaths can explain debuff removal
+		   (event == "UNIT_DIED" and band(destFlags, mineOrPartyOrRaid) ~= 0 and band(destFlags, guardian) == guardian) or -- Filter guardian deaths only, player deaths can explain debuff removal
 		   (sourceName and badPlayerEvents[event] and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or
 		   (sourceName and badPlayerFilteredEvents[event] and PLAYER_SPELL_BLOCKLIST[spellId] and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or
-		   (not sourceName and destName and badPlayerFilteredEvents[event] and badSourcelessPlayerSpellList[spellId] and band(destFlags, mineOrPartyOrRaid) ~= 0) or
-		   -- Temporary (hopefully) hacks, due to srcFlags not correctly attributing as mineOrPartyOrRaid
-		   (spellId == 120694 and sourceName == "Beast" and band(destFlags, mineOrPartyOrRaid) ~= 0) or -- Dire Beast from summoned creature to player
-		   (spellId == 22568 and event == "SPELL_DRAIN" and band(sourceFlags, mineOrPartyOrRaid) ~= 0) -- Feral Druid casting Ferocious Bite
+		   (spellId == 120694 and sourceName == "Beast" and band(destFlags, mineOrPartyOrRaid) ~= 0) or -- Dire Beast from summoned creature to player, srcFlags not correctly attributing as mineOrPartyOrRaid
+		   (spellId == 22568 and event == "SPELL_DRAIN" and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or -- Feral Druid casting Ferocious Bite
+		   (spellId == 81782 and not sourceName and band(destFlags, mineOrPartyOrRaid) ~= 0) -- Power Word: Barrier on players has a nil source
 		then
 			return
 		else
