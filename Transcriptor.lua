@@ -137,7 +137,7 @@ end
 
 function GetMapArtID(name)
 	name = name:lower()
-	for i=1,3000 do
+	for i=1,100000 do
 		local fetchedTbl = C_Map.GetMapInfo(i)
 		if fetchedTbl and fetchedTbl.name then
 			local lowerFetchedName = fetchedTbl.name:lower()
@@ -149,7 +149,7 @@ function GetMapArtID(name)
 end
 function GetInstanceID(name)
 	name = name:lower()
-	for i=1,3000 do
+	for i=1,100000 do
 		local fetchedName = GetRealZoneText(i)
 		local lowerFetchedName = fetchedName:lower()
 		if find(lowerFetchedName, name, nil, true) then
@@ -159,7 +159,7 @@ function GetInstanceID(name)
 end
 function GetBossID(name)
 	name = name:lower()
-	for i=1,3000 do
+	for i=1,100000 do
 		local fetchedName = EJ_GetEncounterInfo(i)
 		if fetchedName then
 			local lowerFetchedName = fetchedName:lower()
@@ -171,7 +171,7 @@ function GetBossID(name)
 end
 function GetSectionID(name)
 	name = name:lower()
-	for i=1,15000 do
+	for i=1,100000 do
 		local tbl = C_EncounterJournal_GetSectionInfo(i)
 		if tbl then
 			local fetchedName = tbl.title
