@@ -701,6 +701,15 @@ do
 		["SPELL_ABSORBED"] = true,
 		["SPELL_CAST_FAILED"] = true,
 	}
+	local badNPCs = { -- These are NPCs summoned by your group but are incorrectly not marked as mineOrPartyOrRaid, so we manually filter
+		[3527] = true, -- Healing Stream Totem, casts Healing Stream Totem (52042) on friendlies
+		[5334] = true, -- Windfury Totem, casts Windfury Totem (327942) on friendlies
+		[27829] = true, -- Ebon Gargoyle, casts Gargoyle Strike (51963) on hostiles
+		[27893] = true, -- Rune Weapon, casts Blood Plague (55078) on hostiles
+		[29264] = true, -- Spirit Wolf, casts Earthen Weapon (392375) on friendlies
+		[61245] = true, -- Capacitor Totem, casts Static Charge (118905) on hostiles
+		[198236] = true, -- Divine Image, casts Blessed Light (196813) on friendlies
+	}
 	local guardian = 8192 -- COMBATLOG_OBJECT_TYPE_GUARDIAN
 	local dmgCache, dmgPrdcCache = {}, {}
 	local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
@@ -709,7 +718,7 @@ do
 	-- HFC/Socrethar - Player cast on friendly vehicle "SPELL_CAST_SUCCESS#Player-GUID#PLAYER#Vehicle-0-3151-1448-8853-90296-00001D943C#Soulbound Construct#190466#Incomplete Binding"
 	-- HFC/Zakuun - Player boss debuff cast on self "SPELL_AURA_APPLIED#Player-GUID#PLAYER#Player-GUID#PLAYER#189030#Befouled#DEBUFF#"
 	-- ToS/Sisters - Boss pet marked as guardian "SPELL_CAST_SUCCESS#Creature-0-3895-1676-10786-119205-0000063360#Moontalon##nil#236697#Deathly Screech"
-	-- NPC makes the player cast a debuff on themselves, so SPELL_PERIODIC_DAMAGE has the source and dest as the player
+	-- Neltharus/Sargha - Player picks up an item from gold pile that makes you cast a debuff on yourself, SPELL_PERIODIC_DAMAGE#Player-GUID#PLAYER#Player-GUID#PLAYER#391762#Curse of the Dragon Hoard
 	function sh.COMBAT_LOG_EVENT_UNFILTERED()
 		local timeStamp, event, _, sourceGUID, sourceName, sourceFlags, _, destGUID, destName, destFlags, _, spellId, spellName, _, extraSpellId, amount = CombatLogGetCurrentEventInfo()
 
@@ -717,58 +726,61 @@ do
 			hiddenAuraPermList[spellId] = true
 		end
 
+		local npcId = MobId(sourceGUID)
+
 		if badEvents[event] or
+		   badNPCs[npcId] or -- Filter NPCs that are friendly summons but aren't flagged as guardians or as being in the group (COMBATLOG_OBJECT_AFFILIATION_OUTSIDER)
 		   (event == "UNIT_DIED" and band(destFlags, mineOrPartyOrRaid) ~= 0 and band(destFlags, guardian) == guardian) or -- Filter guardian deaths only, player deaths can explain debuff removal
 		   (sourceName and badPlayerEvents[event] and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or
 		   (sourceName and badPlayerFilteredEvents[event] and PLAYER_SPELL_BLOCKLIST[spellId] and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or
-		   (spellId == 120694 and sourceName == "Beast" and band(destFlags, mineOrPartyOrRaid) ~= 0) or -- Dire Beast from summoned creature to player, srcFlags not correctly attributing as mineOrPartyOrRaid
 		   (spellId == 22568 and event == "SPELL_DRAIN" and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or -- Feral Druid casting Ferocious Bite
-		   (spellId == 81782 and not sourceName and band(destFlags, mineOrPartyOrRaid) ~= 0) -- Power Word: Barrier on players has a nil source
+		   (spellId == 81782 and not sourceName and band(destFlags, mineOrPartyOrRaid) ~= 0) or -- Power Word: Barrier on players has a nil source
+		   (spellId == 145629 and not sourceName and band(destFlags, mineOrPartyOrRaid) ~= 0) -- Anti-Magic Zone on players has a nil source
 		then
 			return
 		else
 			--if (sourceName and badPlayerFilteredEvents[event] and PLAYER_SPELL_BLOCKLIST[spellId] and band(sourceFlags, mineOrPartyOrRaid) == 0) then
-			--	print("Transcriptor:", sourceName..":"..MobId(sourceGUID), "used spell", spellName..":"..spellId, "in event", event, "but isn't in our group.")
+			--	print("Transcriptor:", sourceName..":"..npcId, "used spell", spellName..":"..spellId, "in event", event, "but isn't in our group.")
 			--end
 
 			if event == "SPELL_CAST_SUCCESS" and (not sourceName or (band(sourceFlags, mineOrPartyOrRaid) == 0 and not find(sourceGUID, "Player", nil, true))) then
 				if not compareSuccess then compareSuccess = {} end
 				if not compareSuccess[spellId] then compareSuccess[spellId] = {} end
-				local npcId = MobId(sourceGUID, true)
-				if not compareSuccess[spellId][npcId] then
+				local npcIdString = MobId(sourceGUID, true)
+				if not compareSuccess[spellId][npcIdString] then
 					if previousSpecialEvent then
-						compareSuccess[spellId][npcId] = {{compareStartTime, previousSpecialEvent[1], previousSpecialEvent[2]}}
+						compareSuccess[spellId][npcIdString] = {{compareStartTime, previousSpecialEvent[1], previousSpecialEvent[2]}}
 					else
-						compareSuccess[spellId][npcId] = {compareStartTime}
+						compareSuccess[spellId][npcIdString] = {compareStartTime}
 					end
 				end
-				compareSuccess[spellId][npcId][#compareSuccess[spellId][npcId]+1] = debugprofilestop()
+				compareSuccess[spellId][npcIdString][#compareSuccess[spellId][npcIdString]+1] = debugprofilestop()
 			end
 			if event == "SPELL_CAST_START" and (not sourceName or (band(sourceFlags, mineOrPartyOrRaid) == 0 and not find(sourceGUID, "Player", nil, true))) then
 				if not compareStart then compareStart = {} end
 				if not compareStart[spellId] then compareStart[spellId] = {} end
-				local npcId = MobId(sourceGUID, true)
-				if not compareStart[spellId][npcId] then
+				local npcIdString = MobId(sourceGUID, true)
+				if not compareStart[spellId][npcIdString] then
 					if previousSpecialEvent then
-						compareStart[spellId][npcId] = {{compareStartTime, previousSpecialEvent[1], previousSpecialEvent[2]}}
+						compareStart[spellId][npcIdString] = {{compareStartTime, previousSpecialEvent[1], previousSpecialEvent[2]}}
 					else
-						compareStart[spellId][npcId] = {compareStartTime}
+						compareStart[spellId][npcIdString] = {compareStartTime}
 					end
 				end
-				compareStart[spellId][npcId][#compareStart[spellId][npcId]+1] = debugprofilestop()
+				compareStart[spellId][npcIdString][#compareStart[spellId][npcIdString]+1] = debugprofilestop()
 			end
 			if event == "SPELL_AURA_APPLIED" and (not sourceName or (band(sourceFlags, mineOrPartyOrRaid) == 0 and not find(sourceGUID, "Player", nil, true))) then
 				if not compareAuraApplied then compareAuraApplied = {} end
 				if not compareAuraApplied[spellId] then compareAuraApplied[spellId] = {} end
-				local npcId = MobId(sourceGUID, true)
-				if not compareAuraApplied[spellId][npcId] then
+				local npcIdString = MobId(sourceGUID, true)
+				if not compareAuraApplied[spellId][npcIdString] then
 					if previousSpecialEvent then
-						compareAuraApplied[spellId][npcId] = {{compareStartTime, previousSpecialEvent[1], previousSpecialEvent[2]}}
+						compareAuraApplied[spellId][npcIdString] = {{compareStartTime, previousSpecialEvent[1], previousSpecialEvent[2]}}
 					else
-						compareAuraApplied[spellId][npcId] = {compareStartTime}
+						compareAuraApplied[spellId][npcIdString] = {compareStartTime}
 					end
 				end
-				compareAuraApplied[spellId][npcId][#compareAuraApplied[spellId][npcId]+1] = debugprofilestop()
+				compareAuraApplied[spellId][npcIdString][#compareAuraApplied[spellId][npcIdString]+1] = debugprofilestop()
 			end
 
 			if sourceName and badPlayerFilteredEvents[event] and band(sourceFlags, mineOrPartyOrRaid) ~= 0 then
@@ -778,12 +790,12 @@ do
 			end
 
 			if event == "UNIT_DIED" then
-				local name = TIMERS_SPECIAL_EVENTS.UNIT_DIED[MobId(destGUID)]
+				local name = TIMERS_SPECIAL_EVENTS.UNIT_DIED[npcId]
 				if name then
 					InsertSpecialEvent(name)
 				end
 			elseif TIMERS_SPECIAL_EVENTS[event] and TIMERS_SPECIAL_EVENTS[event][spellId] then
-				local name = TIMERS_SPECIAL_EVENTS[event][spellId][MobId(sourceGUID)]
+				local name = TIMERS_SPECIAL_EVENTS[event][spellId][npcId]
 				if name then
 					InsertSpecialEvent(name)
 				end
