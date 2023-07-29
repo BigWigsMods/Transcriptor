@@ -1315,7 +1315,7 @@ function sh.GOSSIP_SHOW()
 		if gossipOptions[1] then
 			local gossipTbl = {}
 			for i = 1, #gossipOptions do
-				gossipTbl[i] = strjoin(":", gossipOptions[i].gossipOptionID, gossipOptions[i].name or "")
+				gossipTbl[i] = strjoin(":", gossipOptions[i].gossipOptionID or "nil", gossipOptions[i].name or "")
 			end
 			return strjoin("#", guid, tconcat(gossipTbl, ","))
 		end
