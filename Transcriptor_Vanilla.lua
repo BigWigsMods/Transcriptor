@@ -1321,6 +1321,7 @@ local wowEvents = {
 	"CHAT_MSG_BG_SYSTEM_NEUTRAL",
 	"ARENA_OPPONENT_UPDATE",
 }
+
 local eventCategories = {
 	PLAYER_REGEN_DISABLED = "COMBAT",
 	PLAYER_REGEN_ENABLED = "COMBAT",
@@ -1368,6 +1369,8 @@ local eventCategories = {
 	CHAT_MSG_RAID_WARNING = "NONE",
 	NAME_PLATE_UNIT_ADDED = "NONE",
 }
+Transcriptor.EventCategories = eventCategories
+
 local bwEvents = {
 	"BigWigs_Message",
 	"BigWigs_StartBar",
