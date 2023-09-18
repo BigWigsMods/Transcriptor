@@ -1,4 +1,4 @@
-## Interface: 100105
+## Interface: 100107
 ## Title: Transcriptor
 ## Notes: Logging utility for boss encounters.
 ## Notes-deDE: Logging utility for boss encounters.
