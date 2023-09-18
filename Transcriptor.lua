@@ -1645,6 +1645,13 @@ init:SetScript("OnEvent", function(self, event)
 	SLASH_TRANSCRIPTOR2 = "/transcript"
 	SLASH_TRANSCRIPTOR3 = "/ts"
 
+	for i = 1, #wowEvents do
+		local eventEntry = wowEvents[i]
+		if not C_EventUtils.IsEventValid(eventEntry) then
+			print("There's an invalid event in our event list: ".. eventEntry)
+		end
+	end
+
 	self:UnregisterEvent(event)
 	self:RegisterEvent("PLAYER_LOGOUT")
 	self:SetScript("OnEvent", function()
