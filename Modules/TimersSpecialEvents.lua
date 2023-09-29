@@ -102,6 +102,26 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		[350745] = { -- Maw Power (Set to 00)  [DNT]
 			[175726] = "Stage 2" -- Skyja
 		},
+
+		--[[ Amirdrassil, the Dream's Hope ]] --
+		[415090] = { -- Axe Stance
+			[200926] = "Axe" -- Igira the Cruel
+		},
+		[415094] = { -- Knife Stance
+			[200926] = "Knife" -- Igira the Cruel
+		},
+		[415020] = { -- Sword Stance
+			[200926] = "Sword" -- Igira the Cruel
+		},
+		[425282] = { -- Axe Knife Stance
+			[200926] = "AxeKnife" -- Igira the Cruel
+		},
+		[425283] = { -- Axe Sword Stance
+			[200926] = "AxeSword" -- Igira the Cruel
+		},
+		[414357] = { -- Sword Knife Stance
+			[200926] = "SwordKnife" -- Igira the Cruel
+		},
 	},
 	["UNIT_SPELLCAST_INTERRUPTED"] = {
 		-- [[ Battle of Dazar'Alor ]]--
@@ -240,7 +260,12 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		},
 		[410654]= { -- Void Empowerment
 			[201754] = "Stage 2 End" -- Sarkareth
-		}
+		},
+
+		--[[ Amirdrassil, the Dream's Hope ]] --
+		[422067] = { -- Blazing Soul
+			[200927] = "Stage 2" -- Smolderon
+		},
 	},
 	["SPELL_AURA_APPLIED_DOSE"] = {
 		-- [[ Sanctum Of Domination ]] --
@@ -406,7 +431,31 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		},
 		[410654]= { -- Void Empowerment
 			[201754] = "Stage 3" -- Sarkareth
-		}
+		},
+
+		--[[ Amirdrassil, the Dream's Hope ]] --
+		[421840] = { -- Uprooted Agony
+			[209333] = "Stage 1" -- Gnarlroot
+		},
+		[421292]= { -- Constricting Thicket
+			[208365] = function() -- Aerwynn
+				dataTbl[1] = dataTbl[1] - 1
+				if dataTbl[1] == 0 then
+					return "Ultimates Over"
+				end
+			end,
+		},
+		[421029]= { -- Song of the Dragon
+			[208367] = function() -- Pip
+				dataTbl[1] = dataTbl[1] - 1
+				if dataTbl[1] == 0 then
+					return "Ultimates Over"
+				end
+			end,
+		},
+		[422067] = { -- Blazing Soul
+			[200927] = "Stage 1" -- Smolderon
+		},
 	},
 	["SPELL_CAST_START"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -564,6 +613,29 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		[403057] = { -- Surrender to Corruption
 			[201668] = "Stage 2", -- Echo of Neltharion
 		},
+
+		--[[ Amirdrassil, the Dream's Hope ]] --
+		[422776] = { -- Marked for Torment
+			[200926] = "Weapons" -- Igira the Cruel
+		},
+		[420525]= { -- Blind Rage
+			[208363] = function() -- Urctos
+				dataTbl[1] = (dataTbl[1] or 0) + 1
+				return "UrctosUlt"
+			end,
+		},
+		[421292]= { -- Constricting Thicket
+			[208365] = function() -- Aerwynn
+				dataTbl[1] = (dataTbl[1] or 0) + 1
+				return "AerwynnUlt"
+			end,
+		},
+		[421029]= { -- Song of the Dragon
+			[208367] = function() -- Pip
+				dataTbl[1] = (dataTbl[1] or 0) + 1
+				return "PipUlt"
+			end,
+		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -650,7 +722,20 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		-- [[ Aberrus ]] --
 		[406730] = { -- Crucible Instability
 			[201773] = "Stage 2" -- Eternal Blaze
-		}
+		},
+
+		--[[ Amirdrassil, the Dream's Hope ]] --
+		[421090] = { -- Marked for Torment
+			[209333] = "Stage 2" -- Gnarlroot
+		},
+		[418757]= { -- Polymorph Bomb
+			[208367] = function() -- Pip casting on Urctos
+				dataTbl[1] = dataTbl[1] - 1
+				if dataTbl[1] == 0 then
+					return "Ultimates Over"
+				end
+			end,
+		},
 	},
 	["UNIT_DIED"] = {
 		--[[ Antorus, the Burning Throne ]]--
