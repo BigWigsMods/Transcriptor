@@ -22,6 +22,7 @@ local compareSuccess = nil
 local compareUnitSuccess = nil
 local compareEmotes = nil
 local compareStart = nil
+local compareSummon = nil
 local compareAuraApplied = nil
 local compareStartTime = nil
 local collectNameplates = nil
@@ -103,6 +104,13 @@ local function InsertSpecialEvent(name)
 	end
 	if compareStart then
 		for _,tbl in next, compareStart do
+			for _, list in next, tbl do
+				list[#list+1] = {t, name}
+			end
+		end
+	end
+	if compareSummon then
+		for _,tbl in next, compareSummon do
 			for _, list in next, tbl do
 				list[#list+1] = {t, name}
 			end
@@ -769,6 +777,19 @@ do
 				end
 				compareStart[spellId][npcIdString][#compareStart[spellId][npcIdString]+1] = debugprofilestop()
 			end
+			if event == "SPELL_SUMMON" and (not sourceName or (band(sourceFlags, mineOrPartyOrRaid) == 0 and not find(sourceGUID, "Player", nil, true))) then
+				if not compareSummon then compareSummon = {} end
+				if not compareSummon[spellId] then compareSummon[spellId] = {} end
+				local npcIdString = MobId(sourceGUID, true)
+				if not compareSummon[spellId][npcIdString] then
+					if previousSpecialEvent then
+						compareSummon[spellId][npcIdString] = {{compareStartTime, previousSpecialEvent[1], previousSpecialEvent[2]}}
+					else
+						compareSummon[spellId][npcIdString] = {compareStartTime}
+					end
+				end
+				compareSummon[spellId][npcIdString][#compareSummon[spellId][npcIdString]+1] = debugprofilestop()
+			end
 			if event == "SPELL_AURA_APPLIED" and (not sourceName or (band(sourceFlags, mineOrPartyOrRaid) == 0 and not find(sourceGUID, "Player", nil, true))) then
 				if not compareAuraApplied then compareAuraApplied = {} end
 				if not compareAuraApplied[spellId] then compareAuraApplied[spellId] = {} end
@@ -956,7 +977,7 @@ do
 					dmgPrdcCache.spellId = nil
 				end
 
-				if (event == "SPELL_CAST_START" or event == "SPELL_CAST_SUCCESS") and UnitTokenFromGUID and sourceName and sourceGUID then
+				if (event == "SPELL_CAST_START" or event == "SPELL_SUMMON" or event == "SPELL_CAST_SUCCESS") and UnitTokenFromGUID and sourceName and sourceGUID then
 					local unit = UnitTokenFromGUID(sourceGUID)
 					if unit then
 						local hp = UnitPercentHealthFromGUID(sourceGUID)
@@ -1868,7 +1889,7 @@ function Transcriptor:StopLog(silent)
 			print(L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."])
 		end
 
-		if compareSuccess or compareStart or compareAuraApplied or compareUnitSuccess or compareEmotes then
+		if compareSuccess or compareStart or compareSummon or compareAuraApplied or compareUnitSuccess or compareEmotes then
 			currentLog.TIMERS = {}
 			if compareSuccess then
 				currentLog.TIMERS.SPELL_CAST_SUCCESS = {}
@@ -2015,6 +2036,79 @@ function Transcriptor:StopLog(silent)
 					end
 				end
 				tsort(currentLog.TIMERS.SPELL_CAST_START)
+			end
+			if compareSummon then
+				currentLog.TIMERS.SPELL_SUMMON = {}
+				for spellId,tbl in next, compareSummon do
+					for npcPartialGUID, list in next, tbl do
+						local npcId = strsplit("-", npcPartialGUID)
+						if not TIMERS_BLOCKLIST[spellId] or not TIMERS_BLOCKLIST[spellId][tonumber(npcId)] then
+							local n = format("%s-%d-npc:%s", GetSpellInfo(spellId), spellId, npcPartialGUID)
+							local str
+							for i = 2, #list do
+								if not str then
+									if type(list[1]) == "table" then
+										local sincePull = list[i] - list[1][1]
+										local sincePreviousEvent = list[i] - list[1][2]
+										local previousEventName = list[1][3]
+										str = format("%s = pull:%.1f/%s/%.1f", n, sincePull/1000, previousEventName, sincePreviousEvent/1000)
+									else
+										local sincePull = list[i] - list[1]
+										str = format("%s = pull:%.1f", n, sincePull/1000)
+									end
+								else
+									if type(list[i]) == "table" then
+										if type(list[i-1]) == "number" then
+											local t = list[i][1]-list[i-1]
+											str = format("%s, %s/%.1f", str, list[i][2], t/1000)
+										elseif type(list[i-1]) == "table" then
+											local t = list[i][1]-list[i-1][1]
+											str = format("%s, %s/%.1f", str, list[i][2], t/1000)
+										else
+											str = format("%s, %s", str, list[i][2])
+										end
+									else
+										if type(list[i-1]) == "table" then
+											if type(list[i-2]) == "table" then
+												if type(list[i-3]) == "table" then
+													if type(list[i-4]) == "table" then
+														local counter = 5
+														while type(list[i-counter]) == "table" do
+															counter = counter + 1
+														end
+														local tStage = list[i] - list[i-1][1]
+														local t = list[i] - list[i-counter]
+														str = format("%s, TooManyStages/%.1f/%.1f", str, tStage/1000, t/1000)
+													else
+														local tStage = list[i] - list[i-1][1]
+														local tStagePrevious = list[i] - list[i-2][1]
+														local tStagePreviousMore = list[i] - list[i-3][1]
+														local t = list[i] - list[i-4]
+														str = format("%s, %.1f/%.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, tStagePreviousMore/1000, t/1000)
+													end
+												else
+													local tStage = list[i] - list[i-1][1]
+													local tStagePrevious = list[i] - list[i-2][1]
+													local t = list[i] - list[i-3]
+													str = format("%s, %.1f/%.1f/%.1f", str, tStage/1000, tStagePrevious/1000, t/1000)
+												end
+											else
+												local tStage = list[i] - list[i-1][1]
+												local t = list[i] - list[i-2]
+												str = format("%s, %.1f/%.1f", str, tStage/1000, t/1000)
+											end
+										else
+											local t = list[i] - list[i-1]
+											str = format("%s, %.1f", str, t/1000)
+										end
+									end
+								end
+							end
+							currentLog.TIMERS.SPELL_SUMMON[#currentLog.TIMERS.SPELL_SUMMON+1] = str
+						end
+					end
+				end
+				tsort(currentLog.TIMERS.SPELL_SUMMON)
 			end
 			if compareAuraApplied then
 				currentLog.TIMERS.SPELL_AURA_APPLIED = {}
