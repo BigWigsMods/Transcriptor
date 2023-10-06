@@ -453,8 +453,17 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 				end
 			end,
 		},
+		[421316]= { -- Consuming Flame
+			[208445] = "Stage 2" -- Larodar, Keeper of the Flame
+		},
 		[422067] = { -- Blazing Soul
 			[200927] = "Stage 1" -- Smolderon
+		},
+		[424180] = { -- Supernova
+			[209090] = function() -- Tindral Sageswift
+				dataTbl[1] = (dataTbl[1] or 1) + 1
+				return "Stage " .. dataTbl[1]
+			end,
 		},
 	},
 	["SPELL_CAST_START"] = {
@@ -618,6 +627,9 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		[422776] = { -- Marked for Torment
 			[200926] = "Weapons" -- Igira the Cruel
 		},
+		[420933]= { -- Flood of the Firelands
+			[208478] = "Submerge" -- Volcoross
+		},
 		[420525]= { -- Blind Rage
 			[208363] = function() -- Urctos
 				dataTbl[1] = (dataTbl[1] or 0) + 1
@@ -635,6 +647,12 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 				dataTbl[1] = (dataTbl[1] or 0) + 1
 				return "PipUlt"
 			end,
+		},
+		[420846] = { -- Continuum
+			[206172] = "Continuum"  -- Nymue
+		},
+		[421603] = { -- Incarnation: Owl of the Flame
+			[209090] = "Intermission"  -- Tindral Sageswift
 		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
