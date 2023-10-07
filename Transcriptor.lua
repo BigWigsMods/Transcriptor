@@ -2379,6 +2379,7 @@ function Transcriptor:StopLog(silent)
 		compareUnitSuccess = nil
 		compareEmotes = nil
 		compareStart = nil
+		compareSummon = nil
 		compareAuraApplied = nil
 		compareStartTime = nil
 		collectPlayerAuras = nil
