@@ -263,6 +263,9 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		},
 
 		--[[ Amirdrassil, the Dream's Hope ]] --
+		[421316] = { -- Consuming Flame
+			[208445] = "Intermission" -- Larodar, Keeper of the Flame
+		},
 		[422067] = { -- Blazing Soul
 			[200927] = "Stage 2" -- Smolderon
 		},
@@ -459,7 +462,13 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		[422067] = { -- Blazing Soul
 			[200927] = "Stage 1" -- Smolderon
 		},
-		[424180] = { -- Supernova
+		[424180] = { -- Supernova -- XXX Outdated?
+			[209090] = function() -- Tindral Sageswift
+				dataTbl[1] = (dataTbl[1] or 1) + 1
+				return "Stage " .. dataTbl[1]
+			end,
+		},
+		[424140] = { -- Supernova (Mythic)
 			[209090] = function() -- Tindral Sageswift
 				dataTbl[1] = (dataTbl[1] or 1) + 1
 				return "Stage " .. dataTbl[1]
@@ -647,6 +656,9 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 				dataTbl[1] = (dataTbl[1] or 0) + 1
 				return "PipUlt"
 			end,
+		},
+		[426855] = { -- Full Bloom
+			[206172] = "Full Bloom"  -- Nymue
 		},
 		[420846] = { -- Continuum
 			[206172] = "Continuum"  -- Nymue
