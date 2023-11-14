@@ -474,6 +474,12 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 				return "Stage " .. dataTbl[1]
 			end,
 		},
+		[421922]= { -- Corrupt
+			[204931] = function() -- Fyrakk
+				dataTbl[1] = 2
+				return "Stage 2"
+			end,
+		},
 	},
 	["SPELL_CAST_START"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -666,6 +672,15 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		[421603] = { -- Incarnation: Owl of the Flame
 			[209090] = "Intermission"  -- Tindral Sageswift
 		},
+		[412761]= { -- Incarnate
+			[204931] = function() -- Fyrakk
+				local stage = (dataTbl[1] or 1)
+				if stage == 1 then -- Intermission
+					dataTbl[1] = 1.5
+					return "Intermission"
+				end
+			end,
+		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -764,6 +779,12 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 				if dataTbl[1] == 0 then
 					return "Ultimates Over"
 				end
+			end,
+		},
+		[422935]= { -- Eternal Fire
+			[204931] = function() -- Fyrakk
+				dataTbl[1] = 3
+				return "Stage 3"
 			end,
 		},
 	},
