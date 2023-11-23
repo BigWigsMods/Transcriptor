@@ -605,6 +605,10 @@ do
 		[3457] = true, -- Stone Soup
 		[4236] = true, -- Accumulated Hoard of Draconic Delicacies
 		[4460] = true, -- Dragonriding - Vigor
+		[5140] = true, -- Dragonriding - Vigor
+		[5143] = true, -- Dragonriding - Vigor
+		[5144] = true, -- Dragonriding - Vigor
+		[5145] = true, -- Dragonriding - Vigor
 	}
 
 	-- Each widgetType has a different function to get all data for the widget.
