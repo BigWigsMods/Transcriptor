@@ -232,7 +232,7 @@ do
 	end
 
 	local function GetLogSpells(slashCommandText)
-		if InCombatLockdown() or UnitAffectingCombat("player") or IsFalling() then return end
+		if InCombatLockdown() or UnitAffectingCombat("player") or IsFalling() then print("You cannot do that in combat.") return end
 		if slashCommandText == "logflags" then TranscriptIgnore.logFlags = true print("Player flags will be added to all future logs.") return end
 
 		local total, totalSorted = {}, {}
