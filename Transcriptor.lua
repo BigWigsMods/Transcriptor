@@ -5,6 +5,7 @@ local PLAYER_SPELL_BLOCKLIST
 local TIMERS_SPECIAL_EVENTS
 local TIMERS_SPECIAL_EVENTS_DATA
 local TIMERS_BLOCKLIST
+local RETAIL
 
 do
 	local _, addonTbl = ...
@@ -12,6 +13,7 @@ do
 	TIMERS_SPECIAL_EVENTS = addonTbl.TIMERS_SPECIAL_EVENTS or {} -- TimersSpecialEvents.lua
 	TIMERS_SPECIAL_EVENTS_DATA = addonTbl.TIMERS_SPECIAL_EVENTS_DATA or {} -- TimersSpecialEvents.lua
 	TIMERS_BLOCKLIST = addonTbl.TIMERS_BLOCKLIST or {} -- TimersBlocklist.lua
+	RETAIL = addonTbl.retail or false
 end
 
 local logName = nil
@@ -47,12 +49,11 @@ local debugprofilestop = debugprofilestop
 
 local C_Scenario, C_DeathInfo_GetSelfResurrectOptions, Enum = C_Scenario, C_DeathInfo.GetSelfResurrectOptions, Enum
 local IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease = IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease
-local IsAltKeyDown, EJ_GetEncounterInfo, C_EncounterJournal_GetSectionInfo = IsAltKeyDown, EJ_GetEncounterInfo, C_EncounterJournal.GetSectionInfo
 local UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo = UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo
 local UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification = UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification
 local UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth = UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth
 local UnitLevel, UnitCreatureType, UnitPercentHealthFromGUID, UnitTokenFromGUID = UnitLevel, UnitCreatureType, UnitPercentHealthFromGUID, UnitTokenFromGUID
-local GetInstanceInfo = GetInstanceInfo
+local GetInstanceInfo, IsAltKeyDown = GetInstanceInfo, IsAltKeyDown
 local GetZoneText, GetRealZoneText, GetSubZoneText, GetSpellInfo = GetZoneText, GetRealZoneText, GetSubZoneText, GetSpellInfo
 local GetBestMapForUnit = C_Map.GetBestMapForUnit
 local C_GossipInfo_GetOptions = C_GossipInfo.GetOptions
@@ -158,28 +159,36 @@ function GetInstanceID(name)
 	end
 end
 function GetBossID(name)
-	name = name:lower()
-	for i=1,100000 do
-		local fetchedName = EJ_GetEncounterInfo(i)
-		if fetchedName then
-			local lowerFetchedName = fetchedName:lower()
-			if find(lowerFetchedName, name, nil, true) then
-				print(fetchedName..": "..i)
+	if EJ_GetEncounterInfo then
+		name = name:lower()
+		for i=1,100000 do
+			local fetchedName = EJ_GetEncounterInfo(i)
+			if fetchedName then
+				local lowerFetchedName = fetchedName:lower()
+				if find(lowerFetchedName, name, nil, true) then
+					print(fetchedName..": "..i)
+				end
 			end
 		end
+	else
+		print("Cannot use GetBossID(name) when the EJ_GetEncounterInfo namespace doesn't exist.")
 	end
 end
 function GetSectionID(name)
-	name = name:lower()
-	for i=1,100000 do
-		local tbl = C_EncounterJournal_GetSectionInfo(i)
-		if tbl then
-			local fetchedName = tbl.title
-			local lowerFetchedName = fetchedName:lower()
-			if find(lowerFetchedName, name, nil, true) then
-				print(fetchedName..": "..i)
+	if C_EncounterJournal then
+		name = name:lower()
+		for i=1,100000 do
+			local tbl = C_EncounterJournal.GetSectionInfo(i)
+			if tbl then
+				local fetchedName = tbl.title
+				local lowerFetchedName = fetchedName:lower()
+				if find(lowerFetchedName, name, nil, true) then
+					print(fetchedName..": "..i)
+				end
 			end
 		end
+	else
+		print("Cannot use GetSectionID(name) when the C_EncounterJournal namespace doesn't exist.")
 	end
 end
 
@@ -1649,13 +1658,6 @@ init:SetScript("OnEvent", function(self, event)
 	SLASH_TRANSCRIPTOR2 = "/transcript"
 	SLASH_TRANSCRIPTOR3 = "/ts"
 
-	for i = 1, #wowEvents do
-		local eventEntry = wowEvents[i]
-		if not C_EventUtils.IsEventValid(eventEntry) then
-			print("There's an invalid event in our event list: ".. eventEntry)
-		end
-	end
-
 	self:UnregisterEvent(event)
 	self:RegisterEvent("PLAYER_LOGOUT")
 	self:SetScript("OnEvent", function()
@@ -1785,7 +1787,11 @@ do
 			for i = 1, #wowEvents do
 				local event = wowEvents[i]
 				if not TranscriptIgnore[event] then
-					eventFrame:RegisterEvent(event)
+					if C_EventUtils.IsEventValid(event) then
+						eventFrame:RegisterEvent(event)
+					elseif RETAIL then
+						print("There's an invalid event in our event list: ".. event)
+					end
 				end
 			end
 			if BigWigsLoader then
@@ -1854,7 +1860,11 @@ function Transcriptor:StopLog(silent)
 		for i = 1, #wowEvents do
 			local event = wowEvents[i]
 			if not TranscriptIgnore[event] then
-				eventFrame:UnregisterEvent(event)
+				if C_EventUtils.IsEventValid(event) then
+					eventFrame:UnregisterEvent(event)
+				elseif RETAIL then
+					print("There's an invalid event in our event list: ".. event)
+				end
 			end
 		end
 		if BigWigsLoader then
