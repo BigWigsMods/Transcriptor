@@ -16,12 +16,6 @@ ignore = {
 	"112/SlashCmdList",
 	"212/self",
 }
-files["**/Transcriptor_TBC.lua"].ignore = {
-	"[1-9]",
-}
-files["**/Transcriptor_Vanilla.lua"].ignore = {
-	"[1-9]",
-}
 read_globals = {
 	-- Lua
 	"date",

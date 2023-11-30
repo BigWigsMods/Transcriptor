@@ -58,8 +58,9 @@ local GetZoneText, GetRealZoneText, GetSubZoneText, GetSpellInfo = GetZoneText, 
 local GetBestMapForUnit = C_Map.GetBestMapForUnit
 local C_GossipInfo_GetOptions = C_GossipInfo.GetOptions
 
--- GLOBALS: TranscriptDB BigWigsLoader DBM CLOSE SlashCmdList SLASH_TRANSCRIPTOR1 SLASH_TRANSCRIPTOR2 SLASH_TRANSCRIPTOR3 EasyMenu CloseDropDownMenus
--- GLOBALS: GetMapID GetBossID GetSectionID
+if not UnitTokenFromGUID then -- XXX not on classic yet
+	UnitTokenFromGUID = function() return end
+end
 
 do
 	local origPrint = print
@@ -969,7 +970,7 @@ do
 					dmgPrdcCache.spellId = nil
 				end
 
-				if (event == "SPELL_CAST_START" or event == "SPELL_CAST_SUCCESS") and UnitTokenFromGUID and sourceName and sourceGUID then
+				if (event == "SPELL_CAST_START" or event == "SPELL_CAST_SUCCESS") and sourceName and sourceGUID then
 					local unit = UnitTokenFromGUID(sourceGUID)
 					if unit then
 						local hp = UnitPercentHealthFromGUID(sourceGUID)
