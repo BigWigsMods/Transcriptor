@@ -1012,7 +1012,8 @@ do
 		boss11 = true, boss12 = true, boss13 = true, boss14 = true, boss15 = true,
 		arena1 = true, arena2 = true, arena3 = true, arena4 = true, arena5 = true,
 	}
-	local raidList = {
+	local groupList = {
+		player = true, party1 = true, party2 = true, party3 = true, party4 = true,
 		raid1 = true, raid2 = true, raid3 = true, raid4 = true, raid5 = true, raid6 = true, raid7 = true, raid8 = true, raid9 = true, raid10 = true,
 		raid11 = true, raid12 = true, raid13 = true, raid14 = true, raid15 = true, raid16 = true, raid17 = true, raid18 = true, raid19 = true, raid20 = true,
 		raid21 = true, raid22 = true, raid23 = true, raid24 = true, raid25 = true, raid26 = true, raid27 = true, raid28 = true, raid29 = true, raid30 = true,
@@ -1090,11 +1091,14 @@ do
 			local hp = maxHP == 0 and maxHP or (UnitHealth(unit) / maxHP * 100)
 			local power = maxPower == 0 and maxPower or (UnitPower(unit) / maxPower * 100)
 			return format("%s(%.1f%%-%.1f%%){Target:%s} -%s- [[%s]]", UnitName(unit), hp, power, UnitName(unit.."target"), GetSpellInfo(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
-		elseif raidList[unit] and not PLAYER_SPELL_BLOCKLIST[spellId] then
+		elseif groupList[unit] and not PLAYER_SPELL_BLOCKLIST[spellId] then
 			if not playerSpellCollector[spellId] then
 				playerSpellCollector[spellId] = strjoin("#", tostringall(spellId, GetSpellInfo(spellId), unit, UnitName(unit)))
 			end
-			return format("PLAYER_SPELL{%s} -%s- [[%s]]", UnitName(unit), GetSpellInfo(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
+			if castId ~= prevCast then
+				prevCast = castId
+				return format("PLAYER_SPELL{%s} -%s- [[%s]]", UnitName(unit), GetSpellInfo(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
+			end
 		end
 	end
 	function sh.UNIT_SPELLCAST_START(unit, castId, spellId, ...)
