@@ -1280,15 +1280,22 @@ function sh.CHAT_MSG_RAID_BOSS_EMOTE(msg, npcName, ...)
 end
 
 do
-	local UnitAura = UnitAura
+	local UnitAura = C_UnitAuras and C_UnitAuras.GetAuraDataByIndex or UnitAura
 	function sh.UNIT_AURA(unit)
 		for i = 1, 100 do
-			local name, _, _, _, duration, _, _, _, _, spellId, _, bossDebuff = UnitAura(unit, i, "HARMFUL")
+			local name, _, _, _, duration, _, _, _, _, spellId, _, isBossAura = UnitAura(unit, i, "HARMFUL")
+			if type(name) == "table" then
+				duration = name.duration
+				spellId = name.spellId
+				isBossAura = name.isBossAura
+				name = name.name
+			end
+
 			if not spellId then
 				break
 			elseif not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not PLAYER_SPELL_BLOCKLIST[spellId] then
 				if UnitIsVisible(unit) then
-					if bossDebuff then
+					if isBossAura then
 						hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BOSS_DEBUFF", spellId, name, duration, unit, UnitName(unit)))
 					else
 						hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall(spellId, name, duration, unit, UnitName(unit)))
@@ -1299,12 +1306,19 @@ do
 			end
 		end
 		for i = 1, 100 do
-			local name, _, _, _, duration, _, _, _, _, spellId, _, bossDebuff = UnitAura(unit, i, "HELPFUL")
+			local name, _, _, _, duration, _, _, _, _, spellId, _, isBossAura = UnitAura(unit, i, "HELPFUL")
+			if type(name) == "table" then
+				duration = name.duration
+				spellId = name.spellId
+				isBossAura = name.isBossAura
+				name = name.name
+			end
+
 			if not spellId then
 				break
 			elseif not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not PLAYER_SPELL_BLOCKLIST[spellId] then
 				if UnitIsVisible(unit) then
-					if bossDebuff then
+					if isBossAura then
 						hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BOSS_BUFF", spellId, name, duration, unit, UnitName(unit)))
 					else
 						hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall(spellId, name, duration, unit, UnitName(unit)))

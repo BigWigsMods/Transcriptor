@@ -39,6 +39,7 @@ read_globals = {
 	"C_Map",
 	"C_Scenario",
 	"C_UIWidgetManager",
+	"C_UnitAuras",
 	"CombatLogGetCurrentEventInfo",
 	"EJ_GetEncounterInfo",
 	"GetBuildInfo",
