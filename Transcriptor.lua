@@ -537,11 +537,12 @@ do
 		L["|cffFF0000Recording|r"] = "|cffFF0000記錄中|r"
 		--L["|cFFFFD200Transcriptor|r - Disabled Events"] = "|cFFFFD200Transcriptor|r - Disabled Events"
 	elseif locale == "zhCN" then
+		L["Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."] = "提醒，最好在每次清理小怪时暂停Transcriptor，在准备击杀首领前启用Transcriptor，以获得最佳记录。"
 		L["You are already logging an encounter."] = "你已经准备记录战斗"
 		L["Beginning Transcript: "] = "开始记录于: "
 		L["You are not logging an encounter."] = "你不处于记录状态"
 		L["Ending Transcript: "] = "结束记录于："
-		L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "记录保存于WoW\\WTF\\Account\\<名字>\\SavedVariables\\Transcriptor.lua中,你可以上传于Cwowaddon.com论坛,提供最新的BOSS数据."
+		L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."] = "记录保存于WoW\\WTF\\Account\\<名字>\\SavedVariables\\Transcriptor.lua中,你可以上传到github.com/BigWigsMods和Discord的地址,提供最新的BOSS数据。"
 		L["You are not logging an encounter."] = "你没有记录此次战斗"
 		L["Added Note: "] = "添加书签于: "
 		L["All transcripts cleared."] = "所有记录已清除"
