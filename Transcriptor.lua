@@ -1762,7 +1762,8 @@ do
 
 			hiddenAuraEngageList = {}
 			do
-				local UnitAura, UnitPosition = UnitAura, UnitPosition
+				local UnitAura = C_UnitAuras and C_UnitAuras.GetAuraDataByIndex or UnitAura
+				local UnitPosition = UnitPosition
 				local _, _, _, myInstance = UnitPosition("player")
 				for unit in Transcriptor:IterateGroup() do
 					local _, _, _, tarInstanceId = UnitPosition(unit)
