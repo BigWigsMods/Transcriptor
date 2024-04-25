@@ -38,6 +38,7 @@ read_globals = {
 	"C_GossipInfo",
 	"C_Map",
 	"C_Scenario",
+	"C_Spell",
 	"C_UIWidgetManager",
 	"C_UnitAuras",
 	"CombatLogGetCurrentEventInfo",
