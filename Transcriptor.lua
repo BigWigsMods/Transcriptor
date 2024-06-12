@@ -1181,6 +1181,23 @@ do
 	end
 end
 
+local GetCriteriaInfo = C_ScenarioInfo and C_ScenarioInfo.GetCriteriaInfo or function(...)
+	local criteriaString, criteriaType, completed, quantity, totalQuantity, flags, assetID, _, criteriaID, duration, elapsed, criteriaFailed, isWeightedProgress = C_Scenario.GetCriteriaInfo(...)
+	return {
+		["description"] = criteriaString,
+		["criteriaType"] = criteriaType,
+		["completed"] = completed,
+		["quantity"] = quantity,
+		["totalQuantity"] = totalQuantity,
+		["flags"] = flags,
+		["assetID"] = assetID,
+		["criteriaID"] = criteriaID,
+		["duration"] = duration,
+		["elapsed"] = elapsed,
+		["failed"] = criteriaFailed,
+		["isWeightedProgress"] = isWeightedProgress,
+	}
+end
 function sh.SCENARIO_UPDATE(newStep)
 	--Proving Grounds
 	local ret = ""
@@ -1199,7 +1216,8 @@ function sh.SCENARIO_UPDATE(newStep)
 	local ret3 = ""
 	local _, _, numCriteria = C_Scenario.GetStepInfo()
 	for i = 1, numCriteria do
-		ret3 = ret3 .. "#CriteriaInfo" .. i .. "#" .. strjoin("#", tostringall(C_Scenario.GetCriteriaInfo(i)))
+		local info = GetCriteriaInfo(i)
+		ret3 = ret3 .. "#CriteriaInfo" .. i .. "#" .. strjoin("#", tostringall(info.description, info.criteriaType, info.completed, info.quantity, info.totalQuantity, info.flags, info.assetID, info.criteriaID, info.duration, info.elapsed, info.failed, info.isWeightedProgress))
 	end
 
 	local ret4 = ""
@@ -1224,7 +1242,8 @@ function sh.SCENARIO_CRITERIA_UPDATE(criteriaID)
 	local ret2 = ""
 	local _, _, numCriteria = C_Scenario.GetStepInfo()
 	for i = 1, numCriteria do
-		ret2 = ret2 .. "#CriteriaInfo" .. i .. "#" .. strjoin("#", tostringall(C_Scenario.GetCriteriaInfo(i)))
+		local info = GetCriteriaInfo(i)
+		ret2 = ret2 .. "#CriteriaInfo" .. i .. "#" .. strjoin("#", tostringall(info.description, info.criteriaType, info.completed, info.quantity, info.totalQuantity, info.flags, info.assetID, info.criteriaID, info.duration, info.elapsed, info.failed, info.isWeightedProgress))
 	end
 
 	local ret3 = ""
