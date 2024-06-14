@@ -736,7 +736,7 @@ do
 	-- ToS/Sisters - Boss pet marked as guardian "SPELL_CAST_SUCCESS#Creature-0-3895-1676-10786-119205-0000063360#Moontalon##nil#236697#Deathly Screech"
 	-- Neltharus/Sargha - Player picks up an item from gold pile that makes you cast a debuff on yourself, SPELL_PERIODIC_DAMAGE#Player-GUID#PLAYER#Player-GUID#PLAYER#391762#Curse of the Dragon Hoard
 	function sh.COMBAT_LOG_EVENT_UNFILTERED()
-		local timeStamp, event, _, sourceGUID, sourceName, sourceFlags, _, destGUID, destName, destFlags, _, spellId, spellName, _, extraSpellId, amount = CombatLogGetCurrentEventInfo()
+		local timeStamp, event, _, sourceGUID, sourceName, sourceFlags, _, destGUID, destName, destFlags, _, spellId, spellName, _, extraSpellId, amount, _, _, absorbSpellId, absorbSpellName, _, absorbAmount, totalAmount = CombatLogGetCurrentEventInfo()
 
 		if auraEvents[event] and not hiddenAuraPermList[spellId] then
 			hiddenAuraPermList[spellId] = true
@@ -983,9 +983,9 @@ do
 				end
 
 				if shouldLogFlags and sourceName and badPlayerFilteredEvents[event] then
-					return strjoin("#", tostringall(event, sourceFlags, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount))
+					return strjoin("#", tostringall(event, sourceFlags, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount, absorbSpellId, absorbSpellName, absorbAmount, totalAmount))
 				else
-					return strjoin("#", tostringall(event, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount))
+					return strjoin("#", tostringall(event, sourceGUID, sourceName, destGUID, destName, spellId, spellName, extraSpellId, amount, absorbSpellId, absorbSpellName, absorbAmount, totalAmount))
 				end
 			end
 		end
