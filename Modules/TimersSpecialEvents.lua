@@ -122,6 +122,17 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		[414357] = { -- Sword Knife Stance
 			[200926] = "SwordKnife" -- Igira the Cruel
 		},
+
+		-- [[ Nerub-ar Palace ]] --
+		[441425]= { -- Phase Transition None
+			[215657] = function() -- Ulgrax the Devourer
+				local stage = (dataTbl[1] or 1)
+				if stage == 2 then -- Stage 1
+					dataTbl[1] = 1
+					return "Stage 1"
+				end
+			end,
+		},
 	},
 	["UNIT_SPELLCAST_INTERRUPTED"] = {
 		-- [[ Battle of Dazar'Alor ]]--
@@ -679,6 +690,14 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 					dataTbl[1] = 1.5
 					return "Intermission"
 				end
+			end,
+		},
+
+		-- [[ Nerub-ar Palace ]] --
+		[445123]= { -- Hulking Crash
+			[215657] = function() -- Ulgrax the Devourer
+				dataTbl[1] = 2
+				return "Stage 2"
 			end,
 		},
 	},

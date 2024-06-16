@@ -93,5 +93,22 @@ addonTbl.TIMERS_BLOCKLIST = {
 	},
 	[385559] = { -- Windforce Strikes
 		[194991] = true, -- Oathsworn Vanguard (Small Adds Raszageth)
-	}
+	},
+
+	-- [[ Nerub-ar Palace ]] --
+	[442257] = { -- Infest
+		[220626] = true, -- Blood Parasite (Broodtwister Ovi'nax)
+	},
+	[442250] = { -- Fixate
+		[220626] = true, -- Blood Parasite (Broodtwister Ovi'nax)
+	},
+	[442263] = { -- Mutation: Accelerated
+		[220626] = true, -- Blood Parasite (Broodtwister Ovi'nax)
+	},
+	[438847] = { -- Web Blast
+		[219046] = true, -- Voracious Worm (Broodtwister Ovi'nax)
+	},
+	[455287] = { -- Infested Bite
+		[219739] = true, -- Infested Spawn (Rasha'nan)
+	},
 }
