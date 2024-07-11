@@ -491,6 +491,23 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 				return "Stage 2"
 			end,
 		},
+
+		-- [[ Nerub-ar Palace ]] --
+		[435405] = { -- Starless Night
+			[217748] = "Stage 1" -- Nexus-Princess Ky'veza
+		},
+		[450980]= { -- Shatter Existence
+			[217491] = function() -- Skeinspinner Takazj
+				dataTbl[1] = 2
+				return "Stage 2"
+			end,
+		},
+		[451277]= { -- Spike Storm
+			[217489] = function() -- Anub'arash
+				dataTbl[1] = 3
+				return "Stage 3"
+			end,
+		},
 	},
 	["SPELL_CAST_START"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -698,6 +715,36 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 			[215657] = function() -- Ulgrax the Devourer
 				dataTbl[1] = 2
 				return "Stage 2"
+			end,
+		},
+		[456420] = { -- Shattering Sweep
+			[214503] = "Shattering"  -- Sikran
+		},
+		[456853] = { -- Caustic Hail
+			[214504] = "Relocating", -- Rasha'nan
+		},
+		[442432] = { -- Ingest Black Blood
+			[214506] = "Next Container", -- Broodtwister Ovi'nax
+		},
+		[435405] = { -- Starless Night
+			[217748] = "Stage 2" -- Nexus-Princess Ky'veza
+		},
+		[442277] = { -- Eternal Night
+			[217748] = "Final Stage 2" -- Nexus-Princess Ky'veza
+		},
+		[450483] = { -- Void Step
+			[217491] = function () -- Skeinspinner Takazj
+				local stage = (dataTbl[1] or 1)
+				if stage == 1 then -- Intermission
+					dataTbl[1] = 1.5
+					return "Intermission"
+				end
+			end,
+		},
+		[451327] = { -- Raging Fury
+			[217489] = function () -- Anub'arash
+				dataTbl[1] = 2.5
+				return "Intermission"
 			end,
 		},
 	},
