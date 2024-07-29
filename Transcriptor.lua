@@ -1774,6 +1774,10 @@ do
 		[23] = "5Mythic",
 		[24] = "5Timewalking",
 		[33] = "RaidTimewalking",
+		[205] = "Follower",
+		[208] = "Delve",
+		[216] = "Quest",
+		[220] = "Story",
 	}
 	local wowVersion, buildRevision = GetBuildInfo() -- Note that both returns here are strings, not numbers.
 	local logNameFormat = "[%s]@[%s] - Zone:%d Difficulty:%d,%s Type:%s " .. format("Version: %s.%s", wowVersion, buildRevision)
