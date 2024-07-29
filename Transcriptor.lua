@@ -1257,6 +1257,10 @@ function sh.SCENARIO_CRITERIA_UPDATE(criteriaID)
 	return ret .. ret2 .. ret3
 end
 
+function sh.PLAYER_MAP_CHANGED(...)
+	return strjoin("#", ...)
+end
+
 function sh.ZONE_CHANGED(...)
 	return strjoin("#", GetZoneText() or "?", GetRealZoneText() or "?", GetSubZoneText() or "?", ...)
 end
@@ -1406,6 +1410,7 @@ local wowEvents = {
 	"ENCOUNTER_START",
 	"ENCOUNTER_END",
 	"BOSS_KILL",
+	"PLAYER_MAP_CHANGED",
 	"ZONE_CHANGED",
 	"ZONE_CHANGED_INDOORS",
 	"ZONE_CHANGED_NEW_AREA",
@@ -1448,6 +1453,7 @@ local eventCategories = {
 	UNIT_SPELLCAST_CHANNEL_START = "UNIT_SPELLCAST",
 	UNIT_SPELLCAST_CHANNEL_STOP = "UNIT_SPELLCAST",
 	UNIT_TARGET = "UNIT_SPELLCAST",
+	PLAYER_MAP_CHANGED = "ZONE_CHANGED",
 	ZONE_CHANGED = "ZONE_CHANGED",
 	ZONE_CHANGED_INDOORS = "ZONE_CHANGED",
 	ZONE_CHANGED_NEW_AREA = "ZONE_CHANGED",
