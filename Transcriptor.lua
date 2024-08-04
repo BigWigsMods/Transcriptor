@@ -1649,19 +1649,6 @@ do
 end
 
 --------------------------------------------------------------------------------
--- LibSpec
---
-
-do
-	local LibSpec = LibStub and LibStub("LibSpecialization", true)
-	if LibSpec then
-		LibSpec:Register(Transcriptor, function(specId, role, position, playerName, talents)
-			playerSpecList[playerName] = {specId, role, position, talents}
-		end)
-	end
-end
-
---------------------------------------------------------------------------------
 -- Addon
 --
 
@@ -1740,6 +1727,13 @@ init:SetScript("OnEvent", function(self, event)
 	SLASH_TRANSCRIPTOR1 = "/transcriptor"
 	SLASH_TRANSCRIPTOR2 = "/transcript"
 	SLASH_TRANSCRIPTOR3 = "/ts"
+
+	local LibSpec = LibStub and LibStub("LibSpecialization", true)
+	if LibSpec then
+		LibSpec:Register(Transcriptor, function(specId, role, position, playerName, talents)
+			playerSpecList[playerName] = {specId, role, position, talents}
+		end)
+	end
 
 	self:UnregisterEvent(event)
 	self:RegisterEvent("PLAYER_LOGOUT")
@@ -1831,7 +1825,7 @@ do
 			hiddenUnitAuraCollector = {}
 			playerSpellCollector = {}
 			previousSpecialEvent = nil
-			if not compareStartTime or debugprofilestop()-compareStartTime > 5 then
+			if not logStartTime or (debugprofilestop()/1000)-logStartTime > 3 then
 				compareStartTime = debugprofilestop()
 				logStartTime = compareStartTime / 1000
 				prevEncounterStart = nil
