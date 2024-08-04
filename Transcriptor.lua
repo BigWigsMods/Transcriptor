@@ -34,8 +34,10 @@ local hiddenAuraPermList = {
 	[5384] = true, -- Feign Death
 	[209997] = true, -- Play Dead (Hunter Pet)
 }
+local playerSpecList = {}
 local previousSpecialEvent = nil
 local hiddenAuraEngageList = nil
+local prevEncounterStart = nil
 local shouldLogFlags = false
 local inEncounter, blockingRelease, limitingRes = false, false, false
 local mineOrPartyOrRaid = 7 -- COMBATLOG_OBJECT_AFFILIATION_MINE + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_RAID
@@ -70,8 +72,14 @@ do
 	end
 
 	local origUnitName = UnitName
-	function UnitName(name)
-		return origUnitName(name) or "??"
+	function UnitName(unit)
+		local name, server = origUnitName(unit)
+		if not name then
+			return "??"
+		elseif server and server ~= "" then
+			name = name .."-".. server
+		end
+		return name
 	end
 end
 
@@ -1625,6 +1633,35 @@ eventFrame:SetScript("OnUpdate", function()
 end)
 
 --------------------------------------------------------------------------------
+-- Backup events
+--
+
+do
+	local f = CreateFrame("Frame")
+	f:RegisterEvent("ENCOUNTER_START")
+	f:SetScript("OnEvent", function(_, event, ...)
+		if not logging then
+			local line = sh[event](...)
+			logStartTime = compareStartTime / 1000
+			prevEncounterStart = line
+		end
+	end)
+end
+
+--------------------------------------------------------------------------------
+-- LibSpec
+--
+
+do
+	local LibSpec = LibStub and LibStub("LibSpecialization", true)
+	if LibSpec then
+		LibSpec:Register(Transcriptor, function(specId, role, position, playerName, talents)
+			playerSpecList[playerName] = {specId, role, position, talents}
+		end)
+	end
+end
+
+--------------------------------------------------------------------------------
 -- Addon
 --
 
@@ -1790,43 +1827,19 @@ do
 			shouldLogFlags = TranscriptIgnore.logFlags and true or false
 			twipe(TIMERS_SPECIAL_EVENTS_DATA)
 
-			hiddenAuraEngageList = {}
-			do
-				local UnitAura = C_UnitAuras and C_UnitAuras.GetAuraDataByIndex or UnitAura
-				local UnitPosition = UnitPosition
-				local _, _, _, myInstance = UnitPosition("player")
-				for unit in Transcriptor:IterateGroup() do
-					local _, _, _, tarInstanceId = UnitPosition(unit)
-					if tarInstanceId == myInstance then
-						for i = 1, 100 do
-							local _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
-							if not spellId then
-								break
-							elseif not hiddenAuraEngageList[spellId] then
-								hiddenAuraEngageList[spellId] = true
-							end
-						end
-						for i = 1, 100 do
-							local _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i, "HARMFUL")
-							if not spellId then
-								break
-							elseif not hiddenAuraEngageList[spellId] then
-								hiddenAuraEngageList[spellId] = true
-							end
-						end
-					end
-				end
-			end
-
 			collectNameplates = {}
 			hiddenUnitAuraCollector = {}
 			playerSpellCollector = {}
 			previousSpecialEvent = nil
-			compareStartTime = debugprofilestop()
-			logStartTime = compareStartTime / 1000
+			if not compareStartTime or debugprofilestop()-compareStartTime > 5 then
+				compareStartTime = debugprofilestop()
+				logStartTime = compareStartTime / 1000
+				prevEncounterStart = nil
+			end
 			local _, instanceType, diff, _, _, _, _, instanceId = GetInstanceInfo()
 			local diffText = difficultyTbl[diff] or "None"
-			logName = format(logNameFormat, date("%Y-%m-%d"), date("%H:%M:%S"), instanceId or 0, diff, diffText, instanceType)
+			local time = date("%H:%M:%S")
+			logName = format(logNameFormat, date("%Y-%m-%d"), time, instanceId or 0, diff, diffText, instanceType)
 
 			if type(TranscriptDB[logName]) ~= "table" then TranscriptDB[logName] = {} end
 			if type(TranscriptIgnore) ~= "table" then TranscriptIgnore = {} end
@@ -1862,6 +1875,52 @@ do
 				end
 			end
 			logging = 1
+
+			if prevEncounterStart then
+				local stop = debugprofilestop() / 1000
+				local t = stop - logStartTime
+				local text = format("<%.2f %s> [ENCOUNTER_START] %s", t, time, prevEncounterStart)
+				currentLog.total[#currentLog.total+1] = text
+			end
+
+			hiddenAuraEngageList = {}
+			do
+				local UnitAura = C_UnitAuras and C_UnitAuras.GetAuraDataByIndex or UnitAura
+				local UnitPosition, UnitClass = UnitPosition, UnitClass
+				local _, _, _, myInstance = UnitPosition("player")
+				local stop = debugprofilestop() / 1000
+				local t = stop - logStartTime
+				for unit in Transcriptor:IterateGroup() do
+					local _, _, _, tarInstanceId = UnitPosition(unit)
+					if tarInstanceId == myInstance then
+						local _, class = UnitClass(unit)
+						local name = UnitName(unit)
+						local specId, role, position, talents = nil, nil, nil, nil
+						if playerSpecList[name] then
+							specId, role, position, talents = playerSpecList[name][1], playerSpecList[name][2], playerSpecList[name][3], playerSpecList[name][4]
+						end
+						local line = strjoin("#", tostringall(name, class, UnitGUID(unit), specId, role, position, talents))
+						local text = format("<%.2f %s> [%s] %s", t, time, "PLAYER_INFO", line)
+						currentLog.total[#currentLog.total+1] = text
+						for i = 1, 100 do
+							local _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
+							if not spellId then
+								break
+							elseif not hiddenAuraEngageList[spellId] then
+								hiddenAuraEngageList[spellId] = true
+							end
+						end
+						for i = 1, 100 do
+							local _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i, "HARMFUL")
+							if not spellId then
+								break
+							elseif not hiddenAuraEngageList[spellId] then
+								hiddenAuraEngageList[spellId] = true
+							end
+						end
+					end
+				end
+			end
 
 			--Notify Log Start
 			if not silent then
@@ -2357,6 +2416,7 @@ function Transcriptor:StopLog(silent)
 		collectNameplates = nil
 		hiddenUnitAuraCollector = nil
 		playerSpellCollector = nil
+		prevEncounterStart = nil
 
 		return logName
 	end
