@@ -1286,12 +1286,6 @@ function sh.CHAT_MSG_ADDON(prefix, msg, channel, sender)
 	end
 end
 
-function sh.ENCOUNTER_START(...)
-	compareStartTime = debugprofilestop()
-	twipe(TIMERS_SPECIAL_EVENTS_DATA)
-	return strjoin("#", ...)
-end
-
 function sh.CHAT_MSG_RAID_BOSS_EMOTE(msg, npcName, ...)
 	local id = strmatch(msg, "|Hspell:([^|]+)|h")
 	if id then
@@ -1560,6 +1554,33 @@ local function eventHandler(_, event, ...)
 	-- We only have CLEU in the total log, it's way too much information to log twice.
 	if event == "COMBAT_LOG_EVENT_UNFILTERED" then
 		currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s", t, time, line)
+	elseif event == "ENCOUNTER_START" then
+		local text = format("<%.2f %s> [%s] %s", t, time, event, line)
+		currentLog.total[#currentLog.total+1] = text
+		local cat = eventCategories[event] or event
+		if cat ~= "NONE" then
+			if type(currentLog[cat]) ~= "table" then currentLog[cat] = {} end
+			tinsert(currentLog[cat], text)
+		end
+
+		local instanceInfoLine = strjoin("#", tostringall(GetInstanceInfo()))
+		currentLog.total[#currentLog.total+1] = format("<%.2f %s> [GetInstanceInfo()] %s", t, instanceInfoLine)
+
+		local UnitPosition, UnitClass = UnitPosition, UnitClass
+		local _, _, _, myInstance = UnitPosition("player")
+		for unit in Transcriptor:IterateGroup() do
+			local _, _, _, tarInstanceId = UnitPosition(unit)
+			if tarInstanceId == myInstance then
+				local _, class = UnitClass(unit)
+				local name = UnitName(unit)
+				local specId, role, position, talents = nil, nil, nil, nil
+				if playerSpecList[name] then
+					specId, role, position, talents = playerSpecList[name][1], playerSpecList[name][2], playerSpecList[name][3], playerSpecList[name][4]
+				end
+				local playerInfoLine = strjoin("#", tostringall(name, class, UnitGUID(unit), specId, role, position, talents))
+				currentLog.total[#currentLog.total+1] = format("<%.2f %s> [%s] %s", t, time, "PLAYER_INFO", playerInfoLine)
+			end
+		end
 	else
 		local text = format("<%.2f %s> [%s] %s", t, time, event, line)
 		currentLog.total[#currentLog.total+1] = text
@@ -1639,11 +1660,12 @@ end)
 do
 	local f = CreateFrame("Frame")
 	f:RegisterEvent("ENCOUNTER_START")
-	f:SetScript("OnEvent", function(_, event, ...)
+	f:SetScript("OnEvent", function(_, ...)
+		compareStartTime = debugprofilestop()
+		twipe(TIMERS_SPECIAL_EVENTS_DATA)
 		if not logging then
-			local line = sh[event](...)
 			logStartTime = compareStartTime / 1000
-			prevEncounterStart = line
+			prevEncounterStart = {...}
 		end
 	end)
 end
@@ -1871,31 +1893,18 @@ do
 			logging = 1
 
 			if prevEncounterStart then
-				local stop = debugprofilestop() / 1000
-				local t = stop - logStartTime
-				local text = format("<%.2f %s> [ENCOUNTER_START] %s", t, time, prevEncounterStart)
-				currentLog.total[#currentLog.total+1] = text
+				eventHandler(nil, unpack(prevEncounterStart))
+				prevEncounterStart = nil
 			end
 
 			hiddenAuraEngageList = {}
 			do
 				local UnitAura = C_UnitAuras and C_UnitAuras.GetAuraDataByIndex or UnitAura
-				local UnitPosition, UnitClass = UnitPosition, UnitClass
+				local UnitPosition = UnitPosition
 				local _, _, _, myInstance = UnitPosition("player")
-				local stop = debugprofilestop() / 1000
-				local t = stop - logStartTime
 				for unit in Transcriptor:IterateGroup() do
 					local _, _, _, tarInstanceId = UnitPosition(unit)
 					if tarInstanceId == myInstance then
-						local _, class = UnitClass(unit)
-						local name = UnitName(unit)
-						local specId, role, position, talents = nil, nil, nil, nil
-						if playerSpecList[name] then
-							specId, role, position, talents = playerSpecList[name][1], playerSpecList[name][2], playerSpecList[name][3], playerSpecList[name][4]
-						end
-						local line = strjoin("#", tostringall(name, class, UnitGUID(unit), specId, role, position, talents))
-						local text = format("<%.2f %s> [%s] %s", t, time, "PLAYER_INFO", line)
-						currentLog.total[#currentLog.total+1] = text
 						for i = 1, 100 do
 							local _, _, _, _, _, _, _, _, _, spellId = UnitAura(unit, i, "HELPFUL")
 							if not spellId then
