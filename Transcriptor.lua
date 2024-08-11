@@ -1564,7 +1564,7 @@ local function eventHandler(_, event, ...)
 		end
 
 		local instanceInfoLine = strjoin("#", tostringall(GetInstanceInfo()))
-		currentLog.total[#currentLog.total+1] = format("<%.2f %s> [GetInstanceInfo()] %s", t, instanceInfoLine)
+		currentLog.total[#currentLog.total+1] = format("<%.2f %s> [GetInstanceInfo()] %s", t, time, instanceInfoLine)
 
 		local UnitPosition, UnitClass = UnitPosition, UnitClass
 		local _, _, _, myInstance = UnitPosition("player")
