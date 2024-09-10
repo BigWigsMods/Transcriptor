@@ -1,4 +1,4 @@
-## Interface: 40400
+## Interface: 40400, 40401
 ## Title: Transcriptor
 ## Notes: Logging utility for boss encounters.
 ## Notes-deDE: Logging utility for boss encounters.
