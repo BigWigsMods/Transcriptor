@@ -1494,6 +1494,13 @@ local eventCategories = {
 	DBM_Debug = "DBM",
 	DBM_TimerStart = "DBM",
 	DBM_TimerStop = "DBM",
+	DBM_TimerUpdate = "DBM",
+	DBM_TimerPause = "DBM",
+	DBM_TimerResume = "DBM",
+	DBM_NameplateStart = "DBM",
+	DBM_NameplateStop = "DBM",
+	DBM_NameplatePause = "DBM",
+	DBM_NameplateResume = "DBM",
 	PLAYER_TARGET_CHANGED = "NONE",
 	CHAT_MSG_ADDON = "NONE",
 	CHAT_MSG_RAID_WARNING = "NONE",
@@ -1531,6 +1538,13 @@ local dbmEvents = {
 	"DBM_Debug",
 	"DBM_TimerStart",
 	"DBM_TimerStop",
+	"DBM_TimerUpdate",
+	"DBM_TimerPause",
+	"DBM_TimerResume",
+	"DBM_NameplateStart",
+	"DBM_NameplateStop",
+	"DBM_NameplatePause",
+	"DBM_NameplateResume",
 }
 
 local function eventHandler(_, event, ...)
