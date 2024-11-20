@@ -55,7 +55,7 @@ local UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo = 
 local UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification = UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification
 local UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth = UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth
 local UnitLevel, UnitCreatureType, UnitPercentHealthFromGUID, UnitTokenFromGUID = UnitLevel, UnitCreatureType, UnitPercentHealthFromGUID, UnitTokenFromGUID
-local GetInstanceInfo, IsAltKeyDown = GetInstanceInfo, IsAltKeyDown
+local GetInstanceInfo = GetInstanceInfo
 local GetZoneText, GetRealZoneText, GetSubZoneText = GetZoneText, GetRealZoneText, GetSubZoneText
 local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
 local GetBestMapForUnit = C_Map.GetBestMapForUnit
@@ -1683,10 +1683,10 @@ end
 --
 
 local menu = {}
-local popupFrame = CreateFrame("Frame", "TranscriptorMenu", eventFrame, "UIDropDownMenuTemplate")
-local function openMenu(frame)
-	EasyMenu(menu, popupFrame, frame, 20, 4, "MENU")
-end
+--local popupFrame = CreateFrame("Frame", "TranscriptorMenu", eventFrame, "UIDropDownMenuTemplate")
+--local function openMenu(frame)
+--	EasyMenu(menu, popupFrame, frame, 20, 4, "MENU")
+--end
 
 local ldb = LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("Transcriptor", {
 	type = "data source",
@@ -1708,10 +1708,8 @@ local ldb = LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("Transcriptor"
 			else
 				Transcriptor:StopLog()
 			end
-		elseif button == "RightButton" then
-			openMenu(self)
-		elseif button == "MiddleButton" and IsAltKeyDown() then
-			Transcriptor:ClearAll()
+		--elseif button == "RightButton" then
+			--openMenu(self) -- XXX make a new menu?
 		end
 	end,
 })

@@ -53,7 +53,6 @@ read_globals = {
 	"GetSubZoneText",
 	"GetTime",
 	"GetZoneText",
-	"IsAltKeyDown",
 	"InCombatLockdown",
 	"IsEncounterInProgress",
 	"IsEncounterLimitingResurrections",
