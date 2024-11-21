@@ -1682,11 +1682,25 @@ end
 -- Addon
 --
 
-local menu = {}
---local popupFrame = CreateFrame("Frame", "TranscriptorMenu", eventFrame, "UIDropDownMenuTemplate")
---local function openMenu(frame)
---	EasyMenu(menu, popupFrame, frame, 20, 4, "MENU")
---end
+local setupMenu
+do
+	local function isSelected(v)
+		return TranscriptIgnore[v]
+	end
+	local function setSelected(v)
+		TranscriptIgnore[v] = not TranscriptIgnore[v] or nil
+	end
+	function setupMenu(_, root)
+		root:SetScrollMode(400)
+		root:CreateTitle(L["|cFFFFD200Transcriptor|r - Disabled Events"])
+		for _, v in ipairs(Transcriptor.events) do
+			root:CreateCheckbox(v, isSelected, setSelected, v)
+		end
+		root:CreateButton(CLOSE, function()
+			return 4 -- MenuResponse.CloseAll
+		end)
+	end
+end
 
 local ldb = LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("Transcriptor", {
 	type = "data source",
@@ -1708,8 +1722,8 @@ local ldb = LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("Transcriptor"
 			else
 				Transcriptor:StopLog()
 			end
-		--elseif button == "RightButton" then
-			--openMenu(self) -- XXX make a new menu?
+		elseif button == "RightButton" then
+			MenuUtil.CreateContextMenu(self, setupMenu)
 		end
 	end,
 })
@@ -1717,13 +1731,6 @@ local ldb = LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("Transcriptor"
 Transcriptor.events = {}
 local function insertMenuItems(tbl)
 	for _, v in next, tbl do
-		tinsert(menu, {
-			text = v,
-			func = function() TranscriptIgnore[v] = not TranscriptIgnore[v] end,
-			checked = function() return TranscriptIgnore[v] end,
-			isNotRadio = true,
-			keepShownOnClick = 1,
-		})
 		tinsert(Transcriptor.events, v)
 	end
 end
@@ -1733,11 +1740,9 @@ init:SetScript("OnEvent", function(self, event)
 	if type(TranscriptDB) ~= "table" then TranscriptDB = {} end
 	if type(TranscriptIgnore) ~= "table" then TranscriptIgnore = {} end
 
-	tinsert(menu, { text = L["|cFFFFD200Transcriptor|r - Disabled Events"], fontObject = "GameTooltipHeader", notCheckable = 1 })
 	insertMenuItems(wowEvents)
 	if BigWigsLoader then insertMenuItems(bwEvents) end
 	if DBM then insertMenuItems(dbmEvents) end
-	tinsert(menu, { text = CLOSE, func = function() CloseDropDownMenus() end, notCheckable = 1 })
 
 	C_ChatInfo.RegisterAddonMessagePrefix("Transcriptor")
 
