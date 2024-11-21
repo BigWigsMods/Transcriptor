@@ -91,7 +91,7 @@ read_globals = {
 	"CloseDropDownMenus",
 	"CreateFrame",
 	"debugprofilestop",
-	"EasyMenu",
+	"MenuUtil",
 	"Enum",
 	"GameTooltip",
 	"GameTooltip_Hide",
