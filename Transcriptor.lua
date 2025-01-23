@@ -1567,13 +1567,13 @@ local function eventHandler(_, event, ...)
 			if guid then
 				hasBosses = true
 				local info = strjoin("#", tostringall(
-					"Name", UnitName("boss1"),
-					"GUID", UnitGUID("boss1"),
-					"Health", UnitHealth("boss1"),
-					"Exists", UnitExists("boss1"),
-					"Visible", UnitIsVisible("boss1"),
-					"CanAttack", UnitCanAttack("player", "boss1"),
-					"Classification", UnitClassification("boss1"))
+					"Name", UnitName(unit),
+					"GUID", guid,
+					"Health", UnitHealth(unit),
+					"Exists", UnitExists(unit),
+					"Visible", UnitIsVisible(unit),
+					"CanAttack", UnitCanAttack("player", unit),
+					"Classification", UnitClassification(unit))
 				)
 				currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IEEU %s] %s", t, time, unit, info)
 			end
