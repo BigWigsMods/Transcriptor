@@ -1007,6 +1007,12 @@ function sh.PLAYER_REGEN_ENABLED()
 	return "-Leaving combat!"
 end
 
+local bossUnits = {
+	boss1 = true, boss2 = true, boss3 = true, boss4 = true, boss5 = true,
+	boss6 = true, boss7 = true, boss8 = true, boss9 = true, boss10 = true,
+	boss11 = true, boss12 = true, boss13 = true, boss14 = true, boss15 = true,
+	arena1 = true, arena2 = true, arena3 = true, arena4 = true, arena5 = true,
+}
 do
 	local UnitIsUnit = UnitIsUnit
 	local wantedUnits = {
@@ -1015,12 +1021,6 @@ do
 		nameplate11 = true, nameplate12 = true, nameplate13 = true, nameplate14 = true, nameplate15 = true, nameplate16 = true, nameplate17 = true, nameplate18 = true, nameplate19 = true, nameplate20 = true,
 		nameplate21 = true, nameplate22 = true, nameplate23 = true, nameplate24 = true, nameplate25 = true, nameplate26 = true, nameplate27 = true, nameplate28 = true, nameplate29 = true, nameplate30 = true,
 		nameplate31 = true, nameplate32 = true, nameplate33 = true, nameplate34 = true, nameplate35 = true, nameplate36 = true, nameplate37 = true, nameplate38 = true, nameplate39 = true, nameplate40 = true,
-	}
-	local bossUnits = {
-		boss1 = true, boss2 = true, boss3 = true, boss4 = true, boss5 = true,
-		boss6 = true, boss7 = true, boss8 = true, boss9 = true, boss10 = true,
-		boss11 = true, boss12 = true, boss13 = true, boss14 = true, boss15 = true,
-		arena1 = true, arena2 = true, arena3 = true, arena4 = true, arena5 = true,
 	}
 	local groupList = {
 		player = true, party1 = true, party2 = true, party3 = true, party4 = true,
@@ -1155,17 +1155,6 @@ function sh.PLAYER_TARGET_CHANGED()
 		local name = UnitName("target")
 		return (format("%s %s (%s) - %s # %s", tostring(level), tostring(reaction), tostring(typeclass), tostring(name), tostring(guid)))
 	end
-end
-
-function sh.INSTANCE_ENCOUNTER_ENGAGE_UNIT(...)
-	return strjoin("#", tostringall("Fake Args:",
-		"boss1", UnitCanAttack("player", "boss1"), UnitExists("boss1"), UnitIsVisible("boss1"), UnitName("boss1"), UnitGUID("boss1"), UnitClassification("boss1"), UnitHealth("boss1"),
-		"boss2", UnitCanAttack("player", "boss2"), UnitExists("boss2"), UnitIsVisible("boss2"), UnitName("boss2"), UnitGUID("boss2"), UnitClassification("boss2"), UnitHealth("boss2"),
-		"boss3", UnitCanAttack("player", "boss3"), UnitExists("boss3"), UnitIsVisible("boss3"), UnitName("boss3"), UnitGUID("boss3"), UnitClassification("boss3"), UnitHealth("boss3"),
-		"boss4", UnitCanAttack("player", "boss4"), UnitExists("boss4"), UnitIsVisible("boss4"), UnitName("boss4"), UnitGUID("boss4"), UnitClassification("boss4"), UnitHealth("boss4"),
-		"boss5", UnitCanAttack("player", "boss5"), UnitExists("boss5"), UnitIsVisible("boss5"), UnitName("boss5"), UnitGUID("boss5"), UnitClassification("boss5"), UnitHealth("boss5"),
-		"Real Args:", ...)
-	)
 end
 
 function sh.UNIT_TARGETABLE_CHANGED(unit)
@@ -1562,6 +1551,36 @@ local function eventHandler(_, event, ...)
 	-- We only have CLEU in the total log, it's way too much information to log twice.
 	if event == "COMBAT_LOG_EVENT_UNFILTERED" then
 		currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s", t, time, line)
+	elseif event == "INSTANCE_ENCOUNTER_ENGAGE_UNIT" then
+		local text = format("<%.2f %s> [%s] %s", t, time, event, line)
+		currentLog.total[#currentLog.total+1] = text
+		local cat = eventCategories[event] or event
+		if cat ~= "NONE" then
+			if type(currentLog[cat]) ~= "table" then currentLog[cat] = {} end
+			tinsert(currentLog[cat], text)
+		end
+
+		local hasBosses = false
+		for i = 1, #bossUnits do
+			local unit = bossUnits[#bossUnits][i]
+			local guid = UnitGUID(unit)
+			if guid then
+				hasBosses = true
+				local info = strjoin("#", tostringall(
+					"Name", UnitName("boss1"),
+					"GUID", UnitGUID("boss1"),
+					"Health", UnitHealth("boss1"),
+					"Exists", UnitExists("boss1"),
+					"Visible", UnitIsVisible("boss1"),
+					"CanAttack", UnitCanAttack("player", "boss1"),
+					"Classification", UnitClassification("boss1"))
+				)
+				currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IEEU %s] %s", t, time, unit, info)
+			end
+		end
+		if not hasBosses then
+			currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IEEU] No bosses found", t, time)
+		end
 	elseif event == "ENCOUNTER_START" then
 		local text = format("<%.2f %s> [%s] %s", t, time, event, line)
 		currentLog.total[#currentLog.total+1] = text
