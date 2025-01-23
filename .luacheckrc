@@ -59,6 +59,7 @@ read_globals = {
 	"IsEncounterSuppressingRelease",
 	"IsFalling",
 	"IsInRaid",
+	"ShowBossFrameWhenUninteractable",
 	"UnitAffectingCombat",
 	"UnitAura",
 	"UnitCanAttack",

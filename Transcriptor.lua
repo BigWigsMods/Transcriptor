@@ -52,7 +52,7 @@ local debugprofilestop = debugprofilestop
 local C_Scenario, C_DeathInfo_GetSelfResurrectOptions, Enum = C_Scenario, C_DeathInfo.GetSelfResurrectOptions, Enum
 local IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease = IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease
 local UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo = UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo
-local UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification = UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification
+local UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification, ShowBossFrameWhenUninteractable = UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification, ShowBossFrameWhenUninteractable
 local UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth = UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth
 local UnitLevel, UnitCreatureType, UnitPercentHealthFromGUID, UnitTokenFromGUID = UnitLevel, UnitCreatureType, UnitPercentHealthFromGUID, UnitTokenFromGUID
 local GetInstanceInfo = GetInstanceInfo
@@ -1573,7 +1573,7 @@ local function eventHandler(_, event, ...)
 					"Exists", UnitExists(unit),
 					"Visible", UnitIsVisible(unit),
 					"CanAttack", UnitCanAttack("player", unit),
-					"Classification", UnitClassification(unit))
+					"ShowUninteractable", ShowBossFrameWhenUninteractable(unit))
 				)
 				currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IEEU %s] %s", t, time, unit, info)
 			end
