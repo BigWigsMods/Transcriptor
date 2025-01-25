@@ -1562,7 +1562,7 @@ local function eventHandler(_, event, ...)
 
 		local hasBosses = false
 		for i = 1, #bossUnits do
-			local unit = bossUnits[#bossUnits][i]
+			local unit = bossUnits[i]
 			local guid = UnitGUID(unit)
 			if guid then
 				hasBosses = true
