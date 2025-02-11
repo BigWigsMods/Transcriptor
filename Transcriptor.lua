@@ -13,7 +13,8 @@ do
 	TIMERS_SPECIAL_EVENTS = addonTbl.TIMERS_SPECIAL_EVENTS or {} -- TimersSpecialEvents.lua
 	TIMERS_SPECIAL_EVENTS_DATA = addonTbl.TIMERS_SPECIAL_EVENTS_DATA or {} -- TimersSpecialEvents.lua
 	TIMERS_BLOCKLIST = addonTbl.TIMERS_BLOCKLIST or {} -- TimersBlocklist.lua
-	RETAIL = addonTbl.retail or false
+	RETAIL = addonTbl.retail or false -- Init.lua
+	Transcriptor.INSTANCES = addonTbl.INSTANCES or {} -- Instances.lua
 end
 
 local logName = nil
