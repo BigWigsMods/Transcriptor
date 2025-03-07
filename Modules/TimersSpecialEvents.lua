@@ -133,6 +133,14 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 				end
 			end,
 		},
+		[450040]= { -- Land
+			[218370] = "Stage 3 Start", -- Queen Ansurek
+		},
+
+		-- [[ Liberation of Undermine ]] --
+		[465833] = { -- Colossal Clash
+			[229181] = "Clash"  -- Flarendo (Cauldron)
+		},
 	},
 	["UNIT_SPELLCAST_INTERRUPTED"] = {
 		-- [[ Battle of Dazar'Alor ]]--
@@ -151,6 +159,11 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		-- [[ Vault of the Incarnates ]] --
 		[372539] = { -- Apex of Ice / Stage 2
 			[187967] = "Apex Interrupted",  -- Sennarth, The Cold Breath
+		},
+
+		-- [[ Liberation of Undermine ]] --
+		[1214369] = { -- TOTAL DESTRUCTION!!!
+			[231075] = "Stage 3"  -- Chrome King Gallywix
 		},
 	},
 	["SPELL_AURA_APPLIED"] = {
@@ -280,6 +293,20 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		[422067] = { -- Blazing Soul
 			[200927] = "Stage 2" -- Smolderon
 		},
+
+		-- [[ Liberation of Undermine ]] --
+		[1213817] = { -- Sound Cloud
+			[228648] = "Stage 2" -- Rik Reverb
+		},
+		[1218344] = { -- Beta Launch
+			[230583] = "Stage 1" -- Sprocketmonger Lockenstock
+		},
+		[1214229] = { -- Armageddon-class Plating
+			[231075] = "Intermission" -- Chrome King Gallywix
+		},
+		[469293] = { -- Giga Coils XXX Change to cast start when CLEU works
+			[231075] = "Coils" -- Chrome King Gallywix
+		},
 	},
 	["SPELL_AURA_APPLIED_DOSE"] = {
 		-- [[ Sanctum Of Domination ]] --
@@ -290,6 +317,9 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 					return ("Stage 1 (%s)"):format(power or "?")
 				end
 			end,
+		},
+		[1218344] = { -- Upgraded Bloodtech
+			[230583] = "Stage 1" -- Sprocketmonger Lockenstock
 		},
 	},
 	["SPELL_AURA_REMOVED"] = {
@@ -507,6 +537,32 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 				dataTbl[1] = 3
 				return "Stage 3"
 			end,
+		},
+		[447076] = { -- Predation
+			[218370] = "Stage 2"  -- Queen Ansurek
+		},
+
+		-- [[ Liberation of Undermine ]] --
+		[460116] = { -- Tune Up
+			[225821] = "Stage 1"  -- The Geargrinder
+		},
+		[1213817] = { -- Sound Cloud
+			[228648] = "Stage 1" -- Rik Reverb
+		},
+		[465863] = { -- Colossal Clash
+			[229181] = "Clash Over" -- Flarendo (Cauldron)
+		},
+		[1220290] = { -- Trick Shots
+			[231075] = function() -- Chrome King Gallywix
+				dataTbl[1] = (dataTbl[1] or 1)
+				if dataTbl[1] == 1 then -- Stage 2 on first removed
+					dataTbl[1] = 2
+					return "Stage 2"
+				end
+			end,
+		},
+		[469293] = { -- Giga Coils
+			[231075] = "Coils Over" -- Chrome King Gallywix
 		},
 	},
 	["SPELL_CAST_START"] = {
@@ -747,6 +803,50 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 				return "Intermission"
 			end,
 		},
+		[447076] = { -- Predation
+			[218370] = "Intermission"  -- Queen Ansurek
+		},
+		[449986] = { -- Aphotic Communion
+			[218370] = "Stage 3"  -- Queen Ansurek
+		},
+
+		-- [[ Liberation of Undermine ]] --
+		[460603] = { -- Mechanical Breakdown
+			[225821] = "Stage 2"  -- The Geargrinder
+		},
+		[463967] = { -- Bloodlust
+			[229953] = "Bloodlust" -- MugZee
+		},
+		[467117] = { -- Overdrive
+			[230322] = "Overdrive" -- Stix Bunkjunker
+		},
+		[467109] = { -- Trash Compactor
+			[230322] = "Landing" -- Stix Bunkjunker
+		},
+		[466765] = { -- Beta Launch
+			[230583] = "Stage 2" -- Sprocketmonger Lockenstock
+		},
+		[461060] = { -- Spin To Win
+			[228458] = "SpinToWin" -- One-Armed Bandit
+		},
+		[464772] = { -- Shock and Flame
+			[228458] = "ShockFlame" -- One-Armed Bandit
+		},
+		[464801] = { -- Shock and Bomb
+			[228458] = "ShockBomb" -- One-Armed Bandit
+		},
+		[464804] = { -- Flame and Bomb
+			[228458] = "FlameBomb" -- One-Armed Bandit
+		},
+		[464806] = { -- Flame and Coin
+			[228458] = "FlameCoin" -- One-Armed Bandit
+		},
+		[464809] = { -- Coin and Shock
+			[228458] = "CoinShock" -- One-Armed Bandit
+		},
+		[464810] = { -- Coin and Bomb
+			[228458] = "CoinBomb" -- One-Armed Bandit
+		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -852,6 +952,14 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 				dataTbl[1] = 3
 				return "Stage 3"
 			end,
+		},
+
+		-- [[ Liberation of Undermine ]] --
+		[468794] = { -- Zee Taking Charge
+			[229953] = "Zee" -- MugZee
+		},
+		[468728] = { -- Mug Taking Charge
+			[229953] = "Mug" -- MugZee
 		},
 	},
 	["UNIT_DIED"] = {
