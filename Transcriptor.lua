@@ -751,22 +751,18 @@ do
 			hiddenAuraPermList[spellId] = true
 		end
 
-		local npcId = MobId(sourceGUID)
-
 		if badEvents[event] or
-		   badNPCs[npcId] or -- Filter NPCs that are friendly summons but aren't flagged as guardians or as being in the group (COMBATLOG_OBJECT_AFFILIATION_OUTSIDER)
-		   (event == "UNIT_DIED" and band(destFlags, mineOrPartyOrRaid) ~= 0 and band(destFlags, guardian) == guardian) or -- Filter guardian deaths only, player deaths can explain debuff removal
-		   (sourceName and badPlayerEvents[event] and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or
-		   (sourceName and badPlayerFilteredEvents[event] and PLAYER_SPELL_BLOCKLIST[spellId] and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or
-		   (spellId == 22568 and event == "SPELL_DRAIN" and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or -- Feral Druid casting Ferocious Bite
-		   (spellId == 81782 and not sourceName and band(destFlags, mineOrPartyOrRaid) ~= 0) or -- Power Word: Barrier on players has a nil source
-		   (spellId == 145629 and not sourceName and band(destFlags, mineOrPartyOrRaid) ~= 0) -- Anti-Magic Zone on players has a nil source
+			(sourceName and badPlayerFilteredEvents[event] and PLAYER_SPELL_BLOCKLIST[spellId] and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or
+			(sourceName and badPlayerEvents[event] and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or
+			(event == "UNIT_DIED" and band(destFlags, mineOrPartyOrRaid) ~= 0 and band(destFlags, guardian) == guardian) or -- Filter guardian deaths only, player deaths can explain debuff removal
+			(spellId == 22568 and event == "SPELL_DRAIN" and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or -- Feral Druid casting Ferocious Bite
+			(spellId == 81782 and not sourceName and band(destFlags, mineOrPartyOrRaid) ~= 0) or -- Power Word: Barrier on players has a nil source
+			(spellId == 145629 and not sourceName and band(destFlags, mineOrPartyOrRaid) ~= 0) -- Anti-Magic Zone on players has a nil source
 		then
 			return
 		else
-			--if (sourceName and badPlayerFilteredEvents[event] and PLAYER_SPELL_BLOCKLIST[spellId] and band(sourceFlags, mineOrPartyOrRaid) == 0) then
-			--	print("Transcriptor:", sourceName..":"..npcId, "used spell", spellName..":"..spellId, "in event", event, "but isn't in our group.")
-			--end
+			local npcId = MobId(sourceGUID)
+			if badNPCs[npcId] then return end -- Filter NPCs that are friendly summons but aren't flagged as guardians or as being in the group (COMBATLOG_OBJECT_AFFILIATION_OUTSIDER)
 
 			if event == "SPELL_CAST_SUCCESS" and (not sourceName or (band(sourceFlags, mineOrPartyOrRaid) == 0 and not find(sourceGUID, "Player", nil, true))) then
 				if not compareSuccess then compareSuccess = {} end
