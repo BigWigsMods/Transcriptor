@@ -160,11 +160,6 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		[372539] = { -- Apex of Ice / Stage 2
 			[187967] = "Apex Interrupted",  -- Sennarth, The Cold Breath
 		},
-
-		-- [[ Liberation of Undermine ]] --
-		[1214369] = { -- TOTAL DESTRUCTION!!!
-			[231075] = "Stage 3"  -- Chrome King Gallywix
-		},
 	},
 	["SPELL_AURA_APPLIED"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -302,11 +297,25 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 			[230583] = "Stage 1" -- Sprocketmonger Lockenstock
 		},
 		[1214229] = { -- Armageddon-class Plating
-			[231075] = "Intermission" -- Chrome King Gallywix
+			[231075] = function()
+				local _, _, diff = GetInstanceInfo()
+				if diff ~= 16 then -- Not Mythic
+					return "Intermission" -- Chrome King Gallywix
+				end
+			end
 		},
 		[469293] = { -- Giga Coils XXX Change to cast start when CLEU works
-			[231075] = "Coils" -- Chrome King Gallywix
+			[231075] = function() -- Chrome King Gallywix
+				local _, _, diff = GetInstanceInfo()
+				if diff ~= 16 then -- Not Mythic
+					dataTbl[2] = (dataTbl[2] or 0) + 1 -- Count coils
+					return "Coils "..dataTbl[2]
+				end
+			end,
 		},
+		[1226891] = { -- Circuit Reboot
+			[231075] = "Intermission" -- Chrome King Gallywix
+		}
 	},
 	["SPELL_AURA_APPLIED_DOSE"] = {
 		-- [[ Sanctum Of Domination ]] --
@@ -554,16 +563,43 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		},
 		[1220290] = { -- Trick Shots
 			[231075] = function() -- Chrome King Gallywix
-				dataTbl[1] = (dataTbl[1] or 1)
-				if dataTbl[1] == 1 then -- Stage 2 on first removed
-					dataTbl[1] = 2
-					return "Stage 2"
+				local _, _, diff = GetInstanceInfo()
+				if diff ~= 16 then -- Not Mythic
+					dataTbl[1] = (dataTbl[1] or 1)
+					if dataTbl[1] == 1 then -- Stage 2 on first removed
+						dataTbl[1] = 2
+						return "Stage 2"
+					end
 				end
 			end,
 		},
 		[469293] = { -- Giga Coils
-			[231075] = "Coils Over" -- Chrome King Gallywix
+			[231075] = function() -- Chrome King Gallywix
+				local _, _, diff = GetInstanceInfo()
+				if diff ~= 16 then -- NotMythic
+					dataTbl[2] = (dataTbl[2] or 0) + 1 -- Count coils
+					return "Coils "..dataTbl[2].." Over"
+				end
+			end,
 		},
+		[1214369] = { -- TOTAL DESTRUCTION!!!
+			[231075] = function()
+				local _, _, diff = GetInstanceInfo()
+				if diff ~= 16 then -- Not Mythic
+					dataTbl[2] = nil -- Reset coil count
+					return "Stage 3" -- Chrome King Gallywix
+				else
+					return "Stage 1"
+				end
+			end,
+		},
+		[1226891] = { -- Circuit Reboot
+			[1] = function() -- Chrome King Gallywix
+				dataTbl[1] = (dataTbl[1] or 1)
+				dataTbl[1] = dataTbl[1] + 1
+				return "Stage "..dataTbl[1]
+			end,
+		}
 	},
 	["SPELL_CAST_START"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -825,9 +861,6 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		},
 		[466765] = { -- Beta Launch
 			[230583] = "Stage 2" -- Sprocketmonger Lockenstock
-		},
-		[461060] = { -- Spin To Win
-			[228458] = "SpinToWin" -- One-Armed Bandit
 		},
 		[464772] = { -- Shock and Flame
 			[228458] = "ShockFlame" -- One-Armed Bandit
