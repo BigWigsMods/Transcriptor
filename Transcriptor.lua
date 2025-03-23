@@ -47,14 +47,14 @@ local band = bit.band
 local tinsert, tsort, twipe, tconcat = table.insert, table.sort, table.wipe, table.concat
 local format, find, strjoin, strsplit, gsub, strmatch = string.format, string.find, string.join, string.split, string.gsub, string.match
 local tostring, tostringall, date = tostring, tostringall, date
-local type, next, print = type, next, print
+local type, next = type, next
 local debugprofilestop = debugprofilestop
 
 local C_Scenario, C_DeathInfo_GetSelfResurrectOptions, Enum = C_Scenario, C_DeathInfo.GetSelfResurrectOptions, Enum
 local IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease = IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease
 local UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo = UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo
 local UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification, ShowBossFrameWhenUninteractable = UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification, ShowBossFrameWhenUninteractable
-local UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth = UnitName, UnitPower, UnitPowerMax, UnitPowerType, UnitHealth
+local UnitPower, UnitPowerMax, UnitPowerType, UnitHealth = UnitPower, UnitPowerMax, UnitPowerType, UnitHealth
 local UnitLevel, UnitCreatureType, UnitPercentHealthFromGUID, UnitTokenFromGUID = UnitLevel, UnitCreatureType, UnitPercentHealthFromGUID, UnitTokenFromGUID
 local GetInstanceInfo = GetInstanceInfo
 local GetZoneText, GetRealZoneText, GetSubZoneText = GetZoneText, GetRealZoneText, GetSubZoneText
@@ -66,15 +66,19 @@ if not UnitTokenFromGUID then -- XXX not on classic yet
 	UnitTokenFromGUID = function() return end
 end
 
+local TSPrint
 do
-	local origPrint = print
-	function print(msg, ...)
-		return origPrint(format("|cFF33FF99Transcriptor|r: %s", tostring(msg)), tostringall(...))
+	local print = print
+	function TSPrint(msg, ...)
+		print(format("|cFF33FF99Transcriptor|r: %s", tostring(msg)), tostringall(...))
 	end
+end
 
-	local origUnitName = UnitName
-	function UnitName(unit)
-		local name, server = origUnitName(unit)
+local TSUnitName
+do
+	local UnitNameUnmodified = UnitNameUnmodified
+	function TSUnitName(unit)
+		local name, server = UnitNameUnmodified(unit)
 		if not name then
 			return "??"
 		elseif server and server ~= "" then
@@ -154,7 +158,7 @@ function GetMapArtID(name)
 		if fetchedTbl and fetchedTbl.name then
 			local lowerFetchedName = fetchedTbl.name:lower()
 			if find(lowerFetchedName, name, nil, true) then
-				print(fetchedTbl.name..": "..i)
+				TSPrint(fetchedTbl.name..": "..i)
 			end
 		end
 	end
@@ -165,7 +169,7 @@ function GetInstanceID(name)
 		local fetchedName = GetRealZoneText(i)
 		local lowerFetchedName = fetchedName:lower()
 		if find(lowerFetchedName, name, nil, true) then
-			print(fetchedName..": "..i)
+			TSPrint(fetchedName..": "..i)
 		end
 	end
 end
@@ -177,12 +181,12 @@ function GetBossID(name)
 			if fetchedName then
 				local lowerFetchedName = fetchedName:lower()
 				if find(lowerFetchedName, name, nil, true) then
-					print(fetchedName..": "..i)
+					TSPrint(fetchedName..": "..i)
 				end
 			end
 		end
 	else
-		print("Cannot use GetBossID(name) when the EJ_GetEncounterInfo namespace doesn't exist.")
+		TSPrint("Cannot use GetBossID(name) when the EJ_GetEncounterInfo namespace doesn't exist.")
 	end
 end
 function GetSectionID(name)
@@ -194,12 +198,12 @@ function GetSectionID(name)
 				local fetchedName = tbl.title
 				local lowerFetchedName = fetchedName:lower()
 				if find(lowerFetchedName, name, nil, true) then
-					print(fetchedName..": "..i)
+					TSPrint(fetchedName..": "..i)
 				end
 			end
 		end
 	else
-		print("Cannot use GetSectionID(name) when the C_EncounterJournal namespace doesn't exist.")
+		TSPrint("Cannot use GetSectionID(name) when the C_EncounterJournal namespace doesn't exist.")
 	end
 end
 
@@ -252,8 +256,8 @@ do
 	end
 
 	local function GetLogSpells(slashCommandText)
-		if InCombatLockdown() or UnitAffectingCombat("player") or IsFalling() then print("You cannot do that in combat.") return end
-		if slashCommandText == "logflags" then TranscriptIgnore.logFlags = true print("Player flags will be added to all future logs.") return end
+		if InCombatLockdown() or UnitAffectingCombat("player") or IsFalling() then TSPrint("You cannot do that in combat.") return end
+		if slashCommandText == "logflags" then TranscriptIgnore.logFlags = true TSPrint("Player flags will be added to all future logs.") return end
 
 		local total, totalSorted = {}, {}
 		local auraTbl, castTbl, summonTbl, extraAttacksTbl, empowerTbl, healTbl, energizeTbl, spellDmgTbl = {}, {}, {}, {}, {}, {}, {}, {}
@@ -1045,7 +1049,7 @@ do
 			local maxPower = UnitPowerMax(unit)
 			local hp = maxHP == 0 and maxHP or (UnitHealth(unit) / maxHP * 100)
 			local power = maxPower == 0 and maxPower or (UnitPower(unit) / maxPower * 100)
-			return format("%s(%.1f%%-%.1f%%){Target:%s} -%s- [[%s]]", UnitName(unit), hp, power, UnitName(unit.."target"), GetSpellName(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
+			return format("%s(%.1f%%-%.1f%%){Target:%s} -%s- [[%s]]", TSUnitName(unit), hp, power, TSUnitName(unit.."target"), GetSpellName(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
 		end
 	end
 	sh.UNIT_SPELLCAST_CHANNEL_STOP = sh.UNIT_SPELLCAST_STOP
@@ -1063,7 +1067,7 @@ do
 			local maxPower = UnitPowerMax(unit)
 			local hp = maxHP == 0 and maxHP or (UnitHealth(unit) / maxHP * 100)
 			local power = maxPower == 0 and maxPower or (UnitPower(unit) / maxPower * 100)
-			return format("%s(%.1f%%-%.1f%%){Target:%s} -%s- [[%s]]", UnitName(unit), hp, power, UnitName(unit.."target"), GetSpellName(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
+			return format("%s(%.1f%%-%.1f%%){Target:%s} -%s- [[%s]]", TSUnitName(unit), hp, power, TSUnitName(unit.."target"), GetSpellName(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
 		end
 	end
 
@@ -1097,14 +1101,14 @@ do
 			local maxPower = UnitPowerMax(unit)
 			local hp = maxHP == 0 and maxHP or (UnitHealth(unit) / maxHP * 100)
 			local power = maxPower == 0 and maxPower or (UnitPower(unit) / maxPower * 100)
-			return format("%s(%.1f%%-%.1f%%){Target:%s} -%s- [[%s]]", UnitName(unit), hp, power, UnitName(unit.."target"), GetSpellName(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
+			return format("%s(%.1f%%-%.1f%%){Target:%s} -%s- [[%s]]", TSUnitName(unit), hp, power, TSUnitName(unit.."target"), GetSpellName(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
 		elseif groupList[unit] and not PLAYER_SPELL_BLOCKLIST[spellId] then
 			if not playerSpellCollector[spellId] then
-				playerSpellCollector[spellId] = strjoin("#", tostringall(spellId, GetSpellName(spellId), unit, UnitName(unit)))
+				playerSpellCollector[spellId] = strjoin("#", tostringall(spellId, GetSpellName(spellId), unit, TSUnitName(unit)))
 			end
 			if castId ~= prevCast then
 				prevCast = castId
-				return format("PLAYER_SPELL{%s} -%s- [[%s]]", UnitName(unit), GetSpellName(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
+				return format("PLAYER_SPELL{%s} -%s- [[%s]]", TSUnitName(unit), GetSpellName(spellId), strjoin(":", tostringall(unit, castId, spellId, ...)))
 			end
 		end
 	end
@@ -1117,7 +1121,7 @@ do
 			local maxPower = UnitPowerMax(unit)
 			local hp = maxHP == 0 and maxHP or (UnitHealth(unit) / maxHP * 100)
 			local power = maxPower == 0 and maxPower or (UnitPower(unit) / maxPower * 100)
-			return format("%s(%.1f%%-%.1f%%){Target:%s} -%s- %ss [[%s]]", UnitName(unit), hp, power, UnitName(unit.."target"), GetSpellName(spellId), time, strjoin(":", tostringall(unit, castId, spellId, ...)))
+			return format("%s(%.1f%%-%.1f%%){Target:%s} -%s- %ss [[%s]]", TSUnitName(unit), hp, power, TSUnitName(unit.."target"), GetSpellName(spellId), time, strjoin(":", tostringall(unit, castId, spellId, ...)))
 		end
 	end
 	function sh.UNIT_SPELLCAST_CHANNEL_START(unit, castId, spellId, ...)
@@ -1129,13 +1133,13 @@ do
 			local maxPower = UnitPowerMax(unit)
 			local hp = maxHP == 0 and maxHP or (UnitHealth(unit) / maxHP * 100)
 			local power = maxPower == 0 and maxPower or (UnitPower(unit) / maxPower * 100)
-			return format("%s(%.1f%%-%.1f%%){Target:%s} -%s- %ss [[%s]]", UnitName(unit), hp, power, UnitName(unit.."target"), GetSpellName(spellId), time, strjoin(":", tostringall(unit, castId, spellId, ...)))
+			return format("%s(%.1f%%-%.1f%%){Target:%s} -%s- %ss [[%s]]", TSUnitName(unit), hp, power, TSUnitName(unit.."target"), GetSpellName(spellId), time, strjoin(":", tostringall(unit, castId, spellId, ...)))
 		end
 	end
 
 	function sh.UNIT_TARGET(unit)
 		if safeUnit(unit) then
-			return format("%s#%s#Target: %s#TargetOfTarget: %s", unit, tostring(UnitName(unit)), tostring(UnitName(unit.."target")), tostring(UnitName(unit.."targettarget")))
+			return format("%s#%s#Target: %s#TargetOfTarget: %s", unit, tostring(TSUnitName(unit)), tostring(TSUnitName(unit.."target")), tostring(TSUnitName(unit.."targettarget")))
 		end
 	end
 end
@@ -1149,13 +1153,13 @@ function sh.PLAYER_TARGET_CHANGED()
 		local classification = UnitClassification("target") or "nil"
 		local creatureType = UnitCreatureType("target") or "nil"
 		local typeclass = classification == "normal" and creatureType or (classification.." "..creatureType)
-		local name = UnitName("target")
+		local name = TSUnitName("target")
 		return (format("%s %s (%s) - %s # %s", tostring(level), tostring(reaction), tostring(typeclass), tostring(name), tostring(guid)))
 	end
 end
 
 function sh.UNIT_TARGETABLE_CHANGED(unit)
-	return format("-%s- [CanAttack:%s#Exists:%s#IsVisible:%s#Name:%s#GUID:%s#Classification:%s#Health:%s]", tostringall(unit, UnitCanAttack("player", unit), UnitExists(unit), UnitIsVisible(unit), UnitName(unit), UnitGUID(unit), UnitClassification(unit), (UnitHealth(unit))))
+	return format("-%s- [CanAttack:%s#Exists:%s#IsVisible:%s#Name:%s#GUID:%s#Classification:%s#Health:%s]", tostringall(unit, UnitCanAttack("player", unit), UnitExists(unit), UnitIsVisible(unit), TSUnitName(unit), UnitGUID(unit), UnitClassification(unit), (UnitHealth(unit))))
 end
 
 do
@@ -1171,7 +1175,7 @@ do
 		local powerType = format("TYPE:%s/%d", typeName, UnitPowerType(unit))
 		local mainPower = format("MAIN:%d/%d", UnitPower(unit), UnitPowerMax(unit))
 		local altPower = format("ALT:%d/%d", UnitPower(unit, 10), UnitPowerMax(unit, 10))
-		return strjoin("#", unit, UnitName(unit), powerType, mainPower, altPower)
+		return strjoin("#", unit, TSUnitName(unit), powerType, mainPower, altPower)
 	end
 end
 
@@ -1309,12 +1313,12 @@ do
 			elseif not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not PLAYER_SPELL_BLOCKLIST[spellId] then
 				if UnitIsVisible(unit) then
 					if isBossAura then
-						hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BOSS_DEBUFF", spellId, name, duration, unit, UnitName(unit)))
+						hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BOSS_DEBUFF", spellId, name, duration, unit, TSUnitName(unit)))
 					else
-						hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall(spellId, name, duration, unit, UnitName(unit)))
+						hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall(spellId, name, duration, unit, TSUnitName(unit)))
 					end
 				else -- If it's not visible it may not show up in CLEU, use this as an indicator of a false positive
-					hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("UNIT_NOT_VISIBLE", spellId, name, duration, unit, UnitName(unit)))
+					hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("UNIT_NOT_VISIBLE", spellId, name, duration, unit, TSUnitName(unit)))
 				end
 			end
 		end
@@ -1332,12 +1336,12 @@ do
 			elseif not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not PLAYER_SPELL_BLOCKLIST[spellId] then
 				if UnitIsVisible(unit) then
 					if isBossAura then
-						hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BOSS_BUFF", spellId, name, duration, unit, UnitName(unit)))
+						hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BOSS_BUFF", spellId, name, duration, unit, TSUnitName(unit)))
 					else
-						hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall(spellId, name, duration, unit, UnitName(unit)))
+						hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall(spellId, name, duration, unit, TSUnitName(unit)))
 					end
 				else -- If it's not visible it may not show up in CLEU, use this as an indicator of a false positive
-					hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("UNIT_NOT_VISIBLE", spellId, name, duration, unit, UnitName(unit)))
+					hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("UNIT_NOT_VISIBLE", spellId, name, duration, unit, TSUnitName(unit)))
 				end
 			end
 		end
@@ -1348,7 +1352,7 @@ function sh.NAME_PLATE_UNIT_ADDED(unit)
 	local guid = UnitGUID(unit)
 	if not collectNameplates[guid] then
 		collectNameplates[guid] = true
-		local name = UnitName(unit)
+		local name = TSUnitName(unit)
 		return strjoin("#", name, guid)
 	end
 end
@@ -1572,7 +1576,7 @@ do
 				if guid then
 					hasBosses = true
 					local info = strjoin("#", tostringall(
-						"Name", UnitName(unit),
+						"Name", TSUnitName(unit),
 						"GUID", guid,
 						"Health", UnitHealth(unit),
 						"Exists", UnitExists(unit),
@@ -1604,7 +1608,7 @@ do
 				local _, _, _, tarInstanceId = UnitPosition(unit)
 				if tarInstanceId == myInstance then
 					local _, class = UnitClass(unit)
-					local name = UnitName(unit)
+					local name = TSUnitName(unit)
 					local specId, role, position, talents = nil, nil, nil, nil
 					if playerSpecList[name] then
 						specId, role, position, talents = playerSpecList[name][1], playerSpecList[name][2], playerSpecList[name][3], playerSpecList[name][4]
@@ -1872,7 +1876,7 @@ do
 	local logNameFormat = "[%s]@[%s] - Zone:%d Difficulty:%d,%s Type:%s " .. format("Version: %s.%s", wowVersion, buildRevision)
 	function Transcriptor:StartLog(silent)
 		if logging then
-			print(L["You are already logging an encounter."])
+			TSPrint(L["You are already logging an encounter."])
 		else
 			ldb.text = L["|cffFF0000Recording|r"]
 			ldb.icon = "Interface\\AddOns\\Transcriptor\\icon_on"
@@ -1906,7 +1910,7 @@ do
 					if C_EventUtils.IsEventValid(event) then
 						eventFrame:RegisterEvent(event)
 					elseif RETAIL then
-						print("There's an invalid event in our event list: ".. event)
+						TSPrint("There's an invalid event in our event list: ".. event)
 					end
 				end
 			end
@@ -1963,8 +1967,8 @@ do
 
 			--Notify Log Start
 			if not silent then
-				print(L["Beginning Transcript: "]..logName)
-				print(L["Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."])
+				TSPrint(L["Beginning Transcript: "]..logName)
+				TSPrint(L["Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."])
 			end
 			return logName
 		end
@@ -1973,7 +1977,7 @@ end
 
 function Transcriptor:Clear(log)
 	if logging then
-		print(L["You can't clear your transcripts while logging an encounter."])
+		TSPrint(L["You can't clear your transcripts while logging an encounter."])
 	elseif TranscriptDB[log] then
 		TranscriptDB[log] = nil
 	end
@@ -1999,7 +2003,7 @@ end
 function Transcriptor:IsLogging() return logging end
 function Transcriptor:StopLog(silent)
 	if not logging then
-		print(L["You are not logging an encounter."])
+		TSPrint(L["You are not logging an encounter."])
 	else
 		ldb.text = L["|cff696969Idle|r"]
 		ldb.icon = "Interface\\AddOns\\Transcriptor\\icon_off"
@@ -2012,7 +2016,7 @@ function Transcriptor:StopLog(silent)
 				if C_EventUtils.IsEventValid(event) then
 					eventFrame:UnregisterEvent(event)
 				elseif RETAIL then
-					print("There's an invalid event in our event list: ".. event)
+					TSPrint("There's an invalid event in our event list: ".. event)
 				end
 			end
 		end
@@ -2027,8 +2031,8 @@ function Transcriptor:StopLog(silent)
 		end
 		--Notify Stop
 		if not silent then
-			print(L["Ending Transcript: "]..logName)
-			print(L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."])
+			TSPrint(L["Ending Transcript: "]..logName)
+			TSPrint(L["Logs will probably be saved to WoW\\WTF\\Account\\<name>\\SavedVariables\\Transcriptor.lua once you relog or reload the user interface."])
 		end
 
 		if compareSuccess or compareStart or compareAuraApplied or compareUnitSuccess or compareEmotes then
@@ -2464,9 +2468,9 @@ end
 function Transcriptor:ClearAll()
 	if not logging then
 		TranscriptDB = {}
-		print(L["All transcripts cleared."])
+		TSPrint(L["All transcripts cleared."])
 	else
-		print(L["You can't clear your transcripts while logging an encounter."])
+		TSPrint(L["You can't clear your transcripts while logging an encounter."])
 	end
 end
 

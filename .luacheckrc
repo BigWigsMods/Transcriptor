@@ -78,7 +78,7 @@ read_globals = {
 	"UnitIsUnit",
 	"UnitIsVisible",
 	"UnitLevel",
-	"UnitName",
+	"UnitNameUnmodified",
 	"UnitPercentHealthFromGUID",
 	"UnitPosition",
 	"UnitPower",
