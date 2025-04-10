@@ -33,4 +33,5 @@ addonTbl.INSTANCES = {
 	[2791] = true, -- Storm Cliffs (Azuregos) [Classic Season of Discovery Only]
 	[2804] = true, -- The Crystal Vale (Thunderaan) [Classic Season of Discovery Only]
 	[2832] = true, -- Nightmare Grove (Emeriss/Lethon/Taerar/Ysondre) [Classic Season of Discovery Only]
+	[2856] = true, -- Scarlet Enclave [Classic Season of Discovery Only]
 }
