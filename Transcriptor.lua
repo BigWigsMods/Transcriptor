@@ -984,7 +984,17 @@ do
 				if (event == "SPELL_CAST_START" or event == "SPELL_CAST_SUCCESS") and sourceName and sourceGUID then
 					local unit = UnitTokenFromGUID(sourceGUID)
 					if unit then
-						local hp = UnitPercentHealthFromGUID(sourceGUID)
+						local hp
+						if UnitPercentHealthFromGUID then
+							hp = UnitPercentHealthFromGUID(sourceGUID)
+						else
+							local maxHP = UnitHealthMax(unit)
+							if maxHP == 0 then
+								hp = 0
+							else
+								hp = UnitHealth(unit) / maxHP
+							end
+						end
 						local maxPower = UnitPowerMax(unit)
 						local power = maxPower == 0 and maxPower or (UnitPower(unit) / maxPower * 100)
 						sourceName = format("%s(%.1f%%-%.1f%%)", sourceName, hp*100, power)
