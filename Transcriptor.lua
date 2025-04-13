@@ -1492,7 +1492,7 @@ local eventCategories = {
 	BigWigs_ClearNameplate = "BigWigs",
 	DBM_Announce = "DBM",
 	DBM_Debug = "DBM",
-	DBM_TimerStart = "DBM",
+	DBM_TimerBegin = "DBM",
 	DBM_TimerStop = "DBM",
 	DBM_TimerUpdate = "DBM",
 	DBM_TimerPause = "DBM",
@@ -1501,6 +1501,7 @@ local eventCategories = {
 	DBM_NameplateStop = "DBM",
 	DBM_NameplatePause = "DBM",
 	DBM_NameplateResume = "DBM",
+	DBM_EnemyEngaged = "DBM",
 	PLAYER_TARGET_CHANGED = "NONE",
 	CHAT_MSG_ADDON = "NONE",
 	CHAT_MSG_RAID_WARNING = "NONE",
@@ -1536,7 +1537,7 @@ local bwEvents = {
 local dbmEvents = {
 	"DBM_Announce",
 	"DBM_Debug",
-	"DBM_TimerStart",
+	"DBM_TimerBegin",
 	"DBM_TimerStop",
 	"DBM_TimerUpdate",
 	"DBM_TimerPause",
@@ -1545,6 +1546,7 @@ local dbmEvents = {
 	"DBM_NameplateStop",
 	"DBM_NameplatePause",
 	"DBM_NameplateResume",
+	"DBM_EnemyEngaged",
 }
 local eventHandler
 do
