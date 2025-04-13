@@ -756,7 +756,7 @@ do
 		end
 
 		if badEvents[event] or
-			(sourceName and badPlayerFilteredEvents[event] and PLAYER_SPELL_BLOCKLIST[spellId] and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or
+			(sourceName and badPlayerFilteredEvents[event] and (PLAYER_SPELL_BLOCKLIST[spellId] or not RETAIL) and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or
 			(sourceName and badPlayerEvents[event] and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or
 			(event == "UNIT_DIED" and band(destFlags, mineOrPartyOrRaid) ~= 0 and band(destFlags, guardian) == guardian) or -- Filter guardian deaths only, player deaths can explain debuff removal
 			(spellId == 22568 and event == "SPELL_DRAIN" and band(sourceFlags, mineOrPartyOrRaid) ~= 0) or -- Feral Druid casting Ferocious Bite
