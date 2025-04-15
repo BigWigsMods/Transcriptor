@@ -61,7 +61,6 @@ read_globals = {
 	"IsInRaid",
 	"ShowBossFrameWhenUninteractable",
 	"UnitAffectingCombat",
-	"UnitAura",
 	"UnitCanAttack",
 	"UnitCastingInfo",
 	"UnitChannelInfo",
