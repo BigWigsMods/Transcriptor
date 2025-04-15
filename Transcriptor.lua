@@ -1316,7 +1316,7 @@ do
 
 				if not spellId then
 					break
-				elseif not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not PLAYER_SPELL_BLOCKLIST[spellId] then
+				elseif not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not hiddenAuraPermList[spellId] and not PLAYER_SPELL_BLOCKLIST[spellId] then
 					if UnitIsVisible(unit) then
 						if auraTbl.isBossAura then
 							hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BOSS_DEBUFF", spellId, auraTbl.name, auraTbl.duration, unit, TSUnitName(unit)))
@@ -1334,7 +1334,7 @@ do
 
 				if not spellId then
 					break
-				elseif not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not PLAYER_SPELL_BLOCKLIST[spellId] then
+				elseif not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not hiddenAuraPermList[spellId] and not PLAYER_SPELL_BLOCKLIST[spellId] then
 					if UnitIsVisible(unit) then
 						if auraTbl.isBossAura then
 							hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BOSS_BUFF", spellId, auraTbl.name, auraTbl.duration, unit, TSUnitName(unit)))
@@ -1351,7 +1351,7 @@ do
 				local auraTbl = updateInfo.addedAuras[i]
 				local spellId = auraTbl.spellId
 
-				if not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not PLAYER_SPELL_BLOCKLIST[spellId] then
+				if not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not hiddenAuraPermList[spellId] and not PLAYER_SPELL_BLOCKLIST[spellId] then
 					if UnitIsVisible(unit) then
 						if auraTbl.isBossAura then
 							hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BOSS_BUFF", spellId, auraTbl.name, auraTbl.duration, unit, TSUnitName(unit)))
