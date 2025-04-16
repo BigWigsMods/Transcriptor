@@ -1312,37 +1312,39 @@ do
 		if not updateInfo or updateInfo.isFullUpdate then
 			for i = 1, 100 do
 				local auraTbl = GetAuraDataByIndex(unit, i, "HARMFUL")
-				local spellId = auraTbl.spellId
-
-				if not spellId then
+				if not auraTbl then
 					break
-				elseif not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not hiddenAuraPermList[spellId] and not PLAYER_SPELL_BLOCKLIST[spellId] then
-					if UnitIsVisible(unit) then
-						if auraTbl.isBossAura then
-							hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BOSS_DEBUFF", spellId, auraTbl.name, auraTbl.duration, unit, TSUnitName(unit)))
-						else
-							hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall(spellId, auraTbl.name, auraTbl.duration, unit, TSUnitName(unit)))
+				else
+					local spellId = auraTbl.spellId
+					if not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not hiddenAuraPermList[spellId] and not PLAYER_SPELL_BLOCKLIST[spellId] then
+						if UnitIsVisible(unit) then
+							if auraTbl.isBossAura then
+								hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BOSS_DEBUFF", spellId, auraTbl.name, auraTbl.duration, unit, TSUnitName(unit)))
+							else
+								hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall(spellId, auraTbl.name, auraTbl.duration, unit, TSUnitName(unit)))
+							end
+						else -- If it's not visible it may not show up in CLEU, use this as an indicator of a false positive
+							hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("UNIT_NOT_VISIBLE", spellId, auraTbl.name, auraTbl.duration, unit, TSUnitName(unit)))
 						end
-					else -- If it's not visible it may not show up in CLEU, use this as an indicator of a false positive
-						hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("UNIT_NOT_VISIBLE", spellId, auraTbl.name, auraTbl.duration, unit, TSUnitName(unit)))
 					end
 				end
 			end
 			for i = 1, 100 do
 				local auraTbl = GetAuraDataByIndex(unit, i, "HELPFUL")
-				local spellId = auraTbl.spellId
-
-				if not spellId then
+				if not auraTbl then
 					break
-				elseif not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not hiddenAuraPermList[spellId] and not PLAYER_SPELL_BLOCKLIST[spellId] then
-					if UnitIsVisible(unit) then
-						if auraTbl.isBossAura then
-							hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BOSS_BUFF", spellId, auraTbl.name, auraTbl.duration, unit, TSUnitName(unit)))
-						else
-							hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall(spellId, auraTbl.name, auraTbl.duration, unit, TSUnitName(unit)))
+				else
+					local spellId = auraTbl.spellId
+					if not hiddenAuraEngageList[spellId] and not hiddenUnitAuraCollector[spellId] and not hiddenAuraPermList[spellId] and not PLAYER_SPELL_BLOCKLIST[spellId] then
+						if UnitIsVisible(unit) then
+							if auraTbl.isBossAura then
+								hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("BOSS_BUFF", spellId, auraTbl.name, auraTbl.duration, unit, TSUnitName(unit)))
+							else
+								hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall(spellId, auraTbl.name, auraTbl.duration, unit, TSUnitName(unit)))
+							end
+						else -- If it's not visible it may not show up in CLEU, use this as an indicator of a false positive
+							hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("UNIT_NOT_VISIBLE", spellId, auraTbl.name, auraTbl.duration, unit, TSUnitName(unit)))
 						end
-					else -- If it's not visible it may not show up in CLEU, use this as an indicator of a false positive
-						hiddenUnitAuraCollector[spellId] = strjoin("#", tostringall("UNIT_NOT_VISIBLE", spellId, auraTbl.name, auraTbl.duration, unit, TSUnitName(unit)))
 					end
 				end
 			end
