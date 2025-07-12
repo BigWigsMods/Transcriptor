@@ -12,7 +12,7 @@
 ## Notes-itIT: Logging utility for boss encounters.
 ## Notes-ptBR: Logging utility for boss encounters.
 ## IconTexture: Interface\AddOns\Transcriptor\icon_on
-## Author: Funkydude
+## Author: Funkeh
 ## Version: @project-version@
 ## OptionalDeps: LibSpecialization
 ## X-Credits: Kyahx, Rabbit, MysticalOS, nebula169
