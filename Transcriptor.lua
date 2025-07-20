@@ -1815,7 +1815,7 @@ init:SetScript("OnEvent", function(self, event)
 
 	local LibSpec = LibStub and LibStub("LibSpecialization", true)
 	if LibSpec then
-		LibSpec:Register(Transcriptor, function(specId, role, position, playerName, talents)
+		LibSpec.RegisterGroup({}, function(specId, role, position, playerName, talents)
 			playerSpecList[playerName] = {specId, role, position, talents}
 		end)
 	end
