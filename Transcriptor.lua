@@ -1776,6 +1776,8 @@ local ldb = LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("Transcriptor"
 			end
 		elseif button == "RightButton" then
 			MenuUtil.CreateContextMenu(self, setupMenu)
+		elseif button == "MiddleButton" and IsAltKeyDown() then
+			Transcriptor:ClearAll()
 		end
 	end,
 })
