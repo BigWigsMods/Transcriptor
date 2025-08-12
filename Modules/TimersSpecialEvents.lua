@@ -141,6 +141,44 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		[465833] = { -- Colossal Clash
 			[229181] = "Clash"  -- Flarendo (Cauldron)
 		},
+
+		-- [[ Manaforged Omega ]] --
+		[1227891] = { -- Coalesce Voidwing
+			[237763] = "Stage 2" -- Nexus-King Salhadaar
+		},
+		[1228059] = { -- Unbound Rage
+			[233815] = "Stage 2" -- Loom'ithar
+		},
+		[1233072] = { -- -Phase Transition P2 -> P3-
+			[233817] = "Stage 2",  -- Forgeweaver Araz
+		},
+		[1233388] = {
+			[237660] = function () -- Velaryn Bloodwrath
+				local stage = (dataTbl[1] or 1)
+				if stage == 1.5 then
+					dataTbl[1] = 1
+					return "I Over"
+				end
+			end
+		},
+		[1234694] = {
+			[237662] = function () -- Ilyssa Darksorrow
+				local stage = (dataTbl[1] or 1)
+				if stage == 1.5 then
+					dataTbl[1] = 1
+					return "I Over"
+				end
+			end
+		},
+		[1234724] = {
+			[237661] = function () -- Adarus Duskblaze
+				local stage = (dataTbl[1] or 1)
+				if stage == 1.5 then
+					dataTbl[1] = 1
+					return "I Over"
+				end
+			end
+		},
 	},
 	["UNIT_SPELLCAST_INTERRUPTED"] = {
 		-- [[ Battle of Dazar'Alor ]]--
@@ -599,7 +637,24 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 				dataTbl[1] = dataTbl[1] + 1
 				return "Stage "..dataTbl[1]
 			end,
-		}
+		},
+
+		-- [[ Manaforged Omega ]] --
+		[1220618] = { -- Protocol: Purge
+			[233814] = "Stage 1" -- Plexus Sentinel
+		},
+		[1220981] = { -- Protocol: Purge
+			[233814] = "Stage 1" -- Plexus Sentinel
+		},
+		[1220982] = { -- Protocol: Purge
+			[233814] = "Stage 1" -- Plexus Sentinel
+		},
+		[1228284] = { -- Royal Ward
+			[233823] = "Stage 2 (2)" -- The Royal Voidwing
+		},
+		[1228265] = { -- King's Hunger
+			[237763] = "Stage 3" -- Nexus-King Salhadaar
+		},
 	},
 	["SPELL_CAST_START"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -880,6 +935,53 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		[464810] = { -- Coin and Bomb
 			[228458] = "CoinBomb" -- One-Armed Bandit
 		},
+
+		-- [[ Manaforged Omega ]] --
+		[1220489] = { -- Protocol: Purge
+			[233814] = "Stage 2" -- Plexus Sentinel
+		},
+		[1220553] = { -- Protocol: Purge
+			[233814] = "Stage 2" -- Plexus Sentinel
+		},
+		[1220555] = { -- Protocol: Purge
+			[233814] = "Stage 2" -- Plexus Sentinel
+		},
+		[1230529] = {
+			[233817] = "Stage 1" -- Forgeweaver Araz
+		},
+		[1231501] = {
+			[237660] = function () -- Velaryn Bloodwrath
+				local stage = (dataTbl[1] or 1)
+				if stage == 1 then -- Intermission
+					dataTbl[1] = 1.5
+					return "Intermission"
+				end
+			end
+		},
+		[1232568] = {
+			[237662] = function () -- Ilyssa Darksorrow
+				local stage = (dataTbl[1] or 1)
+				if stage == 1 then -- Intermission
+					dataTbl[1] = 1.5
+					return "Intermission"
+				end
+			end
+		},
+		[1232569] = {
+			[237661] = function () -- Adarus Duskblaze
+				local stage = (dataTbl[1] or 1)
+				if stage == 1 then -- Intermission
+					dataTbl[1] = 1.5
+					return "Intermission"
+				end
+			end
+		},
+		[1228065] = { -- Rally the Shadowguard
+			[237763] = "Intermission 1" -- Nexus-King Salhadaar
+		},
+		[1228265] = { -- King's Hunger
+			[237763] = "Intermission 2" -- Nexus-King Salhadaar
+		},
 	},
 	["SPELL_CAST_SUCCESS"] = {
 		--[[ Tomb of Sargeras ]]--
@@ -993,6 +1095,11 @@ addonTbl.TIMERS_SPECIAL_EVENTS = {
 		},
 		[468728] = { -- Mug Taking Charge
 			[229953] = "Mug" -- MugZee
+		},
+
+		-- [[ Manaforged Omega ]] --
+		[1230231] = { -- Phase Transition P1 -> P2
+			[233817] = "Intermission" -- Forgeweaver Araz
 		},
 	},
 	["UNIT_DIED"] = {
