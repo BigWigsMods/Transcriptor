@@ -1,4 +1,4 @@
-## Interface: 50500
+## Interface: 50500, 50501
 ## Title: Transcriptor
 ## Notes: Logging utility for boss encounters.
 ## Notes-deDE: Logging utility for boss encounters.
