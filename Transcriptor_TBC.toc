@@ -1,4 +1,4 @@
-## Interface: 20504
+## Interface: 20505
 ## Title: Transcriptor
 ## Notes: Logging utility for boss encounters.
 ## Notes-deDE: Logging utility for boss encounters.

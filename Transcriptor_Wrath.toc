@@ -1,4 +1,4 @@
-## Interface: 30405
+## Interface: 30405, 38000
 ## Title: Transcriptor
 ## Notes: Logging utility for boss encounters.
 ## Notes-deDE: Logging utility for boss encounters.
