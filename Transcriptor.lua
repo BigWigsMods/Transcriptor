@@ -565,7 +565,7 @@ do
 		L["|cff696969Idle|r"] = "|cff696969空闲|r"
 		L["|cffeda55fClick|r to start or stop transcribing. |cffeda55fRight-Click|r to configure events. |cffeda55fAlt-Middle Click|r to clear all stored transcripts."] = "|cffeda55f点击|r开始/停止记录战斗."
 		L["|cffFF0000Recording|r"] = "|cffFF0000记录中|r"
-		--L["|cFFFFD200Transcriptor|r - Disabled Events"] = "|cFFFFD200Transcriptor|r - Disabled Events"
+		L["|cFFFFD200Transcriptor|r - Disabled Events"] = "|cFFFFD200Transcriptor|r - 已禁用事件"
 	elseif locale == "koKR" then
 		L["Remember to stop and start Transcriptor between each wipe or boss kill to get the best logs."] = "최상의 기록을 얻으려면 전멸이나 우두머리 처치 후에 Transcriptor를 중지하고 시작하는 걸 기억하세요."
 		L["You are already logging an encounter."] = "이미 우두머리 전투를 기록 중입니다."
