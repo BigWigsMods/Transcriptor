@@ -61,6 +61,7 @@ local GetZoneText, GetRealZoneText, GetSubZoneText = GetZoneText, GetRealZoneTex
 local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
 local GetBestMapForUnit = C_Map.GetBestMapForUnit
 local C_GossipInfo_GetOptions = C_GossipInfo.GetOptions
+local issecretvalue = issecretvalue or function() return false end
 
 if not UnitTokenFromGUID then -- XXX not on classic yet
 	UnitTokenFromGUID = function() return end
@@ -1054,7 +1055,7 @@ do
 	end
 
 	function sh.UNIT_SPELLCAST_STOP(unit, castId, spellId, ...)
-		if safeUnit(unit) then
+		if not issecretvalue(spellId) and safeUnit(unit) then
 			local maxHP = UnitHealthMax(unit)
 			local maxPower = UnitPowerMax(unit)
 			local hp = maxHP == 0 and maxHP or (UnitHealth(unit) / maxHP * 100)
@@ -1065,7 +1066,7 @@ do
 	sh.UNIT_SPELLCAST_CHANNEL_STOP = sh.UNIT_SPELLCAST_STOP
 
 	function sh.UNIT_SPELLCAST_INTERRUPTED(unit, castId, spellId, ...)
-		if safeUnit(unit) then
+		if not issecretvalue(spellId) and safeUnit(unit) then
 			if TIMERS_SPECIAL_EVENTS.UNIT_SPELLCAST_INTERRUPTED[spellId] then
 				local name = TIMERS_SPECIAL_EVENTS.UNIT_SPELLCAST_INTERRUPTED[spellId][MobId(UnitGUID(unit))]
 				if name then
@@ -1083,6 +1084,7 @@ do
 
 	local prevCast = nil
 	function sh.UNIT_SPELLCAST_SUCCEEDED(unit, castId, spellId, ...)
+		if issecretvalue(spellId) then return end
 		if safeUnit(unit) then
 			if castId ~= prevCast then
 				prevCast = castId
@@ -1123,7 +1125,7 @@ do
 		end
 	end
 	function sh.UNIT_SPELLCAST_START(unit, castId, spellId, ...)
-		if safeUnit(unit) then
+		if not issecretvalue(spellId) and safeUnit(unit) then
 			local _, _, _, startTime, endTime = UnitCastingInfo(unit)
 			local time = ((endTime or 0) - (startTime or 0)) / 1000
 
@@ -1135,7 +1137,7 @@ do
 		end
 	end
 	function sh.UNIT_SPELLCAST_CHANNEL_START(unit, castId, spellId, ...)
-		if safeUnit(unit) then
+		if not issecretvalue(spellId) and safeUnit(unit) then
 			local _, _, _, startTime, endTime = UnitChannelInfo(unit)
 			local time = ((endTime or 0) - (startTime or 0)) / 1000
 
@@ -1281,12 +1283,13 @@ function sh.CINEMATIC_START(...)
 end
 
 function sh.CHAT_MSG_ADDON(prefix, msg, channel, sender)
-	if prefix == "Transcriptor" and (channel == "RAID" or channel == "PARTY" or channel == "INSTANCE_CHAT") then
+	if not issecretvalue(msg) and prefix == "Transcriptor" and (channel == "RAID" or channel == "PARTY" or channel == "INSTANCE_CHAT") then
 		return strjoin("#", "RAID_BOSS_WHISPER_SYNC", msg, sender)
 	end
 end
 
 function sh.CHAT_MSG_RAID_BOSS_EMOTE(msg, npcName, ...)
+	if issecretvalue(msg) then return "SECRET" end
 	local id = strmatch(msg, "|Hspell:([^|]+)|h")
 	if id then
 		local spellId = tonumber(id)
@@ -1304,6 +1307,10 @@ function sh.CHAT_MSG_RAID_BOSS_EMOTE(msg, npcName, ...)
 		end
 	end
 	return strjoin("#", msg, npcName, tostringall(...))
+end
+
+function sh.ENCOUNTER_TIMELINE_EVENT_ADDED(eventInfo)
+	return strjoin("#", eventInfo.id, eventInfo.source, eventInfo.duration, eventInfo.maxQueueDuration)
 end
 
 do
@@ -1395,8 +1402,8 @@ end
 local wowEvents = {
 	-- Raids
 	"CHAT_MSG_ADDON",
+	"ENCOUNTER_TIMELINE_EVENT_ADDED",
 	"CHAT_MSG_RAID_WARNING",
-	"COMBAT_LOG_EVENT_UNFILTERED",
 	"PLAYER_REGEN_DISABLED",
 	"PLAYER_REGEN_ENABLED",
 	"CHAT_MSG_MONSTER_EMOTE",
@@ -1416,7 +1423,6 @@ local wowEvents = {
 	"UNIT_SPELLCAST_CHANNEL_STOP",
 	"UNIT_POWER_UPDATE",
 	"UPDATE_UI_WIDGET",
-	"UNIT_AURA",
 	"UNIT_TARGET",
 	"INSTANCE_ENCOUNTER_ENGAGE_UNIT",
 	"UNIT_TARGETABLE_CHANGED",
@@ -1442,6 +1448,10 @@ local wowEvents = {
 	"CHAT_MSG_BG_SYSTEM_NEUTRAL",
 	"ARENA_OPPONENT_UPDATE",
 }
+if not C_Secrets then
+	wowEvents[#wowEvents+1] = "COMBAT_LOG_EVENT_UNFILTERED"
+	wowEvents[#wowEvents+1] = "UNIT_AURA"
+end
 
 local eventCategories = {
 	PLAYER_REGEN_DISABLED = "COMBAT",
