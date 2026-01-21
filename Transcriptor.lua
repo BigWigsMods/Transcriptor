@@ -1171,7 +1171,9 @@ function sh.PLAYER_TARGET_CHANGED()
 end
 
 function sh.UNIT_TARGETABLE_CHANGED(unit)
-	return format("-%s- [CanAttack:%s#Exists:%s#IsVisible:%s#Name:%s#GUID:%s#Classification:%s#Health:%s]", tostringall(unit, UnitCanAttack("player", unit), UnitExists(unit), UnitIsVisible(unit), TSUnitName(unit), UnitGUID(unit), UnitClassification(unit), (UnitHealth(unit))))
+	if not issecretvalue(unit) then
+		return format("-%s- [CanAttack:%s#Exists:%s#IsVisible:%s#Name:%s#GUID:%s#Classification:%s#Health:%s]", tostringall(unit, UnitCanAttack("player", unit), UnitExists(unit), UnitIsVisible(unit), TSUnitName(unit), UnitGUID(unit), UnitClassification(unit), (UnitHealth(unit))))
+	end
 end
 
 do
@@ -1184,8 +1186,10 @@ do
 	}
 	function sh.UNIT_POWER_UPDATE(unit, typeName)
 		if not allowedPowerUnits[unit] then return end
+		local currentPower =  UnitPower(unit)
+		if issecretvalue(currentPower) then return end
 		local powerType = format("TYPE:%s/%d", typeName, UnitPowerType(unit))
-		local mainPower = format("MAIN:%d/%d", UnitPower(unit), UnitPowerMax(unit))
+		local mainPower = format("MAIN:%d/%d", currentPower, UnitPowerMax(unit))
 		local altPower = format("ALT:%d/%d", UnitPower(unit, 10), UnitPowerMax(unit, 10))
 		return strjoin("#", unit, TSUnitName(unit), powerType, mainPower, altPower)
 	end
@@ -1289,7 +1293,7 @@ function sh.CHAT_MSG_ADDON(prefix, msg, channel, sender)
 end
 
 function sh.CHAT_MSG_RAID_BOSS_EMOTE(msg, npcName, ...)
-	if issecretvalue(msg) then return "SECRET" end
+	if issecretvalue(msg) then return "<secret value>" end
 	local id = strmatch(msg, "|Hspell:([^|]+)|h")
 	if id then
 		local spellId = tonumber(id)
@@ -1310,12 +1314,12 @@ function sh.CHAT_MSG_RAID_BOSS_EMOTE(msg, npcName, ...)
 end
 
 function sh.CHAT_MSG_RAID_BOSS_WHISPER(msg, npcName, ...)
-	if issecretvalue(msg) then return "SECRET" end
+	if issecretvalue(msg) then return "<secret value>" end
 	return strjoin("#", msg, npcName, tostringall(...))
 end
 
 function sh.CHAT_MSG_MONSTER_YELL(msg, ...)
-	if issecretvalue(msg) then return "SECRET" end
+	if issecretvalue(msg) then return "<secret value>" end
 	return strjoin("#", msg, tostringall(...))
 end
 sh.CHAT_MSG_MONSTER_EMOTE = sh.CHAT_MSG_MONSTER_YELL
@@ -1511,6 +1515,10 @@ local eventCategories = {
 	ENCOUNTER_START = "COMBAT",
 	ENCOUNTER_END = "COMBAT",
 	BOSS_KILL = "COMBAT",
+	ENCOUNTER_TIMELINE_EVENT_ADDED = "ENCOUNTER",
+	ENCOUNTER_TIMELINE_EVENT_REMOVED = "ENCOUNTER",
+	ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED = "ENCOUNTER",
+	ENCOUNTER_WARNING = "ENCOUNTER",
 	INSTANCE_ENCOUNTER_ENGAGE_UNIT = "COMBAT",
 	UNIT_TARGETABLE_CHANGED = "COMBAT",
 	CHAT_MSG_MONSTER_EMOTE = "MONSTER",
@@ -2036,7 +2044,7 @@ do
 							local auraTbl = GetAuraDataByIndex(unit, i, "HELPFUL")
 							if not auraTbl then
 								break
-							elseif not hiddenAuraEngageList[auraTbl.spellId] then
+							elseif not issecretvalue(auraTbl.spellId) and not hiddenAuraEngageList[auraTbl.spellId] then
 								hiddenAuraEngageList[auraTbl.spellId] = true
 							end
 						end
@@ -2044,7 +2052,7 @@ do
 							local auraTbl = GetAuraDataByIndex(unit, i, "HARMFUL")
 							if not auraTbl then
 								break
-							elseif not hiddenAuraEngageList[auraTbl.spellId] then
+							elseif not issecretvalue(auraTbl.spellId) and not hiddenAuraEngageList[auraTbl.spellId] then
 								hiddenAuraEngageList[auraTbl.spellId] = true
 							end
 						end
