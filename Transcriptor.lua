@@ -1150,7 +1150,7 @@ do
 	end
 
 	function sh.UNIT_TARGET(unit)
-		if safeUnit(unit) then
+		if not issecretvalue(unit) and safeUnit(unit) then
 			return format("%s#%s#Target: %s#TargetOfTarget: %s", unit, tostring(TSUnitName(unit)), tostring(TSUnitName(unit.."target")), tostring(TSUnitName(unit.."targettarget")))
 		end
 	end
@@ -1309,8 +1309,57 @@ function sh.CHAT_MSG_RAID_BOSS_EMOTE(msg, npcName, ...)
 	return strjoin("#", msg, npcName, tostringall(...))
 end
 
+function sh.CHAT_MSG_RAID_BOSS_WHISPER(msg, npcName, ...)
+	if issecretvalue(msg) then return "SECRET" end
+	return strjoin("#", msg, npcName, tostringall(...))
+end
+
+function sh.CHAT_MSG_MONSTER_YELL(msg, ...)
+	if issecretvalue(msg) then return "SECRET" end
+	return strjoin("#", msg, tostringall(...))
+end
+sh.CHAT_MSG_MONSTER_EMOTE = sh.CHAT_MSG_MONSTER_YELL
+sh.CHAT_MSG_MONSTER_SAY = sh.CHAT_MSG_MONSTER_YELL
+sh.CHAT_MSG_MONSTER_WHISPER = sh.CHAT_MSG_MONSTER_YELL
+
 function sh.ENCOUNTER_TIMELINE_EVENT_ADDED(eventInfo)
 	return strjoin("#", eventInfo.id, eventInfo.source, eventInfo.duration, eventInfo.maxQueueDuration)
+end
+
+function sh.ENCOUNTER_TIMELINE_EVENT_REMOVED(eventID)
+	return strjoin("#", eventID)
+end
+sh.ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED = sh.ENCOUNTER_TIMELINE_EVENT_REMOVED
+
+do
+	local entriesInTable = {
+		"text",
+		"casterGUID",
+		"casterName",
+		"targetGUID",
+		"targetName",
+		"iconFileID",
+		"tooltipSpellID",
+		"isDeadly",
+		"duration",
+		"severity",
+		"shouldPlaySound",
+		"shouldShowChatMessage",
+		"shouldShowWarning",
+	}
+	function sh.ENCOUNTER_WARNING(encounterWarningInfo)
+		local msgTable = {}
+		for i = 1, #entriesInTable do
+			local entry = entriesInTable[i]
+			local value = encounterWarningInfo[entry]
+			if not issecretvalue(value) then
+				msgTable[#msgTable+1] = entry
+				msgTable[#msgTable+1] = tostring(value)
+			end
+		end
+		local msg = tconcat(msgTable, "#")
+		return msg
+	end
 end
 
 do
@@ -1378,7 +1427,7 @@ end
 
 function sh.NAME_PLATE_UNIT_ADDED(unit)
 	local guid = UnitGUID(unit)
-	if not collectNameplates[guid] then
+	if not issecretvalue(guid) and not collectNameplates[guid] then
 		collectNameplates[guid] = true
 		local name = TSUnitName(unit)
 		return strjoin("#", name, guid)
@@ -1403,6 +1452,9 @@ local wowEvents = {
 	-- Raids
 	"CHAT_MSG_ADDON",
 	"ENCOUNTER_TIMELINE_EVENT_ADDED",
+	"ENCOUNTER_TIMELINE_EVENT_REMOVED",
+	"ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED",
+	"ENCOUNTER_WARNING",
 	"CHAT_MSG_RAID_WARNING",
 	"PLAYER_REGEN_DISABLED",
 	"PLAYER_REGEN_ENABLED",
