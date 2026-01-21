@@ -63,7 +63,7 @@ local GetBestMapForUnit = C_Map.GetBestMapForUnit
 local C_GossipInfo_GetOptions = C_GossipInfo.GetOptions
 local issecretvalue = issecretvalue or function() return false end
 local mapvalues = mapvalues
-local function ReplaceSecrets(value) if issecretvalue(value) then return "<secret value>" else return value end end
+local function ReplaceSecrets(value) if issecretvalue(value) then return "<secret>" else return value end end
 
 if not UnitTokenFromGUID then -- XXX not on classic yet
 	UnitTokenFromGUID = function() return end
@@ -1173,7 +1173,11 @@ function sh.PLAYER_TARGET_CHANGED()
 		local creatureType = UnitCreatureType("target") or "nil"
 		local typeclass = classification == "normal" and creatureType or (classification.." "..creatureType)
 		local name = TSUnitName("target")
-		return (format("%s %s (%s) - %s # %s", tostring(level), tostring(reaction), tostring(typeclass), tostring(name), tostring(guid)))
+		if mapvalues then
+			return (format("%s %s (%s) - %s # %s", tostringall(mapvalues(ReplaceSecrets, level, reaction, typeclass, name, guid))))
+		else
+			return (format("%s %s (%s) - %s # %s", tostring(level), tostring(reaction), tostring(typeclass), tostring(name), tostring(guid)))
+		end
 	end
 end
 
@@ -1300,7 +1304,7 @@ function sh.CHAT_MSG_ADDON(prefix, msg, channel, sender)
 end
 
 function sh.CHAT_MSG_RAID_BOSS_EMOTE(msg, npcName, ...)
-	if issecretvalue(msg) then return "<secret value>" end
+	if issecretvalue(msg) then return "<secret>" end
 	local id = strmatch(msg, "|Hspell:([^|]+)|h")
 	if id then
 		local spellId = tonumber(id)
@@ -1321,12 +1325,12 @@ function sh.CHAT_MSG_RAID_BOSS_EMOTE(msg, npcName, ...)
 end
 
 function sh.CHAT_MSG_RAID_BOSS_WHISPER(msg, npcName, ...)
-	if issecretvalue(msg) then return "<secret value>" end
+	if issecretvalue(msg) then return "<secret>" end
 	return strjoin("#", msg, npcName, tostringall(...))
 end
 
 function sh.CHAT_MSG_MONSTER_YELL(msg, ...)
-	if issecretvalue(msg) then return "<secret value>" end
+	if issecretvalue(msg) then return "<secret>" end
 	return strjoin("#", msg, tostringall(...))
 end
 sh.CHAT_MSG_MONSTER_EMOTE = sh.CHAT_MSG_MONSTER_YELL
@@ -1699,16 +1703,29 @@ do
 				local guid = UnitGUID(unit)
 				if guid then
 					hasBosses = true
-					local info = strjoin("#", tostringall(
-						"Name", TSUnitName(unit),
-						"GUID", guid,
-						"Health", UnitHealth(unit),
-						"Exists", UnitExists(unit),
-						"Visible", UnitIsVisible(unit),
-						"CanAttack", UnitCanAttack("player", unit),
-						"ShowUninteractable", ShowBossFrameWhenUninteractable(unit))
-					)
-					currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IEEU %s] %s", t, time, unit, info)
+					if mapvalues then
+						local info = strjoin("#", tostringall(mapvalues(ReplaceSecrets,
+							"Name", TSUnitName(unit),
+							"GUID", guid,
+							"Health", UnitHealth(unit),
+							"Exists", UnitExists(unit),
+							"Visible", UnitIsVisible(unit),
+							"CanAttack", UnitCanAttack("player", unit),
+							"ShowUninteractable", ShowBossFrameWhenUninteractable(unit))
+						))
+						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IEEU %s] %s", t, time, unit, info)
+					else
+						local info = strjoin("#", tostringall(
+							"Name", TSUnitName(unit),
+							"GUID", guid,
+							"Health", UnitHealth(unit),
+							"Exists", UnitExists(unit),
+							"Visible", UnitIsVisible(unit),
+							"CanAttack", UnitCanAttack("player", unit),
+							"ShowUninteractable", ShowBossFrameWhenUninteractable(unit))
+						)
+						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IEEU %s] %s", t, time, unit, info)
+					end
 				end
 			end
 			if not hasBosses then
