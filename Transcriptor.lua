@@ -1326,8 +1326,32 @@ sh.CHAT_MSG_MONSTER_EMOTE = sh.CHAT_MSG_MONSTER_YELL
 sh.CHAT_MSG_MONSTER_SAY = sh.CHAT_MSG_MONSTER_YELL
 sh.CHAT_MSG_MONSTER_WHISPER = sh.CHAT_MSG_MONSTER_YELL
 
-function sh.ENCOUNTER_TIMELINE_EVENT_ADDED(eventInfo)
-	return strjoin("#", eventInfo.id, eventInfo.source, eventInfo.duration, eventInfo.maxQueueDuration)
+do
+	local entriesInTable = {
+		"id",
+		"source",
+		"spellName",
+		"spellID",
+		"iconFileID",
+		"duration",
+		"maxQueueDuration",
+		"icons",
+		"severity",
+		"isApproximate",
+	}
+	function sh.ENCOUNTER_TIMELINE_EVENT_ADDED(eventInfo)
+		local msgTable = {}
+		for i = 1, #entriesInTable do
+			local entry = entriesInTable[i]
+			local value = eventInfo[entry]
+			if not issecretvalue(value) then
+				msgTable[#msgTable+1] = entry
+				msgTable[#msgTable+1] = tostring(value)
+			end
+		end
+		local msg = tconcat(msgTable, "#")
+		return msg
+	end
 end
 
 function sh.ENCOUNTER_TIMELINE_EVENT_REMOVED(eventID)
