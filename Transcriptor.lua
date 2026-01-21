@@ -1154,7 +1154,11 @@ do
 
 	function sh.UNIT_TARGET(unit)
 		if not issecretvalue(unit) and safeUnit(unit) then
-			return format("%s#%s#Target: %s#TargetOfTarget: %s", unit, tostring(TSUnitName(unit)), tostring(TSUnitName(unit.."target")), tostring(TSUnitName(unit.."targettarget")))
+			if mapvalues then
+				return format("%s#%s#Target: %s#TargetOfTarget: %s", unit, tostringall(mapvalues(ReplaceSecrets, TSUnitName(unit), TSUnitName(unit.."target"), TSUnitName(unit.."targettarget"))))
+			else
+				return format("%s#%s#Target: %s#TargetOfTarget: %s", unit, tostring(TSUnitName(unit)), tostring(TSUnitName(unit.."target")), tostring(TSUnitName(unit.."targettarget")))
+			end
 		end
 	end
 end
