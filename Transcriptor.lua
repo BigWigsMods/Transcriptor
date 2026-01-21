@@ -62,6 +62,8 @@ local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
 local GetBestMapForUnit = C_Map.GetBestMapForUnit
 local C_GossipInfo_GetOptions = C_GossipInfo.GetOptions
 local issecretvalue = issecretvalue or function() return false end
+local mapvalues = mapvalues
+local function ReplaceSecrets(value) if issecretvalue(value) then return "<secret value>" else return value end end
 
 if not UnitTokenFromGUID then -- XXX not on classic yet
 	UnitTokenFromGUID = function() return end
@@ -1046,7 +1048,8 @@ do
 			return true
 		elseif wantedUnits[unit] and not UnitIsUnit("player", unit) and not UnitInRaid(unit) and not UnitInParty(unit) then
 			for k in next, bossUnits do
-				if UnitIsUnit(unit, k) then -- Reject if the unit is also a boss unit
+				local isBossUnit = UnitIsUnit(unit, k)
+				if not issecretvalue(isBossUnit) and isBossUnit then -- Reject if the unit is also a boss unit
 					return false
 				end
 			end
@@ -1933,14 +1936,26 @@ init:RegisterEvent("PLAYER_LOGIN")
 local function BWEventHandler(event, module, ...)
 	if type(module) == "table" then
 		if module.baseName == "BigWigs_CommonAuras" then return end
-		eventHandler(eventFrame, event, module.moduleName, ...)
+		if mapvalues then
+			eventHandler(eventFrame, event, module.moduleName, mapvalues(ReplaceSecrets, ...))
+		else
+			eventHandler(eventFrame, event, module.moduleName, ...)
+		end
 	else
-		eventHandler(eventFrame, event, module, ...)
+		if mapvalues then
+			eventHandler(eventFrame, event, module, mapvalues(ReplaceSecrets, ...))
+		else
+			eventHandler(eventFrame, event, module, ...)
+		end
 	end
 end
 
 local function DBMEventHandler(...)
-	eventHandler(eventFrame, ...)
+	if mapvalues then
+		eventHandler(eventFrame, mapvalues(ReplaceSecrets, ...))
+	else
+		eventHandler(eventFrame, ...)
+	end
 end
 
 do
