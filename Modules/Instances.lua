@@ -16,12 +16,12 @@ addonTbl.INSTANCES = {
 	[2669] = true, -- City of Threads
 	[2773] = true, -- Operation: Floodgate
 
-	-- Season 2 Dungeons
-	[1594] = true, -- The Motherlode!!
-	[2097] = true, -- Operation: Mechagon
-	[2293] = true, -- Theater of Pain
+	-- Season 3 Dungeons
+	[2287] = true, -- Halls of Atonement
+	[2441] = true, -- Tazavesh, the Veiled Market
 
 	-- Raids
 	[2657] = true, -- Nerub-ar Palace
 	[2769] = true, -- Undermine
+	[2810] = true, -- Manaforge Omega
 }
