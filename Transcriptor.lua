@@ -82,6 +82,7 @@ do
 	local UnitNameUnmodified = UnitNameUnmodified
 	function TSUnitName(unit)
 		local name, server = UnitNameUnmodified(unit)
+		if issecretvalue(name) then return "<secret>" end
 		if not name then
 			return "??"
 		elseif server and server ~= "" then
