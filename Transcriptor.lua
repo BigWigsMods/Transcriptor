@@ -44,7 +44,7 @@ local inEncounter, blockingRelease, limitingRes = false, false, false
 local mineOrPartyOrRaid = 7 -- COMBATLOG_OBJECT_AFFILIATION_MINE + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_RAID
 
 local band = bit.band
-local tinsert, tsort, twipe, tconcat = table.insert, table.sort, table.wipe, table.concat
+local tinsert, tsort, twipe, tconcat, tContains = table.insert, table.sort, table.wipe, table.concat, tContains
 local format, find, strjoin, strsplit, gsub, strmatch = string.format, string.find, string.join, string.split, string.gsub, string.match
 local tostring, tostringall, date = tostring, tostringall, date
 local type, next = type, next
@@ -54,7 +54,7 @@ local C_Scenario, C_DeathInfo_GetSelfResurrectOptions, Enum = C_Scenario, C_Deat
 local IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease = IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease
 local UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo = UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo
 local UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification, ShowBossFrameWhenUninteractable = UnitCanAttack, UnitExists, UnitIsVisible, UnitGUID, UnitClassification, ShowBossFrameWhenUninteractable
-local UnitPower, UnitPowerMax, UnitPowerType, UnitHealth = UnitPower, UnitPowerMax, UnitPowerType, UnitHealth
+local UnitPower, UnitPowerMax, UnitPowerType, UnitHealth, UnitHealthMax = UnitPower, UnitPowerMax, UnitPowerType, UnitHealth, UnitHealthMax
 local UnitLevel, UnitCreatureType, UnitPercentHealthFromGUID, UnitTokenFromGUID = UnitLevel, UnitCreatureType, UnitPercentHealthFromGUID, UnitTokenFromGUID
 local GetInstanceInfo = GetInstanceInfo
 local GetZoneText, GetRealZoneText, GetSubZoneText = GetZoneText, GetRealZoneText, GetSubZoneText
@@ -1305,7 +1305,10 @@ function sh.CHAT_MSG_ADDON(prefix, msg, channel, sender)
 end
 
 function sh.CHAT_MSG_RAID_BOSS_EMOTE(msg, npcName, ...)
-	if issecretvalue(msg) then return "<secret>" end
+	if issecretvalue(msg) then
+		return strjoin("#", tostringall(mapvalues(ReplaceSecrets, msg, npcName, ...)))
+	end
+
 	local id = strmatch(msg, "|Hspell:([^|]+)|h")
 	if id then
 		local spellId = tonumber(id)
@@ -1325,14 +1328,20 @@ function sh.CHAT_MSG_RAID_BOSS_EMOTE(msg, npcName, ...)
 	return strjoin("#", msg, npcName, tostringall(...))
 end
 
-function sh.CHAT_MSG_RAID_BOSS_WHISPER(msg, npcName, ...)
-	if issecretvalue(msg) then return "<secret>" end
-	return strjoin("#", msg, npcName, tostringall(...))
+function sh.CHAT_MSG_RAID_BOSS_WHISPER(...)
+	if mapvalues then
+		return strjoin("#", tostringall(mapvalues(ReplaceSecrets, ...)))
+	else
+		return strjoin("#", tostringall(...))
+	end
 end
 
-function sh.CHAT_MSG_MONSTER_YELL(msg, ...)
-	if issecretvalue(msg) then return "<secret>" end
-	return strjoin("#", msg, tostringall(...))
+function sh.CHAT_MSG_MONSTER_YELL(...)
+	if mapvalues then
+		return strjoin("#", tostringall(mapvalues(ReplaceSecrets, ...)))
+	else
+		return strjoin("#", tostringall(...))
+	end
 end
 sh.CHAT_MSG_MONSTER_EMOTE = sh.CHAT_MSG_MONSTER_YELL
 sh.CHAT_MSG_MONSTER_SAY = sh.CHAT_MSG_MONSTER_YELL
@@ -1359,6 +1368,12 @@ do
 			if not issecretvalue(value) then
 				msgTable[#msgTable+1] = entry
 				msgTable[#msgTable+1] = tostring(value)
+			end
+		end
+		for k,v in next, eventInfo do
+			if not tContains(entriesInTable, k) and not issecretvalue(v) then
+				msgTable[#msgTable+1] = k
+				msgTable[#msgTable+1] = tostring(v)
 			end
 		end
 		local msg = tconcat(msgTable, "#")
@@ -1395,6 +1410,12 @@ do
 			if not issecretvalue(value) then
 				msgTable[#msgTable+1] = entry
 				msgTable[#msgTable+1] = tostring(value)
+			end
+		end
+		for k,v in next, encounterWarningInfo do
+			if not tContains(entriesInTable, k) and not issecretvalue(v) then
+				msgTable[#msgTable+1] = k
+				msgTable[#msgTable+1] = tostring(v)
 			end
 		end
 		local msg = tconcat(msgTable, "#")
@@ -1476,15 +1497,13 @@ end
 
 function sh.GOSSIP_SHOW()
 	local guid = UnitGUID("npc")
-	if guid then
-		local gossipOptions = C_GossipInfo_GetOptions()
-		if gossipOptions[1] then
-			local gossipTbl = {}
-			for i = 1, #gossipOptions do
-				gossipTbl[i] = strjoin(":", gossipOptions[i].gossipOptionID or "nil", gossipOptions[i].name or "")
-			end
-			return strjoin("#", guid, tconcat(gossipTbl, ","))
+	local gossipOptions = C_GossipInfo_GetOptions()
+	if gossipOptions[1] then
+		local gossipTbl = {}
+		for i = 1, #gossipOptions do
+			gossipTbl[i] = strjoin(":", gossipOptions[i].gossipOptionID or "nil", gossipOptions[i].name or "")
 		end
+		return strjoin("#", "GUID", ReplaceSecrets(guid), tconcat(gossipTbl, ","))
 	end
 end
 
@@ -1709,6 +1728,7 @@ do
 							"Name", TSUnitName(unit),
 							"GUID", guid,
 							"Health", UnitHealth(unit),
+							"MaxHealth", UnitHealthMax(unit),
 							"Exists", UnitExists(unit),
 							"Visible", UnitIsVisible(unit),
 							"CanAttack", UnitCanAttack("player", unit),
@@ -1720,6 +1740,7 @@ do
 							"Name", TSUnitName(unit),
 							"GUID", guid,
 							"Health", UnitHealth(unit),
+							"MaxHealth", UnitHealthMax(unit),
 							"Exists", UnitExists(unit),
 							"Visible", UnitIsVisible(unit),
 							"CanAttack", UnitCanAttack("player", unit),

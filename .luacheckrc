@@ -24,6 +24,7 @@ read_globals = {
 	"string.split",
 	"tostringall",
 	"table.wipe",
+	"tContains",
 
 	-- Addon
 	"BigWigsLoader",
