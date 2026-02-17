@@ -35,6 +35,7 @@ read_globals = {
 	"C_ChatInfo",
 	"C_DeathInfo",
 	"C_EncounterJournal",
+	"C_EncounterTimeline",
 	"C_EventUtils",
 	"C_GossipInfo",
 	"C_Map",

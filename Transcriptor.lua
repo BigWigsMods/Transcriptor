@@ -1384,7 +1384,20 @@ end
 function sh.ENCOUNTER_TIMELINE_EVENT_REMOVED(eventID)
 	return strjoin("#", eventID)
 end
-sh.ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED = sh.ENCOUNTER_TIMELINE_EVENT_REMOVED
+
+do
+	local codes = {
+		[0] = "Active",
+		[1] = "Paused",
+		[2] = "Finished",
+		[3] = "Canceled",
+	}
+	function sh.ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED(eventID)
+		local newState = C_EncounterTimeline.GetEventState(eventID)
+		local text = ("State: %d (%s)"):format(newState, codes[newState])
+		return strjoin("#", eventID, text)
+	end
+end
 
 do
 	local entriesInTable = {
