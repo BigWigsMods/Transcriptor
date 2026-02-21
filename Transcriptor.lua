@@ -1184,7 +1184,13 @@ end
 
 function sh.UNIT_TARGETABLE_CHANGED(unit)
 	if not issecretvalue(unit) then
-		return format("-%s- [CanAttack:%s#Exists:%s#IsVisible:%s#Name:%s#GUID:%s#Classification:%s#Health:%s]", tostringall(unit, UnitCanAttack("player", unit), UnitExists(unit), UnitIsVisible(unit), TSUnitName(unit), UnitGUID(unit), UnitClassification(unit), (UnitHealth(unit))))
+		if mapvalues then
+			return format("-%s- [CanAttack:%s#Exists:%s#IsVisible:%s#Name:%s#GUID:%s#Classification:%s#Health:%s]", tostringall(unit, mapvalues(ReplaceSecrets, UnitCanAttack("player", unit), UnitExists(unit), UnitIsVisible(unit), TSUnitName(unit), UnitGUID(unit), UnitClassification(unit), (UnitHealth(unit)))))
+		else
+			return format("-%s- [CanAttack:%s#Exists:%s#IsVisible:%s#Name:%s#GUID:%s#Classification:%s#Health:%s]", tostringall(unit, UnitCanAttack("player", unit), UnitExists(unit), UnitIsVisible(unit), TSUnitName(unit), UnitGUID(unit), UnitClassification(unit), (UnitHealth(unit))))
+		end
+	else
+		return "<secret>"
 	end
 end
 
