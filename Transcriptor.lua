@@ -2069,7 +2069,8 @@ do
 		[220] = "Story",
 	}
 	local wowVersion, buildRevision = GetBuildInfo() -- Note that both returns here are strings, not numbers.
-	local logNameFormat = "[%s]@[%s] - Zone:%d Difficulty:%d,%s Type:%s " .. format("Version: %s.%s", wowVersion, buildRevision)
+	local tsVersion = C_AddOns.GetAddOnMetadata("Transcriptor", "Version")
+	local logNameFormat = "[%s]@[%s] - Zone#%d (%s)#Difficulty#%d (%s)#Type#%s#WoWVer#%s.%s#TSVer#%s"
 	function Transcriptor:StartLog(silent)
 		if logging then
 			TSPrint(L["You are already logging an encounter."])
@@ -2089,9 +2090,12 @@ do
 				prevEncounterStart = nil
 			end
 			local _, instanceType, diff, _, _, _, _, instanceId = GetInstanceInfo()
-			local diffText = difficultyTbl[diff] or "None"
+			local diffText = difficultyTbl[diff] or "?"
 			local time = date("%H:%M:%S")
-			logName = format(logNameFormat, date("%Y-%m-%d"), time, instanceId or 0, diff, diffText, instanceType)
+			local today = date("%Y-%m-%d")
+			instanceId = instanceId or 0
+			local zoneName = GetRealZoneText(instanceId) or "?"
+			logName = format(logNameFormat, today, time, instanceId, zoneName, diff, diffText, instanceType, wowVersion, buildRevision, tsVersion)
 
 			if type(TranscriptDB[logName]) ~= "table" then TranscriptDB[logName] = {} end
 			if type(TranscriptIgnore) ~= "table" then TranscriptIgnore = {} end

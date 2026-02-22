@@ -32,6 +32,7 @@ read_globals = {
 	"LibStub",
 
 	-- WoW (general API)
+	"C_AddOns",
 	"C_ChatInfo",
 	"C_DeathInfo",
 	"C_EncounterJournal",
