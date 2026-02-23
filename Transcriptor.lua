@@ -2053,7 +2053,8 @@ do
 		[5] = "10Heroic",
 		[6] = "25Heroic",
 		[7] = "25LFR",
-		[8] = "5Challenge",
+		[8] = "Mythic+",
+		[9] = "40Normal",
 		[14] = "Normal",
 		[15] = "Heroic",
 		[16] = "Mythic",
@@ -2063,10 +2064,18 @@ do
 		[23] = "5Mythic",
 		[24] = "5Timewalking",
 		[33] = "RaidTimewalking",
+		[148] = "20Normal",
+		[175] = "10Normal",
+		[176] = "25Normal",
+		[185] = "20SOD",
+		[186] = "40SOD",
+		[198] = "10SOD",
 		[205] = "Follower",
 		[208] = "Delve",
 		[216] = "Quest",
 		[220] = "Story",
+		[226] = "20SOD",
+		[244] = "25TitanReforged",
 	}
 	local wowVersion, buildRevision = GetBuildInfo() -- Note that both returns here are strings, not numbers.
 	local tsVersion = C_AddOns.GetAddOnMetadata("Transcriptor", "Version")
