@@ -1366,20 +1366,33 @@ do
 		"severity",
 		"isApproximate",
 	}
+	local entriesToBlock = {
+		color = true,
+	}
 	function sh.ENCOUNTER_TIMELINE_EVENT_ADDED(eventInfo)
 		local msgTable = {}
 		for i = 1, #entriesInTable do
 			local entry = entriesInTable[i]
 			local value = eventInfo[entry]
 			if not issecretvalue(value) then
+				if value then
+					msgTable[#msgTable+1] = entry
+					msgTable[#msgTable+1] = tostring(value)
+				end
+			else
 				msgTable[#msgTable+1] = entry
-				msgTable[#msgTable+1] = tostring(value)
+				msgTable[#msgTable+1] = "<secret>"
 			end
 		end
 		for k,v in next, eventInfo do
-			if not tContains(entriesInTable, k) and not issecretvalue(v) then
-				msgTable[#msgTable+1] = k
-				msgTable[#msgTable+1] = tostring(v)
+			if not tContains(entriesInTable, k) and not entriesToBlock[k] then
+				if not issecretvalue(v) then
+					msgTable[#msgTable+1] = k
+					msgTable[#msgTable+1] = tostring(v)
+				else
+					msgTable[#msgTable+1] = k
+					msgTable[#msgTable+1] = "<secret>"
+				end
 			end
 		end
 		local msg = tconcat(msgTable, "#")
@@ -1421,20 +1434,33 @@ do
 		"shouldShowChatMessage",
 		"shouldShowWarning",
 	}
+	local entriesToBlock = {
+		color = true,
+	}
 	function sh.ENCOUNTER_WARNING(encounterWarningInfo)
 		local msgTable = {}
 		for i = 1, #entriesInTable do
 			local entry = entriesInTable[i]
 			local value = encounterWarningInfo[entry]
 			if not issecretvalue(value) then
+				if value then
+					msgTable[#msgTable+1] = entry
+					msgTable[#msgTable+1] = tostring(value)
+				end
+			else
 				msgTable[#msgTable+1] = entry
-				msgTable[#msgTable+1] = tostring(value)
+				msgTable[#msgTable+1] = "<secret>"
 			end
 		end
 		for k,v in next, encounterWarningInfo do
-			if not tContains(entriesInTable, k) and not issecretvalue(v) then
-				msgTable[#msgTable+1] = k
-				msgTable[#msgTable+1] = tostring(v)
+			if not tContains(entriesInTable, k) and not entriesToBlock[k] then
+				if not issecretvalue(v) then
+					msgTable[#msgTable+1] = k
+					msgTable[#msgTable+1] = tostring(v)
+				else
+					msgTable[#msgTable+1] = k
+					msgTable[#msgTable+1] = "<secret>"
+				end
 			end
 		end
 		local msg = tconcat(msgTable, "#")
