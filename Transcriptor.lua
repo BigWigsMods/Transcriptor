@@ -1354,68 +1354,73 @@ sh.CHAT_MSG_MONSTER_SAY = sh.CHAT_MSG_MONSTER_YELL
 sh.CHAT_MSG_MONSTER_WHISPER = sh.CHAT_MSG_MONSTER_YELL
 
 do
-	local entriesInTable = {
-		"id",
-		"source",
-		"spellName",
-		"spellID",
-		"iconFileID",
-		"duration",
-		"maxQueueDuration",
-		"icons",
-		"severity",
-		"isApproximate",
-	}
-	local entriesToBlock = {
-		color = true,
-	}
-	function sh.ENCOUNTER_TIMELINE_EVENT_ADDED(eventInfo)
-		local msgTable = {}
-		for i = 1, #entriesInTable do
-			local entry = entriesInTable[i]
-			local value = eventInfo[entry]
-			if not issecretvalue(value) then
-				if value then
-					msgTable[#msgTable+1] = entry
-					msgTable[#msgTable+1] = tostring(value)
-				end
-			else
-				msgTable[#msgTable+1] = entry
-				msgTable[#msgTable+1] = "<secret>"
-			end
-		end
-		for k,v in next, eventInfo do
-			if not tContains(entriesInTable, k) and not entriesToBlock[k] then
-				if not issecretvalue(v) then
-					msgTable[#msgTable+1] = k
-					msgTable[#msgTable+1] = tostring(v)
-				else
-					msgTable[#msgTable+1] = k
-					msgTable[#msgTable+1] = "<secret>"
-				end
-			end
-		end
-		local msg = tconcat(msgTable, "#")
-		return msg
-	end
-end
-
-function sh.ENCOUNTER_TIMELINE_EVENT_REMOVED(eventID)
-	return strjoin("#", eventID)
-end
-
-do
 	local codes = {
 		[0] = "Active",
 		[1] = "Paused",
 		[2] = "Finished",
 		[3] = "Canceled",
 	}
+
+	do
+		local entriesInTable = {
+			"id",
+			"source",
+			"spellName",
+			"spellID",
+			"iconFileID",
+			"duration",
+			"maxQueueDuration",
+			"icons",
+			"severity",
+			"isApproximate",
+		}
+		local entriesToBlock = {
+			color = true,
+		}
+		function sh.ENCOUNTER_TIMELINE_EVENT_ADDED(eventInfo)
+			local msgTable = {}
+
+			local state = C_EncounterTimeline.GetEventState(eventInfo.id)
+			msgTable[1] = ("State: %d (%s)"):format(state, codes[state])
+
+			for i = 1, #entriesInTable do
+				local entry = entriesInTable[i]
+				local value = eventInfo[entry]
+				if not issecretvalue(value) then
+					if value then
+						msgTable[#msgTable+1] = entry
+						msgTable[#msgTable+1] = tostring(value)
+					end
+				else
+					msgTable[#msgTable+1] = entry
+					msgTable[#msgTable+1] = "<secret>"
+				end
+			end
+			for k,v in next, eventInfo do
+				if not tContains(entriesInTable, k) and not entriesToBlock[k] then
+					if not issecretvalue(v) then
+						msgTable[#msgTable+1] = k
+						msgTable[#msgTable+1] = tostring(v)
+					else
+						msgTable[#msgTable+1] = k
+						msgTable[#msgTable+1] = "<secret>"
+					end
+				end
+			end
+			local msg = tconcat(msgTable, "#")
+			return msg
+		end
+	end
+
 	function sh.ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED(eventID)
 		local newState = C_EncounterTimeline.GetEventState(eventID)
 		local text = ("State: %d (%s)"):format(newState, codes[newState])
 		return strjoin("#", eventID, text)
 	end
+end
+
+function sh.ENCOUNTER_TIMELINE_EVENT_REMOVED(eventID)
+	return strjoin("#", eventID)
 end
 
 do
