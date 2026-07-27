@@ -58,7 +58,7 @@ local UnitPower, UnitPowerMax, UnitPowerType, UnitHealth, UnitHealthMax = UnitPo
 local UnitLevel, UnitCreatureType, UnitPercentHealthFromGUID, UnitTokenFromGUID = UnitLevel, UnitCreatureType, UnitPercentHealthFromGUID, UnitTokenFromGUID
 local GetInstanceInfo = GetInstanceInfo
 local GetZoneText, GetRealZoneText, GetSubZoneText = GetZoneText, GetRealZoneText, GetSubZoneText
-local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
+local GetSpellName = C_Spell.GetSpellName
 local GetBestMapForUnit = C_Map.GetBestMapForUnit
 local C_GossipInfo_GetOptions = C_GossipInfo.GetOptions
 local issecretvalue = issecretvalue or function() return false end
@@ -1697,7 +1697,7 @@ local wowEvents = {
 	"CHAT_MSG_BG_SYSTEM_NEUTRAL",
 	"ARENA_OPPONENT_UPDATE",
 }
-if not C_Secrets then
+if not RETAIL then
 	wowEvents[#wowEvents+1] = "COMBAT_LOG_EVENT_UNFILTERED"
 	wowEvents[#wowEvents+1] = "UNIT_AURA"
 end
