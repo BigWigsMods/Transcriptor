@@ -62,6 +62,7 @@ local GetSpellName = C_Spell.GetSpellName
 local GetBestMapForUnit = C_Map.GetBestMapForUnit
 local C_GossipInfo_GetOptions = C_GossipInfo.GetOptions
 local issecretvalue = issecretvalue or function() return false end
+local ShouldAurasBeSecret = C_Secrets and C_Secrets.ShouldAurasBeSecret or function() return false end
 local mapvalues = mapvalues
 local function ReplaceSecrets(value) if issecretvalue(value) then return "<secret>" else return value end end
 
@@ -2266,7 +2267,7 @@ do
 			end
 
 			hiddenAuraEngageList = {}
-			do
+			if not ShouldAurasBeSecret() then -- 12.1: enumerating auras errors for tainted code when auras are restricted (RequiresUnitAuraAccess)
 				local GetAuraDataByIndex = C_UnitAuras.GetAuraDataByIndex
 				local UnitPosition = UnitPosition
 				local _, _, _, myInstance = UnitPosition("player")
