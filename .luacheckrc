@@ -42,6 +42,7 @@ read_globals = {
 	"C_Map",
 	"C_Scenario",
 	"C_ScenarioInfo",
+	"C_Secrets",
 	"C_Spell",
 	"C_UIWidgetManager",
 	"C_UnitAuras",
