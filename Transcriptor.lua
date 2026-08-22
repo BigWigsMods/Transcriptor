@@ -1646,6 +1646,26 @@ function sh.GOSSIP_SHOW()
 	end
 end
 
+function sh.ENCOUNTER_END(id, name, diff, size, status, unitInfo)
+	local tbl = {}
+
+	local collectedUnits = ""
+	if unitInfo then
+		for i = 1, #unitInfo do
+			local unitTable = unitInfo[i]
+			if not tbl[unitTable.creatureID] then
+				tbl[unitTable.creatureID] = 1
+			else
+				tbl[unitTable.creatureID] = tbl[unitTable.creatureID] + 1
+			end
+		end
+		for k,v in next, tbl do
+			collectedUnits = collectedUnits .. k .. "(" .. v .. "),"
+		end
+	end
+	return strjoin("#", id, name, diff, size, status, collectedUnits)
+end
+
 local wowEvents = {
 	-- Raids
 	"CHAT_MSG_ADDON",
