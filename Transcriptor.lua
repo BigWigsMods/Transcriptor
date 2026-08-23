@@ -1868,14 +1868,6 @@ do
 		if event == "COMBAT_LOG_EVENT_UNFILTERED" then
 			currentLog.total[#currentLog.total+1] = format("<%.2f %s> [CLEU] %s", t, time, line)
 		elseif event == "INSTANCE_ENCOUNTER_ENGAGE_UNIT" then
-			local text = format("<%.2f %s> [%s] %s", t, time, event, line)
-			currentLog.total[#currentLog.total+1] = text
-			local cat = eventCategories[event] or event
-			if cat ~= "NONE" then
-				if type(currentLog[cat]) ~= "table" then currentLog[cat] = {} end
-				tinsert(currentLog[cat], text)
-			end
-
 			local hasBosses = false
 			for i = 1, #bossUnits do
 				local unit = bossUnits[i]
@@ -1911,6 +1903,14 @@ do
 			end
 			if not hasBosses then
 				currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IEEU] No bosses found", t, time)
+			end
+
+			local text = format("<%.2f %s> [%s] %s", t, time, event, line)
+			currentLog.total[#currentLog.total+1] = text
+			local cat = eventCategories[event] or event
+			if cat ~= "NONE" then
+				if type(currentLog[cat]) ~= "table" then currentLog[cat] = {} end
+				tinsert(currentLog[cat], text)
 			end
 		elseif event == "ENCOUNTER_START" then
 			local text = format("<%.2f %s> [%s] %s", t, time, event, line)
