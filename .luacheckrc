@@ -65,7 +65,6 @@ read_globals = {
 	"IsInRaid",
 	"issecretvalue",
 	"mapvalues",
-	"ShowBossFrameWhenUninteractable",
 	"UnitAffectingCombat",
 	"UnitCanAttack",
 	"UnitCastingInfo",

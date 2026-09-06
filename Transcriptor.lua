@@ -53,7 +53,7 @@ local debugprofilestop = debugprofilestop
 local C_Scenario, C_DeathInfo_GetSelfResurrectOptions, Enum = C_Scenario, C_DeathInfo.GetSelfResurrectOptions, Enum
 local IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease = IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease
 local UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo = UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo
-local UnitCanAttack, UnitExists, UnitIsVisible, UnitClassification, ShowBossFrameWhenUninteractable = UnitCanAttack, UnitExists, UnitIsVisible, UnitClassification, ShowBossFrameWhenUninteractable
+local UnitCanAttack, UnitExists, UnitIsVisible, UnitClassification = UnitCanAttack, UnitExists, UnitIsVisible, UnitClassification
 local UnitPower, UnitPowerMax, UnitPowerType, UnitHealth, UnitHealthMax = UnitPower, UnitPowerMax, UnitPowerType, UnitHealth, UnitHealthMax
 local UnitLevel, UnitCreatureType, UnitPercentHealthFromGUID, UnitTokenFromGUID = UnitLevel, UnitCreatureType, UnitPercentHealthFromGUID, UnitTokenFromGUID
 local GetInstanceInfo = GetInstanceInfo
@@ -1627,10 +1627,17 @@ end
 
 function sh.NAME_PLATE_UNIT_ADDED(unit)
 	local guid = UnitGUID(unit)
-	if not issecretvalue(guid) and not collectNameplates[guid] then
-		collectNameplates[guid] = true
-		local name = TSUnitName(unit)
-		return strjoin("#", name, guid)
+	if not issecretvalue(guid) then
+		if not collectNameplates[guid] then
+			collectNameplates[guid] = true
+			local name = TSUnitName(unit)
+			return strjoin("#", name, guid)
+		end
+	else
+		local level = UnitLevel(unit)
+		if level > 0 then
+			return strjoin("#", level)
+		end
 	end
 end
 
