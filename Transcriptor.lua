@@ -61,8 +61,8 @@ local GetZoneText, GetRealZoneText, GetSubZoneText = GetZoneText, GetRealZoneTex
 local GetSpellName = C_Spell.GetSpellName
 local GetBestMapForUnit = C_Map.GetBestMapForUnit
 local C_GossipInfo_GetOptions = C_GossipInfo.GetOptions
-local issecretvalue = issecretvalue or function() return false end
-local ShouldAurasBeSecret = C_Secrets and C_Secrets.ShouldAurasBeSecret or function() return false end
+local issecretvalue = issecretvalue
+local ShouldAurasBeSecret = C_Secrets.ShouldAurasBeSecret
 local mapvalues = mapvalues
 local function ReplaceSecrets(value) if issecretvalue(value) then return "<secret>" else return value end end
 
@@ -1234,11 +1234,7 @@ do
 
 	function sh.UNIT_TARGET(unit)
 		if safeUnit(unit) then
-			if mapvalues then
-				return format("%s#%s#Target: %s#TargetOfTarget: %s", unit, tostringall(mapvalues(ReplaceSecrets, TSUnitName(unit), TSUnitName(unit.."target"), TSUnitName(unit.."targettarget"))))
-			else
-				return format("%s#%s#Target: %s#TargetOfTarget: %s", unit, tostring(TSUnitName(unit)), tostring(TSUnitName(unit.."target")), tostring(TSUnitName(unit.."targettarget")))
-			end
+			return format("%s#%s#Target: %s#TargetOfTarget: %s", unit, tostringall(mapvalues(ReplaceSecrets, TSUnitName(unit), TSUnitName(unit.."target"), TSUnitName(unit.."targettarget"))))
 		end
 	end
 end
@@ -1253,24 +1249,12 @@ function sh.PLAYER_TARGET_CHANGED()
 		local creatureType = UnitCreatureType("target") or "nil"
 		local typeclass = classification == "normal" and creatureType or (classification.." "..creatureType)
 		local name = TSUnitName("target")
-		if mapvalues then
-			return (format("%s %s (%s) - %s # %s", tostringall(mapvalues(ReplaceSecrets, level, reaction, typeclass, name, guid))))
-		else
-			return (format("%s %s (%s) - %s # %s", tostring(level), tostring(reaction), tostring(typeclass), tostring(name), tostring(guid)))
-		end
+		return (format("%s %s (%s) - %s # %s", tostringall(mapvalues(ReplaceSecrets, level, reaction, typeclass, name, guid))))
 	end
 end
 
 function sh.UNIT_TARGETABLE_CHANGED(unit)
-	if not issecretvalue(unit) then
-		if mapvalues then
-			return format("-%s- [CanAttack:%s#Exists:%s#IsVisible:%s#Name:%s#GUID:%s#Classification:%s#Health:%s]", tostringall(unit, mapvalues(ReplaceSecrets, UnitCanAttack("player", unit), UnitExists(unit), UnitIsVisible(unit), TSUnitName(unit), TSUnitGUID(unit), UnitClassification(unit), (UnitHealth(unit)))))
-		else
-			return format("-%s- [CanAttack:%s#Exists:%s#IsVisible:%s#Name:%s#GUID:%s#Classification:%s#Health:%s]", tostringall(unit, UnitCanAttack("player", unit), UnitExists(unit), UnitIsVisible(unit), TSUnitName(unit), TSUnitGUID(unit), UnitClassification(unit), (UnitHealth(unit))))
-		end
-	else
-		return "<secret>"
-	end
+	return format("-%s- [CanAttack:%s#Exists:%s#IsVisible:%s#Name:%s#GUID:%s#Classification:%s#Health:%s]", tostringall(unit, mapvalues(ReplaceSecrets, UnitCanAttack("player", unit), UnitExists(unit), UnitIsVisible(unit), TSUnitName(unit), TSUnitGUID(unit), UnitClassification(unit), (UnitHealth(unit)))))
 end
 
 do
@@ -1384,7 +1368,7 @@ function sh.CINEMATIC_START(...)
 end
 
 function sh.CHAT_MSG_ADDON(prefix, msg, channel, sender)
-	if not issecretvalue(msg) and prefix == "Transcriptor" and (channel == "RAID" or channel == "PARTY" or channel == "INSTANCE_CHAT") then
+	if prefix == "Transcriptor" and (channel == "RAID" or channel == "PARTY" or channel == "INSTANCE_CHAT") then
 		return strjoin("#", "RAID_BOSS_WHISPER_SYNC", msg, sender)
 	end
 end
@@ -1414,19 +1398,11 @@ function sh.CHAT_MSG_RAID_BOSS_EMOTE(msg, npcName, ...)
 end
 
 function sh.CHAT_MSG_RAID_BOSS_WHISPER(...)
-	if mapvalues then
-		return strjoin("#", tostringall(mapvalues(ReplaceSecrets, ...)))
-	else
-		return strjoin("#", tostringall(...))
-	end
+	return strjoin("#", tostringall(mapvalues(ReplaceSecrets, ...)))
 end
 
 function sh.CHAT_MSG_MONSTER_YELL(...)
-	if mapvalues then
-		return strjoin("#", tostringall(mapvalues(ReplaceSecrets, ...)))
-	else
-		return strjoin("#", tostringall(...))
-	end
+	return strjoin("#", tostringall(mapvalues(ReplaceSecrets, ...)))
 end
 sh.CHAT_MSG_MONSTER_EMOTE = sh.CHAT_MSG_MONSTER_YELL
 sh.CHAT_MSG_MONSTER_SAY = sh.CHAT_MSG_MONSTER_YELL
@@ -2131,26 +2107,14 @@ init:RegisterEvent("PLAYER_LOGIN")
 local function BWEventHandler(event, module, ...)
 	if type(module) == "table" then
 		if module.baseName == "BigWigs_CommonAuras" then return end
-		if mapvalues then
-			eventHandler(eventFrame, event, module.moduleName, mapvalues(ReplaceSecrets, ...))
-		else
-			eventHandler(eventFrame, event, module.moduleName, ...)
-		end
+		eventHandler(eventFrame, event, module.moduleName, mapvalues(ReplaceSecrets, ...))
 	else
-		if mapvalues then
-			eventHandler(eventFrame, event, module, mapvalues(ReplaceSecrets, ...))
-		else
-			eventHandler(eventFrame, event, module, ...)
-		end
+		eventHandler(eventFrame, event, module, mapvalues(ReplaceSecrets, ...))
 	end
 end
 
 local function DBMEventHandler(...)
-	if mapvalues then
-		eventHandler(eventFrame, mapvalues(ReplaceSecrets, ...))
-	else
-		eventHandler(eventFrame, ...)
-	end
+	eventHandler(eventFrame, mapvalues(ReplaceSecrets, ...))
 end
 
 do
