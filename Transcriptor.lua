@@ -1874,31 +1874,17 @@ do
 				local guid = UnitGUID(unit)
 				if guid then
 					hasBosses = true
-					if mapvalues then
-						local info = strjoin("#", tostringall(mapvalues(ReplaceSecrets,
-							"Name", TSUnitName(unit),
-							"GUID", guid,
-							"Health", UnitHealth(unit),
-							"MaxHealth", UnitHealthMax(unit),
-							"Exists", UnitExists(unit),
-							"Visible", UnitIsVisible(unit),
-							"CanAttack", UnitCanAttack("player", unit),
-							"ShowUninteractable", ShowBossFrameWhenUninteractable(unit))
-						))
-						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IEEU %s] %s", t, time, unit, info)
-					else
-						local info = strjoin("#", tostringall(
-							"Name", TSUnitName(unit),
-							"GUID", guid,
-							"Health", UnitHealth(unit),
-							"MaxHealth", UnitHealthMax(unit),
-							"Exists", UnitExists(unit),
-							"Visible", UnitIsVisible(unit),
-							"CanAttack", UnitCanAttack("player", unit),
-							"ShowUninteractable", ShowBossFrameWhenUninteractable(unit))
-						)
-						currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IEEU %s] %s", t, time, unit, info)
-					end
+					local info = strjoin("#", tostringall(mapvalues(ReplaceSecrets,
+						"Name", TSUnitName(unit),
+						"GUID", guid,
+						"Health", UnitHealth(unit),
+						"MaxHealth", UnitHealthMax(unit),
+						"Exists", UnitExists(unit),
+						"Visible", UnitIsVisible(unit),
+						"CanAttack", UnitCanAttack("player", unit),
+						"Level", UnitLevel(unit))
+					))
+					currentLog.total[#currentLog.total+1] = format("<%.2f %s> [IEEU %s] %s", t, time, unit, info)
 				end
 			end
 			if not hasBosses then
