@@ -1,4 +1,4 @@
-## Interface: 120100, 120105, 120007
+## Interface: 11508, 11509, 16001, 20505, 20506, 30405, 38002, 40402, 50503, 50504, 120100, 120105, 120007
 ## Title: Transcriptor
 ## Notes: Logging utility for boss encounters.
 ## Notes-deDE: Logging utility for boss encounters.
@@ -27,8 +27,12 @@ Libs\LibStub.lua
 Libs\CallbackHandler-1.0.lua
 Libs\LibDataBroker-1.1.lua
 
-Init.lua
-Modules\Instances.lua
+Init_Standard.lua [AllowLoadGameType standard]
+Init_Forever.lua [AllowLoadGameType camelot][ExcludeLoadGameType standard, classic]
+Modules\Instances.lua [AllowLoadGameType standard]
+Modules\Instances_Vanilla.lua [AllowLoadGameType vanilla]
+Modules\Instances_TBC.lua [AllowLoadGameType tbc]
+Modules\Instances_Mists.lua [AllowLoadGameType mists]
 Modules\PlayerSpellBlocklist.lua
 Modules\TimersBlocklist.lua
 Modules\TimersSpecialEvents.lua

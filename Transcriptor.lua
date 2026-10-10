@@ -5,7 +5,7 @@ local PLAYER_SPELL_BLOCKLIST
 local TIMERS_SPECIAL_EVENTS
 local TIMERS_SPECIAL_EVENTS_DATA
 local TIMERS_BLOCKLIST
-local RETAIL
+local RETAIL, FOREVER
 
 do
 	local _, addonTbl = ...
@@ -13,7 +13,8 @@ do
 	TIMERS_SPECIAL_EVENTS = addonTbl.TIMERS_SPECIAL_EVENTS or {} -- TimersSpecialEvents.lua
 	TIMERS_SPECIAL_EVENTS_DATA = addonTbl.TIMERS_SPECIAL_EVENTS_DATA or {} -- TimersSpecialEvents.lua
 	TIMERS_BLOCKLIST = addonTbl.TIMERS_BLOCKLIST or {} -- TimersBlocklist.lua
-	RETAIL = addonTbl.retail or false -- Init.lua
+	RETAIL = addonTbl.retail or false -- Init_Standard.lua
+	FOREVER = addonTbl.forever or false -- Init_Forever.lua
 	Transcriptor.INSTANCES = addonTbl.INSTANCES or {} -- Instances.lua
 end
 
@@ -51,7 +52,7 @@ local type, next = type, next
 local debugprofilestop = debugprofilestop
 
 local C_Scenario, C_DeathInfo_GetSelfResurrectOptions, Enum = C_Scenario, C_DeathInfo.GetSelfResurrectOptions, Enum
-local IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease = IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease
+local IsEncounterInProgress, IsEncounterLimitingResurrections, IsEncounterSuppressingRelease = C_InstanceEncounter.IsEncounterInProgress, C_InstanceEncounter.IsEncounterLimitingResurrections, C_InstanceEncounter.IsEncounterSuppressingRelease
 local UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo = UnitInRaid, UnitInParty, UnitIsFriend, UnitCastingInfo, UnitChannelInfo
 local UnitCanAttack, UnitExists, UnitIsVisible, UnitClassification = UnitCanAttack, UnitExists, UnitIsVisible, UnitClassification
 local UnitPower, UnitPowerMax, UnitPowerType, UnitHealth, UnitHealthMax = UnitPower, UnitPowerMax, UnitPowerType, UnitHealth, UnitHealthMax
@@ -65,10 +66,6 @@ local issecretvalue = issecretvalue
 local ShouldAurasBeSecret = C_Secrets.ShouldAurasBeSecret
 local mapvalues = mapvalues
 local function ReplaceSecrets(value) if issecretvalue(value) then return "<secret>" else return value end end
-
-if not UnitTokenFromGUID then -- XXX not on classic yet
-	UnitTokenFromGUID = function() return end
-end
 
 local TSPrint
 do
@@ -1701,7 +1698,7 @@ local wowEvents = {
 	"CHAT_MSG_BG_SYSTEM_NEUTRAL",
 	"ARENA_OPPONENT_UPDATE",
 }
-if not RETAIL then
+if not RETAIL and not FOREVER then
 	wowEvents[#wowEvents+1] = "COMBAT_LOG_EVENT_UNFILTERED"
 	wowEvents[#wowEvents+1] = "UNIT_AURA"
 end
